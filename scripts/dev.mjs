@@ -1,4 +1,9 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+
+const build = spawnSync(process.execPath, ["scripts/build-web.mjs"], { stdio: "inherit" });
+if (build.status !== 0) {
+  process.exit(build.status || 1);
+}
 
 const processes = [
   ["identity", "services/identity-service/src/server.mjs"],

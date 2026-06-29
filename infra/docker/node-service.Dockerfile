@@ -13,6 +13,8 @@ COPY infra ./infra
 
 ENV NODE_ENV=production
 
+RUN node scripts/build-web.mjs
+
 USER app
 
 CMD ["node", "services/api-gateway/src/server.mjs"]

@@ -348,7 +348,8 @@ h3 {
 .guide-layout,
 .account-layout,
 .community-layout,
-.ops-layout {
+.ops-layout,
+.map-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
   gap: 16px;
@@ -361,7 +362,8 @@ h3 {
 
 .panel,
 .feature-card,
-.guide-card {
+.guide-card,
+.map-panel {
   min-width: 0;
   padding: 24px;
   border: 1px solid var(--line);
@@ -369,6 +371,56 @@ h3 {
   background: var(--panel);
   box-shadow: 0 18px 50px rgba(2, 2, 12, 0.32);
   backdrop-filter: blur(14px);
+}
+
+.map-panel {
+  position: relative;
+  min-height: 460px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(66, 245, 232, 0.18), transparent 20%),
+    radial-gradient(circle at 72% 62%, rgba(255, 79, 163, 0.16), transparent 18%),
+    linear-gradient(135deg, rgba(16, 20, 45, 0.95), rgba(30, 16, 48, 0.95));
+}
+
+.map-grid {
+  position: absolute;
+  inset: 24px;
+  border: 1px solid rgba(66, 245, 232, 0.25);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(66, 245, 232, 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 79, 163, 0.12) 1px, transparent 1px);
+  background-size: 34px 34px;
+  transform: perspective(700px) rotateX(28deg);
+  transform-origin: bottom;
+}
+
+.map-pin {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: var(--pink-glow);
+}
+
+.pin-a {
+  left: 32%;
+  top: 34%;
+}
+
+.pin-b {
+  left: 62%;
+  top: 54%;
+  background: var(--teal);
+  box-shadow: var(--cyan-glow);
+}
+
+.pin-c {
+  left: 48%;
+  top: 70%;
+  background: var(--gold);
 }
 
 .feature-card {
@@ -570,7 +622,8 @@ h3 {
   .guide-layout,
   .account-layout,
   .community-layout,
-  .ops-layout {
+  .ops-layout,
+  .map-layout {
     grid-template-columns: 1fr;
   }
 
