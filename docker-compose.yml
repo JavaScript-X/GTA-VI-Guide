@@ -1,0 +1,124 @@
+services:
+  identity-service:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/identity-service/src/server.mjs"]
+    environment:
+      IDENTITY_SERVICE_PORT: 8081
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  game-profile-service:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/game-profile-service/src/server.mjs"]
+    environment:
+      GAME_PROFILE_SERVICE_PORT: 8082
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  achievement-service:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/achievement-service/src/server.mjs"]
+    environment:
+      ACHIEVEMENT_SERVICE_PORT: 8083
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8083/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  knowledge-service:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/knowledge-service/src/server.mjs"]
+    environment:
+      KNOWLEDGE_SERVICE_PORT: 8084
+    ports:
+      - "8084:8084"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8084/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  community-service:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/community-service/src/server.mjs"]
+    environment:
+      COMMUNITY_SERVICE_PORT: 8085
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8085/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/api-gateway/src/server.mjs"]
+    environment:
+      API_GATEWAY_PORT: 8080
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+      GAME_PROFILE_SERVICE_URL: http://game-profile-service:8082
+      ACHIEVEMENT_SERVICE_URL: http://achievement-service:8083
+      KNOWLEDGE_SERVICE_URL: http://knowledge-service:8084
+      COMMUNITY_SERVICE_URL: http://community-service:8085
+    depends_on:
+      identity-service:
+        condition: service_healthy
+      game-profile-service:
+        condition: service_healthy
+      achievement-service:
+        condition: service_healthy
+      knowledge-service:
+        condition: service_healthy
+      community-service:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "apps/web/server.mjs"]
+    environment:
+      WEB_PORT: 5173
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD", "node", "infra/docker/healthcheck.mjs", "http://localhost:5173"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

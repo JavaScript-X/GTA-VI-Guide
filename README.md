@@ -67,3 +67,12 @@ This is a foundation/MVP, not an official Rockstar, Sony, or Microsoft product.
 External account linking is represented as a safe integration boundary and mock
 intent flow until official APIs, OAuth scopes, legal permissions, and platform
 requirements are available.
+
+## Documentation
+
+- [Product vision](docs/product-vision.md)
+- [Architecture](docs/architecture.md)
+- [API overview](docs/api.md)
+- [Operations](docs/operations.md)
+- [Security and compliance](docs/security-and-compliance.md)
+- [Delivery backlog](docs/backlog.md)
