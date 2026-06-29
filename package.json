@@ -1,0 +1,22 @@
+{
+  "name": "gta-vi-guide-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Community-first GTA VI and GTA Online guide platform.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start:web": "node apps/web/server.mjs",
+    "start:gateway": "node services/api-gateway/src/server.mjs",
+    "start:identity": "node services/identity-service/src/server.mjs",
+    "start:profiles": "node services/game-profile-service/src/server.mjs",
+    "start:achievements": "node services/achievement-service/src/server.mjs",
+    "start:knowledge": "node services/knowledge-service/src/server.mjs",
+    "start:community": "node services/community-service/src/server.mjs",
+    "test": "node --test",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
