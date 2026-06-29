@@ -75,5 +75,7 @@ requirements are available.
 - [API overview](docs/api.md)
 - [Operations](docs/operations.md)
 - [Deployment checklist](docs/deployment-checklist.md)
+- [Deployability status](docs/deployability-status.md)
+- [Runbook](docs/runbook.md)
 - [Security and compliance](docs/security-and-compliance.md)
 - [Delivery backlog](docs/backlog.md)
