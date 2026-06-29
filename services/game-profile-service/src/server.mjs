@@ -14,6 +14,16 @@ createJsonService({
     },
     {
       method: "GET",
+      path: "/livez",
+      handler: () => ({ status: "alive" })
+    },
+    {
+      method: "GET",
+      path: "/readyz",
+      handler: () => ({ status: "ready" })
+    },
+    {
+      method: "GET",
       path: "/profiles/me",
       handler: () => profileSnapshot
     }

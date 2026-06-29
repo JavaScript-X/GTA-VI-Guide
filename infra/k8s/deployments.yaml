@@ -1,0 +1,264 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/api-gateway/src/server.mjs"]
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity-service
+  template:
+    metadata:
+      labels:
+        app: identity-service
+    spec:
+      containers:
+        - name: identity-service
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/identity-service/src/server.mjs"]
+          ports:
+            - containerPort: 8081
+          env:
+            - name: IDENTITY_SERVICE_PORT
+              value: "8081"
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-profile-service
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: game-profile-service
+  template:
+    metadata:
+      labels:
+        app: game-profile-service
+    spec:
+      containers:
+        - name: game-profile-service
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/game-profile-service/src/server.mjs"]
+          ports:
+            - containerPort: 8082
+          env:
+            - name: GAME_PROFILE_SERVICE_PORT
+              value: "8082"
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8082
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: achievement-service
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: achievement-service
+  template:
+    metadata:
+      labels:
+        app: achievement-service
+    spec:
+      containers:
+        - name: achievement-service
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/achievement-service/src/server.mjs"]
+          ports:
+            - containerPort: 8083
+          env:
+            - name: ACHIEVEMENT_SERVICE_PORT
+              value: "8083"
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8083
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge-service
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: knowledge-service
+  template:
+    metadata:
+      labels:
+        app: knowledge-service
+    spec:
+      containers:
+        - name: knowledge-service
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/knowledge-service/src/server.mjs"]
+          ports:
+            - containerPort: 8084
+          env:
+            - name: KNOWLEDGE_SERVICE_PORT
+              value: "8084"
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8084
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8084
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: community-service
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: community-service
+  template:
+    metadata:
+      labels:
+        app: community-service
+    spec:
+      containers:
+        - name: community-service
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "services/community-service/src/server.mjs"]
+          ports:
+            - containerPort: 8085
+          env:
+            - name: COMMUNITY_SERVICE_PORT
+              value: "8085"
+          envFrom:
+            - configMapRef:
+                name: platform-config
+            - secretRef:
+                name: platform-secrets
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8085
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: gta-vi-guide
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/your-org/gta-vi-guide-platform:latest
+          command: ["node", "apps/web/server.mjs"]
+          ports:
+            - containerPort: 5173
+          env:
+            - name: WEB_PORT
+              value: "5173"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5173
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5173

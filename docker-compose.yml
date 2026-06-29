@@ -1,4 +1,21 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gta_guide}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-gta_guide}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gta_guide} -d ${POSTGRES_DB:-gta_guide}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   identity-service:
     build:
       context: .
@@ -6,6 +23,11 @@ services:
     command: ["node", "services/identity-service/src/server.mjs"]
     environment:
       IDENTITY_SERVICE_PORT: 8081
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8081:8081"
     healthcheck:
@@ -21,6 +43,11 @@ services:
     command: ["node", "services/game-profile-service/src/server.mjs"]
     environment:
       GAME_PROFILE_SERVICE_PORT: 8082
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8082:8082"
     healthcheck:
@@ -36,6 +63,11 @@ services:
     command: ["node", "services/achievement-service/src/server.mjs"]
     environment:
       ACHIEVEMENT_SERVICE_PORT: 8083
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8083:8083"
     healthcheck:
@@ -51,6 +83,11 @@ services:
     command: ["node", "services/knowledge-service/src/server.mjs"]
     environment:
       KNOWLEDGE_SERVICE_PORT: 8084
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8084:8084"
     healthcheck:
@@ -66,6 +103,11 @@ services:
     command: ["node", "services/community-service/src/server.mjs"]
     environment:
       COMMUNITY_SERVICE_PORT: 8085
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8085:8085"
     healthcheck:
@@ -81,6 +123,9 @@ services:
     command: ["node", "services/api-gateway/src/server.mjs"]
     environment:
       API_GATEWAY_PORT: 8080
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-120}
       IDENTITY_SERVICE_URL: http://identity-service:8081
       GAME_PROFILE_SERVICE_URL: http://game-profile-service:8082
       ACHIEVEMENT_SERVICE_URL: http://achievement-service:8083
@@ -122,3 +167,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+volumes:
+  postgres-data:

@@ -22,6 +22,8 @@ Run all services:
 docker compose up --build
 ```
 
+This starts PostgreSQL, the API gateway, all domain services, and the web app.
+
 Check service health:
 
 ```powershell
@@ -33,13 +35,15 @@ docker compose ps
 The current foundation includes:
 
 - Per-service `/health` endpoints.
+- Kubernetes-friendly `/livez` and `/readyz` endpoints.
 - `x-request-id` on all JSON service responses.
+- Structured JSON logs.
 - Central gateway aggregation.
 - Docker healthchecks.
+- Gateway rate-limit headers.
 
 Next production additions:
 
-- Structured JSON logs.
 - OpenTelemetry traces.
 - Metrics endpoint per service.
 - Error tracking.
@@ -53,3 +57,12 @@ Next production additions:
   moderation events.
 - Split frontend hosting behind CDN.
 - Deploy services independently through Kubernetes or managed container apps.
+
+## Kubernetes
+
+Example manifests live in `infra/k8s`. Before applying them:
+
+- Replace example domains.
+- Replace image names.
+- Create real secrets from your secret manager.
+- Point `DATABASE_URL` at production PostgreSQL.

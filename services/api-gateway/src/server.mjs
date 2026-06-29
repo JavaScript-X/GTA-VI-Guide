@@ -1,14 +1,13 @@
+import { getNumberEnv, getServiceUrls } from "../../../packages/service-kit/src/config.mjs";
 import { createJsonService, fetchJson } from "../../../packages/service-kit/src/http.mjs";
+import { createMemoryRateLimiter } from "../../../packages/service-kit/src/rate-limit.mjs";
 
-const port = Number(process.env.API_GATEWAY_PORT || 8080);
-
-const services = {
-  identity: process.env.IDENTITY_SERVICE_URL || "http://localhost:8081",
-  profiles: process.env.GAME_PROFILE_SERVICE_URL || "http://localhost:8082",
-  achievements: process.env.ACHIEVEMENT_SERVICE_URL || "http://localhost:8083",
-  knowledge: process.env.KNOWLEDGE_SERVICE_URL || "http://localhost:8084",
-  community: process.env.COMMUNITY_SERVICE_URL || "http://localhost:8085"
-};
+const port = getNumberEnv("API_GATEWAY_PORT", "8080");
+const services = getServiceUrls();
+const rateLimiter = createMemoryRateLimiter({
+  windowMs: getNumberEnv("RATE_LIMIT_WINDOW_MS", "60000"),
+  maxRequests: getNumberEnv("RATE_LIMIT_MAX_REQUESTS", "120")
+});
 
 async function getServiceData(service, path) {
   const payload = await fetchJson(`${services[service]}${path}`);
@@ -26,6 +25,36 @@ createJsonService({
         status: "ok",
         services
       })
+    },
+    {
+      method: "GET",
+      path: "/livez",
+      handler: () => ({ status: "alive" })
+    },
+    {
+      method: "GET",
+      path: "/readyz",
+      handler: async () => {
+        const checks = await Promise.all(
+          Object.entries(services).map(async ([name, baseUrl]) => {
+            try {
+              await fetchJson(`${baseUrl}/health`);
+              return { name, status: "ready" };
+            } catch (error) {
+              return { name, status: "unready", error: error.message };
+            }
+          })
+        );
+        const unready = checks.filter((check) => check.status !== "ready");
+        if (unready.length > 0) {
+          const error = new Error("One or more upstream services are not ready");
+          error.statusCode = 503;
+          error.code = "upstream_unready";
+          error.details = checks;
+          throw error;
+        }
+        return { status: "ready", checks };
+      }
     },
     {
       method: "GET",
@@ -48,5 +77,6 @@ createJsonService({
         };
       }
     }
-  ]
+  ],
+  rateLimiter
 });

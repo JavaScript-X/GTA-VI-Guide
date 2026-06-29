@@ -74,5 +74,6 @@ requirements are available.
 - [Architecture](docs/architecture.md)
 - [API overview](docs/api.md)
 - [Operations](docs/operations.md)
+- [Deployment checklist](docs/deployment-checklist.md)
 - [Security and compliance](docs/security-and-compliance.md)
 - [Delivery backlog](docs/backlog.md)

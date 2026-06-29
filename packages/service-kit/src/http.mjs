@@ -1,5 +1,7 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
+import { getAllowedOrigins } from "./config.mjs";
+import { createLogger } from "./logger.mjs";
 
 export function jsonResponse(response, statusCode, payload, headers = {}) {
   response.writeHead(statusCode, {
@@ -19,13 +21,31 @@ export function notFound(response, requestId, serviceName) {
   });
 }
 
-export function createJsonService({ name, port, routes }) {
+function setCorsHeaders(request, response, allowedOrigins) {
+  const origin = request.headers.origin;
+  const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  response.setHeader("access-control-allow-origin", allowedOrigin);
+  response.setHeader("vary", "Origin");
+  response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
+  response.setHeader("access-control-allow-headers", "content-type,x-request-id,authorization");
+}
+
+function setSecurityHeaders(response) {
+  response.setHeader("x-content-type-options", "nosniff");
+  response.setHeader("x-frame-options", "DENY");
+  response.setHeader("referrer-policy", "no-referrer");
+  response.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
+}
+
+export function createJsonService({ name, port, routes, rateLimiter }) {
+  const logger = createLogger(name);
+  const allowedOrigins = getAllowedOrigins();
   const server = createServer(async (request, response) => {
     const requestId = request.headers["x-request-id"] || randomUUID();
+    const startedAt = Date.now();
     response.setHeader("x-request-id", requestId);
-    response.setHeader("access-control-allow-origin", "*");
-    response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
-    response.setHeader("access-control-allow-headers", "content-type,x-request-id");
+    setCorsHeaders(request, response, allowedOrigins);
+    setSecurityHeaders(response);
 
     if (request.method === "OPTIONS") {
       response.writeHead(204);
@@ -34,6 +54,23 @@ export function createJsonService({ name, port, routes }) {
     }
 
     const url = new URL(request.url, `http://${request.headers.host}`);
+    const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || "unknown";
+
+    if (rateLimiter) {
+      const limit = rateLimiter(String(clientIp));
+      response.setHeader("x-ratelimit-remaining", String(limit.remaining));
+      response.setHeader("x-ratelimit-reset", String(Math.ceil(limit.resetAt / 1000)));
+      if (!limit.allowed) {
+        jsonResponse(response, 429, {
+          error: "rate_limited",
+          message: "Too many requests",
+          service: name,
+          requestId
+        });
+        return;
+      }
+    }
+
     const route = routes.find((candidate) => {
       return candidate.method === request.method && candidate.path === url.pathname;
     });
@@ -50,6 +87,13 @@ export function createJsonService({ name, port, routes }) {
         requestId,
         data: payload
       });
+      logger.info("request_completed", {
+        requestId,
+        method: request.method,
+        path: url.pathname,
+        statusCode: route.statusCode || 200,
+        durationMs: Date.now() - startedAt
+      });
     } catch (error) {
       jsonResponse(response, error.statusCode || 500, {
         error: error.code || "internal_error",
@@ -57,11 +101,19 @@ export function createJsonService({ name, port, routes }) {
         service: name,
         requestId
       });
+      logger.error("request_failed", {
+        requestId,
+        method: request.method,
+        path: url.pathname,
+        statusCode: error.statusCode || 500,
+        durationMs: Date.now() - startedAt,
+        error: error.message
+      });
     }
   });
 
   server.listen(port, () => {
-    console.log(`${name} listening on http://localhost:${port}`);
+    logger.info("service_started", { port });
   });
 
   return server;

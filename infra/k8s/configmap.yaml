@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-config
+  namespace: gta-vi-guide
+data:
+  ALLOWED_ORIGINS: "https://gta-vi-guide.example.com"
+  RATE_LIMIT_WINDOW_MS: "60000"
+  RATE_LIMIT_MAX_REQUESTS: "600"
+  IDENTITY_SERVICE_URL: "http://identity-service:8081"
+  GAME_PROFILE_SERVICE_URL: "http://game-profile-service:8082"
+  ACHIEVEMENT_SERVICE_URL: "http://achievement-service:8083"
+  KNOWLEDGE_SERVICE_URL: "http://knowledge-service:8084"
+  COMMUNITY_SERVICE_URL: "http://community-service:8085"

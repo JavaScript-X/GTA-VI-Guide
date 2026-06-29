@@ -14,6 +14,16 @@ createJsonService({
     },
     {
       method: "GET",
+      path: "/livez",
+      handler: () => ({ status: "alive" })
+    },
+    {
+      method: "GET",
+      path: "/readyz",
+      handler: () => ({ status: "ready" })
+    },
+    {
+      method: "GET",
       path: "/guides",
       handler: ({ url }) => {
         const tag = url.searchParams.get("tag");

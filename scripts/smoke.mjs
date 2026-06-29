@@ -1,12 +1,37 @@
 import { spawn } from "node:child_process";
 
+const ports = {
+  gateway: 18080,
+  identity: 18081,
+  profiles: 18082,
+  achievements: 18083,
+  knowledge: 18084,
+  community: 18085
+};
+
+const baseEnv = {
+  ...process.env,
+  API_GATEWAY_PORT: String(ports.gateway),
+  IDENTITY_SERVICE_PORT: String(ports.identity),
+  GAME_PROFILE_SERVICE_PORT: String(ports.profiles),
+  ACHIEVEMENT_SERVICE_PORT: String(ports.achievements),
+  KNOWLEDGE_SERVICE_PORT: String(ports.knowledge),
+  COMMUNITY_SERVICE_PORT: String(ports.community),
+  IDENTITY_SERVICE_URL: `http://localhost:${ports.identity}`,
+  GAME_PROFILE_SERVICE_URL: `http://localhost:${ports.profiles}`,
+  ACHIEVEMENT_SERVICE_URL: `http://localhost:${ports.achievements}`,
+  KNOWLEDGE_SERVICE_URL: `http://localhost:${ports.knowledge}`,
+  COMMUNITY_SERVICE_URL: `http://localhost:${ports.community}`,
+  RATE_LIMIT_MAX_REQUESTS: "1000"
+};
+
 const processes = [
-  ["identity", "services/identity-service/src/server.mjs", "http://localhost:8081/health"],
-  ["profiles", "services/game-profile-service/src/server.mjs", "http://localhost:8082/health"],
-  ["achievements", "services/achievement-service/src/server.mjs", "http://localhost:8083/health"],
-  ["knowledge", "services/knowledge-service/src/server.mjs", "http://localhost:8084/health"],
-  ["community", "services/community-service/src/server.mjs", "http://localhost:8085/health"],
-  ["gateway", "services/api-gateway/src/server.mjs", "http://localhost:8080/health"]
+  ["identity", "services/identity-service/src/server.mjs", `http://localhost:${ports.identity}/health`],
+  ["profiles", "services/game-profile-service/src/server.mjs", `http://localhost:${ports.profiles}/health`],
+  ["achievements", "services/achievement-service/src/server.mjs", `http://localhost:${ports.achievements}/health`],
+  ["knowledge", "services/knowledge-service/src/server.mjs", `http://localhost:${ports.knowledge}/health`],
+  ["community", "services/community-service/src/server.mjs", `http://localhost:${ports.community}/health`],
+  ["gateway", "services/api-gateway/src/server.mjs", `http://localhost:${ports.gateway}/health`]
 ];
 
 const children = [];
@@ -29,7 +54,7 @@ async function waitFor(url, attempts = 30) {
 function start(name, script) {
   const child = spawn(process.execPath, [script], {
     stdio: ["ignore", "pipe", "pipe"],
-    env: process.env
+    env: baseEnv
   });
 
   child.stdout.on("data", (chunk) => process.stdout.write(`[${name}] ${chunk}`));
@@ -63,7 +88,7 @@ try {
     await waitFor(healthUrl);
   }
 
-  const dashboard = await fetch("http://localhost:8080/api/dashboard");
+  const dashboard = await fetch(`http://localhost:${ports.gateway}/api/dashboard`);
   if (!dashboard.ok) {
     throw new Error(`Dashboard endpoint returned ${dashboard.status}`);
   }
