@@ -98,6 +98,33 @@ try {
     throw new Error("Dashboard payload is missing required domains");
   }
 
+  const platform = await fetch(`http://localhost:${ports.gateway}/api/platform`);
+  if (!platform.ok) {
+    throw new Error(`Platform endpoint returned ${platform.status}`);
+  }
+
+  const platformPayload = await platform.json();
+  if (!platformPayload.data.security || !platformPayload.data.infrastructure) {
+    throw new Error("Platform payload is missing deployability domains");
+  }
+
+  const login = await fetch(`http://localhost:${ports.gateway}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: "vice@example.com",
+      password: "ChangeMe123!"
+    })
+  });
+  if (!login.ok) {
+    throw new Error(`Login endpoint returned ${login.status}`);
+  }
+
+  const loginPayload = await login.json();
+  if (!loginPayload.data.session?.accessToken) {
+    throw new Error("Login payload is missing access token");
+  }
+
   console.log("Smoke test passed.");
 } finally {
   await stopAll();

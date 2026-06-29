@@ -14,6 +14,7 @@
         <a href="#guides">Guides</a>
         <a href="#community">Communaute</a>
         <a href="#accounts">Comptes</a>
+        <a href="#platform">Plateforme</a>
       </nav>
     </header>
 
@@ -23,12 +24,12 @@
           <p class="eyebrow">Plateforme communautaire GTA VI et GTA Online</p>
           <h1 id="hero-title">Le hub pour suivre, apprendre et jouer ensemble.</h1>
           <p class="hero-copy">
-            Guides verifies, progression Online, achievements, crews, evenements
-            et preparation des integrations PSN, Xbox et Rockstar.
+            Guides verifies, progression Online, achievements, crews, evenements,
+            authentification, sync officielle preparee et infrastructure deployable.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#progression">Voir mon suivi</a>
-            <a class="button secondary" href="#guides">Explorer les guides</a>
+            <a class="button secondary" href="#platform">Etat plateforme</a>
           </div>
         </div>
       </section>
@@ -45,6 +46,10 @@
         <div>
           <span class="metric" id="metric-sync">mock</span>
           <span>sync actuelle</span>
+        </div>
+        <div>
+          <span class="metric" id="metric-services">--</span>
+          <span>services prets</span>
         </div>
       </section>
 
@@ -80,6 +85,71 @@
             <h2>PSN, Xbox, Rockstar</h2>
           </div>
           <div class="account-list" id="account-list"></div>
+        </div>
+      </section>
+
+      <section class="platform-band" id="platform">
+        <div class="section-heading">
+          <p class="eyebrow">Fondation production</p>
+          <h2>Ce qui a ete ajoute pour rendre la plateforme deployable</h2>
+        </div>
+
+        <div class="ops-layout">
+          <div class="panel auth-panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Authentification</p>
+              <h2>Session joueur</h2>
+            </div>
+            <form class="login-form" id="login-form">
+              <label>
+                Email
+                <input name="email" type="email" value="vice@example.com" autocomplete="email" />
+              </label>
+              <label>
+                Mot de passe
+                <input name="password" type="password" value="ChangeMe123!" autocomplete="current-password" />
+              </label>
+              <div class="form-actions">
+                <button class="button primary" type="submit">Connexion</button>
+                <button class="button ghost" id="logout-button" type="button">Logout</button>
+              </div>
+            </form>
+            <div class="session-box" id="session-box">Session non connectee</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Services</p>
+              <h2>Readiness microservices</h2>
+            </div>
+            <div class="service-grid" id="service-grid"></div>
+          </div>
+        </div>
+
+        <div class="ops-grid">
+          <div class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Securite</p>
+              <h2>Controles actifs</h2>
+            </div>
+            <div class="check-list" id="security-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Infrastructure</p>
+              <h2>Stack deployable</h2>
+            </div>
+            <div class="check-list" id="infrastructure-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Integrations</p>
+              <h2>PSN, Xbox, Rockstar</h2>
+            </div>
+            <div class="check-list" id="integration-list"></div>
+          </div>
         </div>
       </section>
 
