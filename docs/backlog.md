@@ -15,6 +15,10 @@
 - Add migrations.
 - Add repository layer and contract tests.
 - Add seed/import tools for guides and achievements.
+- Add runtime repositories with PostgreSQL-ready adapters and memory fallback.
+- Persist users, sessions, linked accounts, consent events, guides, profiles,
+  achievements, and community activity.
+- Add a migration runner for `infra/database/migrations/V*.sql`.
 
 ## Phase 3: Authentication
 

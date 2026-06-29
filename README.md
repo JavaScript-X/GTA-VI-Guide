@@ -76,6 +76,7 @@ requirements are available.
 - [Operations](docs/operations.md)
 - [Deployment checklist](docs/deployment-checklist.md)
 - [Deployability status](docs/deployability-status.md)
+- [Remaining work](docs/remaining-work.md)
 - [Runbook](docs/runbook.md)
 - [Security and compliance](docs/security-and-compliance.md)
 - [Delivery backlog](docs/backlog.md)
