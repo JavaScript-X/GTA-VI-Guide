@@ -17,9 +17,6 @@ CREATE TABLE IF NOT EXISTS identity_service.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   display_name TEXT NOT NULL,
   email TEXT UNIQUE,
-  password_hash TEXT,
-  email_verified_at TIMESTAMPTZ,
-  deleted_at TIMESTAMPTZ,
   locale TEXT NOT NULL DEFAULT 'fr-FR',
   roles TEXT[] NOT NULL DEFAULT ARRAY['player'],
   reputation INTEGER NOT NULL DEFAULT 0,
@@ -51,7 +48,7 @@ CREATE TABLE IF NOT EXISTS game_profile_service.player_snapshots (
   cash_balance BIGINT NOT NULL DEFAULT 0,
   bank_balance BIGINT NOT NULL DEFAULT 0,
   completion JSONB NOT NULL DEFAULT '{}'::jsonb,
-  source TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'official_sync', 'import')),
+  source TEXT NOT NULL CHECK (source IN ('manual', 'official_sync', 'import')),
   captured_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -109,60 +106,6 @@ CREATE TABLE IF NOT EXISTS community_service.moderation_reports (
   resolved_at TIMESTAMPTZ
 );
 
-CREATE TABLE IF NOT EXISTS identity_service.refresh_sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES identity_service.users(id) ON DELETE CASCADE,
-  refresh_token_hash TEXT NOT NULL UNIQUE,
-  user_agent TEXT,
-  ip_address TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  expires_at TIMESTAMPTZ NOT NULL,
-  revoked_at TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS identity_service.consent_events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES identity_service.users(id) ON DELETE CASCADE,
-  provider TEXT NOT NULL CHECK (provider IN ('psn', 'xbox', 'rockstar')),
-  action TEXT NOT NULL CHECK (action IN ('granted', 'revoked', 'sync_requested')),
-  scopes TEXT[] NOT NULL DEFAULT '{}',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS identity_service.audit_log (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  actor_user_id UUID,
-  action TEXT NOT NULL,
-  target_type TEXT,
-  target_id TEXT,
-  request_id TEXT,
-  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS platform.outbox_events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  topic TEXT NOT NULL,
-  aggregate_type TEXT NOT NULL,
-  aggregate_id TEXT NOT NULL,
-  payload JSONB NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  published_at TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS game_profile_service.sync_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL,
-  provider TEXT NOT NULL CHECK (provider IN ('psn', 'xbox', 'rockstar')),
-  status TEXT NOT NULL DEFAULT 'queued',
-  requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  started_at TIMESTAMPTZ,
-  finished_at TIMESTAMPTZ,
-  error_message TEXT
-);
-
-CREATE TABLE IF NOT EXISTS knowledge_service.categories (
-  id TEXT PRIMARY KEY,
-  label TEXT NOT NULL,
-  description TEXT NOT NULL DEFAULT ''
-);
+INSERT INTO platform.schema_migrations (version, name)
+VALUES ('V001', 'foundation_schema')
+ON CONFLICT (version) DO NOTHING;

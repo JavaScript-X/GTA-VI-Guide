@@ -13,8 +13,10 @@
     "start:achievements": "node services/achievement-service/src/server.mjs",
     "start:knowledge": "node services/knowledge-service/src/server.mjs",
     "start:community": "node services/community-service/src/server.mjs",
+    "start:sync-worker": "node services/sync-worker/src/worker.mjs",
     "test": "node --test",
     "check": "node scripts/check.mjs",
+    "db:migration-check": "node scripts/migration-check.mjs",
     "smoke": "node scripts/smoke.mjs"
   },
   "engines": {
