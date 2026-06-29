@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GTA VI Guide</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">GTA VI Guide</a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="#progression">Progression</a>
+        <a href="#guides">Guides</a>
+        <a href="#community">Communaute</a>
+        <a href="#accounts">Comptes</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <p class="eyebrow">Plateforme communautaire GTA VI et GTA Online</p>
+          <h1 id="hero-title">Le hub pour suivre, apprendre et jouer ensemble.</h1>
+          <p class="hero-copy">
+            Guides verifies, progression Online, achievements, crews, evenements
+            et preparation des integrations PSN, Xbox et Rockstar.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#progression">Voir mon suivi</a>
+            <a class="button secondary" href="#guides">Explorer les guides</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="status-strip" aria-label="Etat de la plateforme">
+        <div>
+          <span class="metric" id="metric-guides">--</span>
+          <span>guides</span>
+        </div>
+        <div>
+          <span class="metric" id="metric-achievements">--</span>
+          <span>achievements</span>
+        </div>
+        <div>
+          <span class="metric" id="metric-sync">mock</span>
+          <span>sync actuelle</span>
+        </div>
+      </section>
+
+      <section class="workspace" id="progression">
+        <div class="panel profile-panel">
+          <div class="panel-heading">
+            <p class="eyebrow">Compte joueur</p>
+            <h2 id="player-name">Chargement...</h2>
+          </div>
+          <div class="profile-grid">
+            <div>
+              <span class="label">Personnage</span>
+              <strong id="character-name">--</strong>
+            </div>
+            <div>
+              <span class="label">Niveau</span>
+              <strong id="character-level">--</strong>
+            </div>
+            <div>
+              <span class="label">Crew</span>
+              <strong id="crew-name">--</strong>
+            </div>
+            <div>
+              <span class="label">Reputation</span>
+              <strong id="reputation">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="accounts">
+          <div class="panel-heading">
+            <p class="eyebrow">Liens externes</p>
+            <h2>PSN, Xbox, Rockstar</h2>
+          </div>
+          <div class="account-list" id="account-list"></div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel" id="guides">
+          <div class="panel-heading">
+            <p class="eyebrow">Savoir commun</p>
+            <h2>Guides prioritaires</h2>
+          </div>
+          <div class="list" id="guide-list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <p class="eyebrow">Completion</p>
+            <h2>Achievements</h2>
+          </div>
+          <div class="list" id="achievement-list"></div>
+        </div>
+
+        <div class="panel" id="community">
+          <div class="panel-heading">
+            <p class="eyebrow">Echanges</p>
+            <h2>Activite communaute</h2>
+          </div>
+          <div class="list" id="community-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
