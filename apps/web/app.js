@@ -2,7 +2,8 @@ const fallbackDashboard = {
   identity: {
     user: {
       displayName: "Vice Explorer",
-      reputation: 420
+      reputation: 420,
+      roles: ["player", "contributor"]
     },
     linkedAccounts: [
       { provider: "psn", handle: "ViceExplorer", status: "mock-linked" },
@@ -10,11 +11,17 @@ const fallbackDashboard = {
     ]
   },
   profile: {
-    syncMode: "mock",
+    syncMode: "manual-preview",
     activeCharacter: {
       name: "Mara V.",
       level: 38,
       crew: "Vice Syndicate"
+    },
+    completion: {
+      story: 0,
+      onlineCareer: 42,
+      collectibles: 27,
+      sideActivities: 58
     }
   },
   achievements: {
@@ -29,7 +36,20 @@ const fallbackDashboard = {
       {
         title: "Roadmap de demarrage GTA Online",
         status: "verified",
+        tags: ["online", "progression", "argent"],
         summary: "Les premieres priorites pour construire un compte stable."
+      },
+      {
+        title: "Relier ses comptes sans risque",
+        status: "editorial",
+        tags: ["securite", "psn", "xbox", "rockstar"],
+        summary: "Ce que la plateforme synchronise et ce qui reste manuel."
+      },
+      {
+        title: "Chasse aux achievements",
+        status: "draft",
+        tags: ["achievements", "completion"],
+        summary: "Planifier les trophees, objectifs saisonniers et collectibles."
       }
     ]
   },
@@ -46,11 +66,6 @@ const fallbackDashboard = {
 };
 
 const fallbackPlatform = {
-  release: {
-    name: "GTA VI Guide Foundation",
-    stage: "development",
-    version: "0.1.0"
-  },
   security: [
     { label: "JWT access tokens", status: "implemented" },
     { label: "Refresh sessions", status: "implemented" },
@@ -86,10 +101,46 @@ const sessionState = {
   user: null
 };
 
+let dashboardState = fallbackDashboard;
+let currentGuideFilter = "all";
+
 const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
 function setText(selector, value) {
-  $(selector).textContent = value;
+  const element = $(selector);
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+function navigate(route) {
+  const page = route || "home";
+  $$(".page").forEach((section) => {
+    section.classList.toggle("is-active", section.dataset.page === page);
+  });
+  $$("[data-route]").forEach((link) => {
+    link.classList.toggle("is-current", link.dataset.route === page);
+  });
+  if (window.location.hash !== `#${page}`) {
+    window.history.replaceState(null, "", `#${page}`);
+  }
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function initRouter() {
+  $$("[data-route]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigate(link.dataset.route);
+    });
+  });
+
+  window.addEventListener("hashchange", () => {
+    navigate(window.location.hash.replace("#", "") || "home");
+  });
+
+  navigate(window.location.hash.replace("#", "") || "home");
 }
 
 function renderAccounts(accounts) {
@@ -109,15 +160,23 @@ function renderAccounts(accounts) {
 }
 
 function renderGuides(guides) {
-  $("#guide-list").innerHTML = guides
+  const filtered =
+    currentGuideFilter === "all"
+      ? guides
+      : guides.filter((guide) => (guide.tags || []).includes(currentGuideFilter));
+
+  $("#guide-list").innerHTML = filtered
     .map((guide) => {
       return `
-        <article class="list-item">
+        <article class="guide-card">
           <div class="item-title">
             <span>${guide.title}</span>
             <span class="badge">${guide.status}</span>
           </div>
           <p class="muted">${guide.summary}</p>
+          <div class="tag-row">
+            ${(guide.tags || []).map((tag) => `<span>${tag}</span>`).join("")}
+          </div>
         </article>
       `;
     })
@@ -136,6 +195,29 @@ function renderAchievements(achievements) {
           <div class="progress" aria-label="${achievement.progress}% complete">
             <span style="width: ${achievement.progress}%"></span>
           </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderCompletion(completion) {
+  const labels = {
+    story: "Histoire",
+    onlineCareer: "Carriere Online",
+    collectibles: "Collectibles",
+    sideActivities: "Activites secondaires"
+  };
+
+  $("#completion-list").innerHTML = Object.entries(completion || {})
+    .map(([key, value]) => {
+      return `
+        <article class="completion-item">
+          <div class="item-title">
+            <span>${labels[key] || key}</span>
+            <strong>${value}%</strong>
+          </div>
+          <div class="progress"><span style="width: ${value}%"></span></div>
         </article>
       `;
     })
@@ -211,6 +293,7 @@ function renderSession() {
   if (!sessionState.user) {
     box.textContent = "Session non connectee";
     box.classList.remove("is-authenticated");
+    renderRoles(dashboardState.identity.user.roles || ["player"]);
     return;
   }
 
@@ -220,6 +303,13 @@ function renderSession() {
     <span>${sessionState.user.roles.join(", ")}</span>
     <small>Access token actif - refresh token stocke en memoire demo</small>
   `;
+  renderRoles(sessionState.user.roles);
+}
+
+function renderRoles(roles) {
+  $("#role-list").innerHTML = roles
+    .map((role) => `<span class="role-pill">${role}</span>`)
+    .join("");
 }
 
 async function fetchJsonWithFallback(paths) {
@@ -239,6 +329,7 @@ async function fetchJsonWithFallback(paths) {
 }
 
 function renderDashboard(dashboard) {
+  dashboardState = dashboard;
   const user = dashboard.identity.user;
   const character = dashboard.profile.activeCharacter;
 
@@ -250,11 +341,14 @@ function renderDashboard(dashboard) {
   setText("#character-level", character.level);
   setText("#crew-name", character.crew);
   setText("#reputation", user.reputation);
+  setText("#data-source-label", dashboard.profile.syncMode);
 
   renderAccounts(dashboard.identity.linkedAccounts);
   renderGuides(dashboard.knowledge.guides);
   renderAchievements(dashboard.achievements.achievements);
+  renderCompletion(dashboard.profile.completion);
   renderCommunity(dashboard.community.feed);
+  renderRoles(user.roles || ["player"]);
 }
 
 async function loadDashboard() {
@@ -313,9 +407,23 @@ function logout() {
   renderSession();
 }
 
+function initGuideFilters() {
+  $$("[data-guide-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      currentGuideFilter = button.dataset.guideFilter;
+      $$("[data-guide-filter]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+      });
+      renderGuides(dashboardState.knowledge.guides);
+    });
+  });
+}
+
 $("#login-form").addEventListener("submit", login);
 $("#logout-button").addEventListener("click", logout);
 
+initRouter();
+initGuideFilters();
 loadDashboard();
 loadPlatform();
 renderSession();
