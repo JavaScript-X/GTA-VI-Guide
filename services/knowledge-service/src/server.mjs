@@ -1,7 +1,9 @@
-import { createJsonService } from "../../../packages/service-kit/src/http.mjs";
-import { guides } from "../../../packages/service-kit/src/data.mjs";
+import { createJsonService, readJsonBody } from "../../../packages/service-kit/src/http.mjs";
+import { createRepositories } from "../../../packages/service-kit/src/persistence/repositories.mjs";
+import { createPostgresReadiness } from "../../../packages/service-kit/src/persistence/postgres-adapter.mjs";
 
 const port = Number(process.env.KNOWLEDGE_SERVICE_PORT || 8084);
+const knowledgeRepository = createRepositories().knowledge;
 
 createJsonService({
   name: "knowledge-service",
@@ -20,21 +22,29 @@ createJsonService({
     {
       method: "GET",
       path: "/readyz",
-      handler: () => ({ status: "ready" })
+      handler: () => ({ status: "ready", persistence: createPostgresReadiness() })
     },
     {
       method: "GET",
       path: "/guides",
-      handler: ({ url }) => {
+      handler: async ({ url }) => {
         const tag = url.searchParams.get("tag");
-        const filtered = tag
-          ? guides.filter((guide) => guide.tags.includes(tag.toLowerCase()))
-          : guides;
-
-        return {
-          guides: filtered,
-          total: filtered.length
-        };
+        return knowledgeRepository.listGuides({ tag });
+      }
+    },
+    {
+      method: "POST",
+      path: "/guides",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.title) {
+          const error = new Error("Guide title is required");
+          error.statusCode = 400;
+          error.code = "invalid_guide";
+          throw error;
+        }
+        return knowledgeRepository.createGuide(body);
       }
     }
   ]

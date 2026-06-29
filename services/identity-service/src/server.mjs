@@ -1,36 +1,19 @@
 import {
   createRefreshToken,
-  hashPassword,
   requireRole,
   requireUser,
   signJwt,
   verifyPassword
 } from "../../../packages/service-kit/src/auth.mjs";
 import { createJsonService, readJsonBody } from "../../../packages/service-kit/src/http.mjs";
-import { linkedAccounts, sampleUser } from "../../../packages/service-kit/src/data.mjs";
+import { createRepositories } from "../../../packages/service-kit/src/persistence/repositories.mjs";
+import { createPostgresReadiness } from "../../../packages/service-kit/src/persistence/postgres-adapter.mjs";
 
 const port = Number(process.env.IDENTITY_SERVICE_PORT || 8081);
-const demoPasswordHash = hashPassword("ChangeMe123!");
-const users = new Map([
-  [
-    "vice@example.com",
-    {
-      ...sampleUser,
-      email: "vice@example.com",
-      passwordHash: demoPasswordHash,
-      roles: ["player", "contributor", "moderator"]
-    }
-  ]
-]);
-const refreshSessions = new Map();
-const auditLog = [];
+const repositories = createRepositories();
+const identityRepository = repositories.identity;
 
-function publicUser(user) {
-  const { passwordHash, ...safeUser } = user;
-  return safeUser;
-}
-
-function createSession(user, requestId) {
+async function createSession(user, requestId) {
   const accessToken = signJwt({
     sub: user.id,
     email: user.email,
@@ -38,13 +21,13 @@ function createSession(user, requestId) {
     roles: user.roles
   });
   const refreshToken = createRefreshToken();
-  refreshSessions.set(refreshToken, {
+  await identityRepository.createRefreshSession(refreshToken, {
     userId: user.id,
     email: user.email,
     createdAt: new Date().toISOString(),
     revokedAt: null
   });
-  auditLog.push({
+  await identityRepository.appendAuditEvent({
     type: "session.created",
     userId: user.id,
     requestId,
@@ -70,18 +53,17 @@ createJsonService({
     {
       method: "GET",
       path: "/readyz",
-      handler: () => ({ status: "ready" })
+      handler: () => ({ status: "ready", persistence: createPostgresReadiness() })
     },
     {
       method: "GET",
       path: "/me",
-      handler: ({ request }) => {
+      handler: async ({ request }) => {
         const claims = request.headers.authorization ? requireUser(request) : null;
-        const user = claims ? users.get(claims.email) : users.get("vice@example.com");
-        return {
-          user: publicUser(user),
-          linkedAccounts
-        };
+        const user = claims
+          ? await identityRepository.getUserWithLinkedAccounts(claims.sub)
+          : await identityRepository.getUserWithLinkedAccounts("user_vice_001");
+        return user;
       }
     },
     {
@@ -91,7 +73,7 @@ createJsonService({
         const body = await readJsonBody(request);
         const email = String(body.email || "").toLowerCase();
         const password = String(body.password || "");
-        const user = users.get(email);
+        const user = await identityRepository.findUserByEmail(email);
 
         if (!user || !verifyPassword(password, user.passwordHash)) {
           const error = new Error("Invalid email or password");
@@ -101,8 +83,8 @@ createJsonService({
         }
 
         return {
-          user: publicUser(user),
-          session: createSession(user, requestId)
+          user: (await identityRepository.getUserWithLinkedAccounts(user.id)).user,
+          session: await createSession(user, requestId)
         };
       }
     },
@@ -112,7 +94,7 @@ createJsonService({
       handler: async ({ request, requestId }) => {
         const body = await readJsonBody(request);
         const refreshToken = String(body.refreshToken || "");
-        const session = refreshSessions.get(refreshToken);
+        const session = await identityRepository.findRefreshSession(refreshToken);
 
         if (!session || session.revokedAt) {
           const error = new Error("Invalid refresh token");
@@ -121,10 +103,10 @@ createJsonService({
           throw error;
         }
 
-        const user = users.get(session.email);
+        const user = await identityRepository.findUserByEmail(session.email);
         return {
-          user: publicUser(user),
-          session: createSession(user, requestId)
+          user: (await identityRepository.getUserWithLinkedAccounts(user.id)).user,
+          session: await createSession(user, requestId)
         };
       }
     },
@@ -134,11 +116,10 @@ createJsonService({
       handler: async ({ request, requestId }) => {
         const body = await readJsonBody(request);
         const refreshToken = String(body.refreshToken || "");
-        const session = refreshSessions.get(refreshToken);
+        const session = await identityRepository.revokeRefreshSession(refreshToken);
 
         if (session) {
-          session.revokedAt = new Date().toISOString();
-          auditLog.push({
+          await identityRepository.appendAuditEvent({
             type: "session.revoked",
             userId: session.userId,
             requestId,
@@ -152,35 +133,30 @@ createJsonService({
     {
       method: "GET",
       path: "/roles",
-      handler: ({ request }) => {
+      handler: async ({ request }) => {
         requireRole(request, "moderator");
         return {
-          roles: ["player", "contributor", "moderator", "admin"]
+          roles: await identityRepository.listRoles()
         };
       }
     },
     {
       method: "GET",
       path: "/audit-log",
-      handler: ({ request }) => {
+      handler: async ({ request }) => {
         requireRole(request, "moderator");
         return {
-          events: auditLog.slice(-50)
+          events: await identityRepository.listAuditEvents(50)
         };
       }
     },
     {
       method: "GET",
       path: "/consents",
-      handler: ({ request }) => {
+      handler: async ({ request }) => {
         requireUser(request);
         return {
-          consents: linkedAccounts.map((account) => ({
-            provider: account.provider,
-            handle: account.handle,
-            status: account.status,
-            dataSource: account.status === "mock-linked" ? "manual-preview" : "official-oauth-required"
-          }))
+          consents: await identityRepository.listConsents()
         };
       }
     },
@@ -191,12 +167,12 @@ createJsonService({
         const claims = requireUser(request);
         const body = await readJsonBody(request);
         const provider = String(body.provider || "").toLowerCase();
-        auditLog.push({
+        await identityRepository.revokeConsent(claims.sub, provider);
+        await identityRepository.appendAuditEvent({
           type: "consent.revoked",
           userId: claims.sub,
           provider,
-          requestId,
-          createdAt: new Date().toISOString()
+          requestId
         });
         return {
           provider,
@@ -207,10 +183,13 @@ createJsonService({
     {
       method: "GET",
       path: "/linked-accounts",
-      handler: ({ request }) => ({
-        user: requireUser(request),
-        linkedAccounts
-      })
+      handler: async ({ request }) => {
+        const claims = requireUser(request);
+        return {
+          user: claims,
+          linkedAccounts: (await identityRepository.getUserWithLinkedAccounts(claims.sub)).linkedAccounts
+        };
+      }
     },
     {
       method: "POST",
