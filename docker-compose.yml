@@ -16,6 +16,34 @@ services:
       timeout: 3s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-gta-guide}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-minio}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   identity-service:
     build:
       context: .
@@ -25,6 +53,8 @@ services:
       IDENTITY_SERVICE_PORT: 8081
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
       DATABASE_URL: postgres://${POSTGRES_USER:-gta_guide}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gta_guide}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me-minimum-32-bytes}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me-minimum-32-bytes}
     depends_on:
       postgres:
         condition: service_healthy
@@ -150,6 +180,21 @@ services:
       timeout: 3s
       retries: 5
 
+  sync-worker:
+    build:
+      context: .
+      dockerfile: infra/docker/node-service.Dockerfile
+    command: ["node", "services/sync-worker/src/worker.mjs"]
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      OBJECT_STORAGE_ENDPOINT: http://minio:9000
+      OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-gta-vi-guide-dev}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
   web:
     build:
       context: .
@@ -168,5 +213,33 @@ services:
       timeout: 3s
       retries: 5
 
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./infra/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
 volumes:
   postgres-data:
+  minio-data:

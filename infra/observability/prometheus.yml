@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: api-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api-gateway:8080"]
+  - job_name: domain-services
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "identity-service:8081"
+          - "game-profile-service:8082"
+          - "achievement-service:8083"
+          - "knowledge-service:8084"
+          - "community-service:8085"

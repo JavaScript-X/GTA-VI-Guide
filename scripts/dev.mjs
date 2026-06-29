@@ -7,6 +7,7 @@ const processes = [
   ["knowledge", "services/knowledge-service/src/server.mjs"],
   ["community", "services/community-service/src/server.mjs"],
   ["gateway", "services/api-gateway/src/server.mjs"],
+  ["sync-worker", "services/sync-worker/src/worker.mjs"],
   ["web", "apps/web/server.mjs"]
 ];
 

@@ -40,6 +40,10 @@ function setSecurityHeaders(response) {
 export function createJsonService({ name, port, routes, rateLimiter }) {
   const logger = createLogger(name);
   const allowedOrigins = getAllowedOrigins();
+  const metrics = {
+    requestsTotal: 0,
+    requestsByStatus: new Map()
+  };
   const server = createServer(async (request, response) => {
     const requestId = request.headers["x-request-id"] || randomUUID();
     const startedAt = Date.now();
@@ -56,11 +60,30 @@ export function createJsonService({ name, port, routes, rateLimiter }) {
     const url = new URL(request.url, `http://${request.headers.host}`);
     const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || "unknown";
 
+    if (request.method === "GET" && url.pathname === "/metrics") {
+      response.writeHead(200, { "content-type": "text/plain; version=0.0.4; charset=utf-8" });
+      response.end(
+        [
+          "# HELP service_requests_total Total HTTP requests handled by this service.",
+          "# TYPE service_requests_total counter",
+          `service_requests_total{service="${name}"} ${metrics.requestsTotal}`,
+          "# HELP service_requests_by_status_total Total HTTP requests by status code.",
+          "# TYPE service_requests_by_status_total counter",
+          ...Array.from(metrics.requestsByStatus.entries()).map(([status, count]) => {
+            return `service_requests_by_status_total{service="${name}",status="${status}"} ${count}`;
+          })
+        ].join("\n")
+      );
+      return;
+    }
+
     if (rateLimiter) {
       const limit = rateLimiter(String(clientIp));
       response.setHeader("x-ratelimit-remaining", String(limit.remaining));
       response.setHeader("x-ratelimit-reset", String(Math.ceil(limit.resetAt / 1000)));
       if (!limit.allowed) {
+        metrics.requestsTotal += 1;
+        metrics.requestsByStatus.set(429, (metrics.requestsByStatus.get(429) || 0) + 1);
         jsonResponse(response, 429, {
           error: "rate_limited",
           message: "Too many requests",
@@ -82,16 +105,19 @@ export function createJsonService({ name, port, routes, rateLimiter }) {
 
     try {
       const payload = await route.handler({ request, url, requestId });
+      const statusCode = route.statusCode || 200;
       jsonResponse(response, route.statusCode || 200, {
         service: name,
         requestId,
         data: payload
       });
+      metrics.requestsTotal += 1;
+      metrics.requestsByStatus.set(statusCode, (metrics.requestsByStatus.get(statusCode) || 0) + 1);
       logger.info("request_completed", {
         requestId,
         method: request.method,
         path: url.pathname,
-        statusCode: route.statusCode || 200,
+        statusCode,
         durationMs: Date.now() - startedAt
       });
     } catch (error) {
@@ -101,11 +127,14 @@ export function createJsonService({ name, port, routes, rateLimiter }) {
         service: name,
         requestId
       });
+      const statusCode = error.statusCode || 500;
+      metrics.requestsTotal += 1;
+      metrics.requestsByStatus.set(statusCode, (metrics.requestsByStatus.get(statusCode) || 0) + 1);
       logger.error("request_failed", {
         requestId,
         method: request.method,
         path: url.pathname,
-        statusCode: error.statusCode || 500,
+        statusCode,
         durationMs: Date.now() - startedAt,
         error: error.message
       });
