@@ -14,6 +14,19 @@ export async function fetchJsonWithFallback(paths) {
   throw lastError;
 }
 
+export async function postJsonWithFallback(paths, payload) {
+  const body = JSON.stringify(payload);
+  return fetchJsonWithFallback(
+    paths.map((url) => {
+      return new Request(url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body
+      });
+    })
+  );
+}
+
 export async function loadDashboard() {
   return fetchJsonWithFallback(["/api/dashboard", "http://localhost:8080/api/dashboard"]);
 }
@@ -23,14 +36,33 @@ export async function loadPlatform() {
 }
 
 export async function login(email, password) {
-  const body = JSON.stringify({ email, password });
-  return fetchJsonWithFallback(
-    ["/api/auth/login", "http://localhost:8080/api/auth/login", "http://localhost:8081/auth/login"].map((url) => {
-      return new Request(url, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body
-      });
-    })
+  return postJsonWithFallback(
+    ["/api/auth/login", "http://localhost:8080/api/auth/login", "http://localhost:8081/auth/login"],
+    { email, password }
   );
+}
+
+export async function createGuide(input) {
+  return postJsonWithFallback(["/api/guides", "http://localhost:8080/api/guides"], input);
+}
+
+export async function createCommunityPost(input) {
+  return postJsonWithFallback(["/api/posts", "http://localhost:8080/api/posts"], input);
+}
+
+export async function reportCommunityPost(postId, reason) {
+  return postJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"], { postId, reason });
+}
+
+export async function updateAchievementProgress(id, progress) {
+  return postJsonWithFallback(["/api/achievements/progress", "http://localhost:8080/api/achievements/progress"], {
+    id,
+    progress
+  });
+}
+
+export async function updateProfileCompletion(completion) {
+  return postJsonWithFallback(["/api/profiles/me/completion", "http://localhost:8080/api/profiles/me/completion"], {
+    completion
+  });
 }

@@ -14,6 +14,15 @@ async function getServiceData(service, path) {
   return payload.data;
 }
 
+async function postServiceData(service, path, body) {
+  const payload = await fetchJson(`${services[service]}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  return payload.data;
+}
+
 createJsonService({
   name: "api-gateway",
   port,
@@ -82,12 +91,7 @@ createJsonService({
       path: "/api/auth/login",
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
-        const payload = await fetchJson(`${services.identity}/auth/login`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        return payload.data;
+        return postServiceData("identity", "/auth/login", body);
       }
     },
     {
@@ -95,12 +99,7 @@ createJsonService({
       path: "/api/auth/refresh",
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
-        const payload = await fetchJson(`${services.identity}/auth/refresh`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        return payload.data;
+        return postServiceData("identity", "/auth/refresh", body);
       }
     },
     {
@@ -108,12 +107,50 @@ createJsonService({
       path: "/api/auth/logout",
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
-        const payload = await fetchJson(`${services.identity}/auth/logout`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        return payload.data;
+        return postServiceData("identity", "/auth/logout", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/guides",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("knowledge", "/guides", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/posts",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/posts", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/reports",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/reports", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/achievements/progress",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("achievements", "/achievements/progress", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/profiles/me/completion",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("profiles", "/profiles/me/completion", body);
       }
     },
     {

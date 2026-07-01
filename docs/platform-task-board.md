@@ -105,6 +105,9 @@ vraiment utilisables en production.
 
 ## Travail en cours
 
-- Etape 1: exposer les actions d'ecriture via API Gateway.
-- Etape 2: ajouter les premiers formulaires frontend connectes a ces actions.
-- Etape 3: etendre le smoke test pour valider ces workflows.
+- Fait: exposer les actions d'ecriture via API Gateway pour guides, posts,
+  reports, achievements et completion profil.
+- Fait: ajouter les premiers formulaires frontend connectes a ces actions.
+- Fait: etendre le smoke test pour valider ces workflows.
+- Prochaine etape: rendre le runner de migrations idempotent avec
+  `platform.schema_migrations`.

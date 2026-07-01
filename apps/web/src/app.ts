@@ -1,6 +1,15 @@
 import { shell } from "./components/layout.ts";
 import { setDashboard, setPlatform, setSession, clearSession, store } from "./state/store.ts";
-import { loadDashboard, loadPlatform, login } from "./services/api.ts";
+import {
+  createCommunityPost,
+  createGuide,
+  loadDashboard,
+  loadPlatform,
+  login,
+  reportCommunityPost,
+  updateAchievementProgress,
+  updateProfileCompletion
+} from "./services/api.ts";
 import { homePage } from "./pages/home.ts";
 import { guidesPage } from "./pages/guides.ts";
 import { trackingPage } from "./pages/tracking.ts";
@@ -54,6 +63,22 @@ function navigate(route) {
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
+async function refreshDashboard(route) {
+  const dashboard = await loadDashboard();
+  setDashboard(dashboard.data);
+  renderApp();
+  navigate(route);
+}
+
+function setFormStatus(name, message, isError = false) {
+  const box = document.querySelector(`[data-form-status="${name}"]`);
+  if (!box) {
+    return;
+  }
+  box.textContent = message;
+  box.classList.toggle("is-error", isError);
+}
+
 function bindInteractions() {
   document.querySelectorAll("[data-route]").forEach((link) => {
     link.addEventListener("click", (event) => {
@@ -97,6 +122,91 @@ function bindInteractions() {
       clearSession();
       renderApp();
       navigate("account");
+    });
+  }
+
+  const guideForm = document.querySelector("#guide-form");
+  if (guideForm) {
+    guideForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(guideForm);
+      try {
+        await createGuide({
+          title: formData.get("title"),
+          summary: formData.get("summary"),
+          tags: String(formData.get("tags") || "")
+            .split(",")
+            .map((tag) => tag.trim().toLowerCase())
+            .filter(Boolean)
+        });
+        await refreshDashboard("guides");
+        setFormStatus("guide", "Guide ajoute en brouillon.");
+      } catch (error) {
+        setFormStatus("guide", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const postForm = document.querySelector("#community-post-form");
+  if (postForm) {
+    postForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(postForm);
+      try {
+        await createCommunityPost({
+          title: formData.get("title"),
+          channel: formData.get("channel"),
+          body: formData.get("body")
+        });
+        await refreshDashboard("community");
+        setFormStatus("post", "Post publie dans le feed.");
+      } catch (error) {
+        setFormStatus("post", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  document.querySelectorAll("[data-report-post]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await reportCommunityPost(button.dataset.reportPost, "Signalement utilisateur depuis le frontend");
+        await refreshDashboard("community");
+        setFormStatus("report", "Signalement envoye a la moderation.");
+      } catch (error) {
+        setFormStatus("report", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  const achievementForm = document.querySelector("#achievement-progress-form");
+  if (achievementForm) {
+    achievementForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(achievementForm);
+      try {
+        await updateAchievementProgress(formData.get("id"), Number(formData.get("progress")));
+        await refreshDashboard("achievements");
+        setFormStatus("achievement", "Progression achievement mise a jour.");
+      } catch (error) {
+        setFormStatus("achievement", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const completionForm = document.querySelector("#completion-form");
+  if (completionForm) {
+    completionForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(completionForm);
+      try {
+        await updateProfileCompletion({
+          [formData.get("category")]: Number(formData.get("value"))
+        });
+        await refreshDashboard("tracking");
+        setFormStatus("completion", "Completion joueur mise a jour.");
+      } catch (error) {
+        setFormStatus("completion", `Erreur: ${error.message}`, true);
+      }
     });
   }
 }

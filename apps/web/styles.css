@@ -519,12 +519,14 @@ h3 {
   color: var(--teal);
 }
 
-.login-form {
+.login-form,
+.stack-form {
   display: grid;
   gap: 12px;
 }
 
-.login-form label {
+.login-form label,
+.stack-form label {
   display: grid;
   gap: 6px;
   color: var(--muted);
@@ -533,7 +535,10 @@ h3 {
   text-transform: uppercase;
 }
 
-.login-form input {
+.login-form input,
+.stack-form input,
+.stack-form select,
+.stack-form textarea {
   width: 100%;
   min-height: 42px;
   padding: 0 12px;
@@ -543,6 +548,35 @@ h3 {
   color: var(--ink);
   font: inherit;
   text-transform: none;
+}
+
+.stack-form textarea {
+  min-height: 108px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.stack-form select {
+  appearance: none;
+}
+
+.form-status {
+  min-height: 20px;
+  margin: 0;
+  color: var(--teal);
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.form-status.is-error {
+  color: var(--coral);
+}
+
+.button.compact {
+  min-height: 34px;
+  width: fit-content;
+  padding: 0 10px;
+  font-size: 0.82rem;
 }
 
 .session-box {

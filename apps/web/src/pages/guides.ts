@@ -18,7 +18,15 @@ export function guidesPage(state) {
         <div class="guide-list">${filtered.map(guideCard).join("")}</div>
         <aside class="panel guide-aside">
           <p class="eyebrow">Contribution</p>
-          <h2>Workflow editorial</h2>
+          <h2>Proposer un guide</h2>
+          <form id="guide-form" class="stack-form">
+            <label>Titre<input name="title" required placeholder="Ex: Bien demarrer a Vice City Online"></label>
+            <label>Resume<textarea name="summary" rows="4" placeholder="Objectif, public cible, points couverts"></textarea></label>
+            <label>Tags<input name="tags" placeholder="online, securite, achievements"></label>
+            <button class="button primary" type="submit">Envoyer</button>
+            <p class="form-status" data-form-status="guide"></p>
+          </form>
+          <h3>Workflow editorial</h3>
           <div class="timeline">
             <span>Brouillon</span><span>Relecture</span><span>Verifie</span><span>Publie</span>
           </div>

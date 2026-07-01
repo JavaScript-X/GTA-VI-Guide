@@ -125,6 +125,70 @@ try {
     throw new Error("Login payload is missing access token");
   }
 
+  const guide = await fetch(`http://localhost:${ports.gateway}/api/guides`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      title: "Smoke Route Guide",
+      summary: "Created through the gateway smoke test.",
+      tags: ["online", "smoke"]
+    })
+  });
+  if (guide.status !== 201) {
+    throw new Error(`Guide creation returned ${guide.status}`);
+  }
+
+  const post = await fetch(`http://localhost:${ports.gateway}/api/posts`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      title: "Smoke Community Post",
+      channel: "general",
+      body: "Created through the gateway smoke test."
+    })
+  });
+  if (post.status !== 201) {
+    throw new Error(`Post creation returned ${post.status}`);
+  }
+
+  const postPayload = await post.json();
+  const report = await fetch(`http://localhost:${ports.gateway}/api/reports`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      postId: postPayload.data.id,
+      reason: "smoke-test"
+    })
+  });
+  if (report.status !== 201) {
+    throw new Error(`Report creation returned ${report.status}`);
+  }
+
+  const progress = await fetch(`http://localhost:${ports.gateway}/api/achievements/progress`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: "collector-instinct",
+      progress: 75
+    })
+  });
+  if (!progress.ok) {
+    throw new Error(`Achievement progress returned ${progress.status}`);
+  }
+
+  const completion = await fetch(`http://localhost:${ports.gateway}/api/profiles/me/completion`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      completion: {
+        story: 60
+      }
+    })
+  });
+  if (!completion.ok) {
+    throw new Error(`Profile completion returned ${completion.status}`);
+  }
+
   console.log("Smoke test passed.");
 } finally {
   await stopAll();
