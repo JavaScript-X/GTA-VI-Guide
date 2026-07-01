@@ -114,6 +114,24 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-community-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      store.communityFilter = button.dataset.communityFilter;
+      renderApp();
+      navigate("community");
+    });
+  });
+
+  document.querySelectorAll("[data-filter-search='community']").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      store.communitySearch = String(formData.get("query") || "");
+      renderApp();
+      navigate("community");
+    });
+  });
+
   document.querySelectorAll("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => {
       store.authMode = button.dataset.authMode;

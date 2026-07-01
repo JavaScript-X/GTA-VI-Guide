@@ -9,6 +9,8 @@ export const store = {
     user: null
   },
   guideFilter: "all",
+  communityFilter: "all",
+  communitySearch: "",
   authMode: "signin"
 };
 

@@ -42,9 +42,9 @@ vraiment utilisables en production.
   passent pas encore par lui.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
   encore des apercus ou de la lecture seule.
-- Guides et communaute: creation, update/delete guides, commentaires, reactions
-  et moderation basique posts/reports existent. Recherche, crews et events
-  restent incomplets.
+- Guides et communaute: creation, update/delete guides, commentaires, reactions,
+  recherche frontend et moderation basique posts/reports existent. Recherche
+  backend, crews et events restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
@@ -68,9 +68,9 @@ vraiment utilisables en production.
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
-  complete, commentaires, crews, events et uploads.
+  complete, edition/suppression commentaires, crews, events et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
-- Recherche et workflow editorial avance des guides.
+- Recherche backend et workflow editorial avance des guides.
 - CRUD complet communaute: edition/suppression commentaires, crews et events.
 - Dashboard admin/moderateur avec file de signalements et audit logs.
 - Upload images/fichiers via MinIO/S3/R2.
@@ -117,9 +117,9 @@ vraiment utilisables en production.
   quand `DATABASE_URL` et `pg` sont disponibles.
 - Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
   et suppression compte/revocation.
-- Fait: ajouter update/delete guides, commentaires/reactions et moderation
-  basique posts/reports.
+- Fait: ajouter update/delete guides, commentaires/reactions, recherche
+  frontend communaute et moderation basique posts/reports.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
-  en CI ou Docker Compose, puis ajouter commentaires/reactions.
+  en CI ou Docker Compose, puis ajouter crews/events.
