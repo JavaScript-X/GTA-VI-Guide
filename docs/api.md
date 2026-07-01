@@ -45,6 +45,14 @@ Adds or updates a reaction on a community post.
 
 Creates a moderation report for a community post.
 
+`POST /api/crews`
+
+Creates or updates a community crew.
+
+`POST /api/events`
+
+Creates or updates a community event.
+
 `GET /api/reports`
 
 Lists moderation reports.
@@ -179,6 +187,14 @@ Adds or updates a reaction on a community post.
 `POST /reports`
 
 Creates a moderation report.
+
+`POST /crews`
+
+Creates or updates a community crew.
+
+`POST /events`
+
+Creates or updates a community event.
 
 `GET /reports`
 

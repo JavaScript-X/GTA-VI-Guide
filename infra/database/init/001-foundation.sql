@@ -128,6 +128,29 @@ CREATE TABLE IF NOT EXISTS community_service.reactions (
   UNIQUE (post_id, user_id, type)
 );
 
+CREATE TABLE IF NOT EXISTS community_service.crews (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  members INTEGER NOT NULL DEFAULT 1,
+  focus TEXT NOT NULL DEFAULT 'general',
+  status TEXT NOT NULL DEFAULT 'recruiting',
+  description TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS community_service.events (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  starts_at_label TEXT NOT NULL DEFAULT 'TBD',
+  type TEXT NOT NULL DEFAULT 'community',
+  seats INTEGER NOT NULL DEFAULT 4,
+  crew_name TEXT,
+  description TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS identity_service.refresh_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES identity_service.users(id) ON DELETE CASCADE,

@@ -74,6 +74,61 @@ export const fallbackDashboard = {
         replies: 7,
         score: 71
       }
+    ],
+    crews: [
+      {
+        id: "vice-syndicate",
+        name: "Vice Syndicate",
+        members: 24,
+        focus: "heists",
+        status: "recruiting",
+        description: "Crew francophone pour braquages, exploration et progression Online."
+      },
+      {
+        id: "ocean-drivers",
+        name: "Ocean Drivers",
+        members: 11,
+        focus: "races",
+        status: "open",
+        description: "Courses, garages, vehicules rares et time trials."
+      },
+      {
+        id: "palm-watch",
+        name: "Palm Watch",
+        members: 8,
+        focus: "collectibles",
+        status: "curated",
+        description: "Collectibles, secrets de carte et completion tranquille."
+      }
+    ],
+    events: [
+      {
+        id: "launch-night-routes",
+        title: "Launch night routes",
+        date: "TBD",
+        type: "exploration",
+        seats: 16,
+        crew: "Vice Syndicate",
+        description: "Routes de lancement, points d'interet et reperage des premiers objectifs."
+      },
+      {
+        id: "crew-economy-sprint",
+        title: "Crew economy sprint",
+        date: "TBD",
+        type: "online",
+        seats: 8,
+        crew: "Ocean Drivers",
+        description: "Session axee argent, vehicules, business et optimisation de debut."
+      },
+      {
+        id: "achievement-hunt",
+        title: "Achievement hunt",
+        date: "TBD",
+        type: "completion",
+        seats: 12,
+        crew: "Palm Watch",
+        description: "Chasse aux objectifs et collectibles avec priorites partagees."
+      }
     ]
   }
 };
@@ -122,14 +177,6 @@ export const vehicles = [
   { name: "Neon Bike", className: "Motorcycle", source: "manual", owned: false }
 ];
 
-export const crews = [
-  { name: "Vice Syndicate", members: 24, focus: "heists", status: "recruiting" },
-  { name: "Ocean Drivers", members: 11, focus: "races", status: "open" },
-  { name: "Palm Watch", members: 8, focus: "collectibles", status: "curated" }
-];
+export const crews = fallbackDashboard.community.crews;
 
-export const events = [
-  { title: "Launch night routes", date: "TBD", type: "exploration", seats: 16 },
-  { title: "Crew economy sprint", date: "TBD", type: "online", seats: 8 },
-  { title: "Achievement hunt", date: "TBD", type: "completion", seats: 12 }
-];
+export const events = fallbackDashboard.community.events;

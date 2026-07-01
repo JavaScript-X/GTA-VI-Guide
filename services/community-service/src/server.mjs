@@ -104,6 +104,36 @@ createJsonService({
       }
     },
     {
+      method: "POST",
+      path: "/crews",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.name) {
+          const error = new Error("Crew name is required");
+          error.statusCode = 400;
+          error.code = "invalid_crew";
+          throw error;
+        }
+        return communityRepository.createCrew(body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/events",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.title) {
+          const error = new Error("Event title is required");
+          error.statusCode = 400;
+          error.code = "invalid_event";
+          throw error;
+        }
+        return communityRepository.createEvent(body);
+      }
+    },
+    {
       method: "GET",
       path: "/reports",
       handler: () => communityRepository.listReports()

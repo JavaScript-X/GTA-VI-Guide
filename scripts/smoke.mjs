@@ -239,6 +239,36 @@ try {
   }
   const reportPayload = await report.json();
 
+  const crew = await fetch(`http://localhost:${ports.gateway}/api/crews`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "Smoke Crew",
+      focus: "testing",
+      members: 5,
+      description: "Created through the gateway smoke test."
+    })
+  });
+  if (crew.status !== 201) {
+    throw new Error(`Crew creation returned ${crew.status}`);
+  }
+  const crewPayload = await crew.json();
+
+  const event = await fetch(`http://localhost:${ports.gateway}/api/events`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      title: "Smoke Event",
+      type: "testing",
+      seats: 5,
+      crew: crewPayload.data.name,
+      description: "Created through the gateway smoke test."
+    })
+  });
+  if (event.status !== 201) {
+    throw new Error(`Event creation returned ${event.status}`);
+  }
+
   const reports = await fetch(`http://localhost:${ports.gateway}/api/reports`);
   if (!reports.ok) {
     throw new Error(`Reports endpoint returned ${reports.status}`);

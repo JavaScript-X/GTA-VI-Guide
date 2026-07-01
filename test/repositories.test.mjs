@@ -126,6 +126,28 @@ describe("repositories", () => {
     assert.equal(feed.feed.some((item) => item.id === post.id), false);
   });
 
+  it("creates crews and events through the community repository", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const crew = await repositories.community.createCrew({
+      name: "Neon Cartel",
+      members: 6,
+      focus: "heists",
+      description: "Late night crew."
+    });
+    const event = await repositories.community.createEvent({
+      title: "Neon Cartel launch route",
+      type: "exploration",
+      seats: 6,
+      crew: crew.name
+    });
+    const community = await repositories.community.getFeed();
+
+    assert.equal(crew.id, "neon-cartel");
+    assert.equal(event.crew, "Neon Cartel");
+    assert.ok(community.crews.some((item) => item.id === crew.id));
+    assert.ok(community.events.some((item) => item.id === event.id));
+  });
+
   it("falls back to memory repositories when PostgreSQL is not configured", async () => {
     const repositories = createRepositories();
     const user = await repositories.identity.findUserByEmail("vice@example.com");

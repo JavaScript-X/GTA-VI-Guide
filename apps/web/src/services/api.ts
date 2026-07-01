@@ -85,6 +85,14 @@ export async function reportCommunityPost(postId, reason) {
   return postJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"], { postId, reason });
 }
 
+export async function createCrew(input) {
+  return postJsonWithFallback(["/api/crews", "http://localhost:8080/api/crews"], input);
+}
+
+export async function createEvent(input) {
+  return postJsonWithFallback(["/api/events", "http://localhost:8080/api/events"], input);
+}
+
 export async function resolveReport(reportId, status = "resolved") {
   return postJsonWithFallback(["/api/reports/resolve", "http://localhost:8080/api/reports/resolve"], {
     reportId,

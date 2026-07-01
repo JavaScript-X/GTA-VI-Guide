@@ -1,6 +1,8 @@
 import {
   achievements,
   communityFeed,
+  crews,
+  events,
   guides,
   linkedAccounts,
   profileSnapshot,
@@ -27,6 +29,8 @@ export function createMemoryStore() {
     achievements: achievements.map((achievement) => ({ ...achievement })),
     guides: guides.map((guide) => ({ ...guide })),
     communityFeed: communityFeed.map((item) => ({ ...item })),
+    crews: crews.map((crew) => ({ ...crew })),
+    events: events.map((event) => ({ ...event })),
     posts: communityFeed.map((item) => ({
       ...item,
       body: "",

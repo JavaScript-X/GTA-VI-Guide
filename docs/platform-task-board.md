@@ -19,7 +19,7 @@ vraiment utilisables en production.
 - Docker Compose local avec PostgreSQL, RabbitMQ, MinIO, reverse proxy,
   Prometheus, services et web.
 - Dockerfile Node non-root partage pour les services.
-- Schemas SQL versionnes avec migrations `V001` a `V003`.
+- Schemas SQL versionnes avec migrations `V001` a `V005`.
 - Verification de migrations avec `npm run db:migration-check`.
 - Scripts backup/restore PostgreSQL.
 - Documentation operationnelle: architecture, API, runbook, checklist de
@@ -43,8 +43,8 @@ vraiment utilisables en production.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
   encore des apercus ou de la lecture seule.
 - Guides et communaute: creation, update/delete guides, commentaires, reactions,
-  recherche frontend et moderation basique posts/reports existent. Recherche
-  backend, crews et events restent incomplets.
+  crews/events, recherche frontend et moderation basique posts/reports existent.
+  Recherche backend et workflows avances restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
@@ -68,7 +68,8 @@ vraiment utilisables en production.
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
-  complete, edition/suppression commentaires, crews, events et uploads.
+  complete, edition/suppression commentaires, edition/suppression crews/events
+  et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Recherche backend et workflow editorial avance des guides.
 - CRUD complet communaute: edition/suppression commentaires, crews et events.
@@ -117,9 +118,10 @@ vraiment utilisables en production.
   quand `DATABASE_URL` et `pg` sont disponibles.
 - Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
   et suppression compte/revocation.
-- Fait: ajouter update/delete guides, commentaires/reactions, recherche
-  frontend communaute et moderation basique posts/reports.
+- Fait: ajouter update/delete guides, commentaires/reactions, crews/events,
+  recherche frontend communaute et moderation basique posts/reports.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
-  en CI ou Docker Compose, puis ajouter crews/events.
+  en CI ou Docker Compose, puis ajouter edition/suppression commentaires,
+  crews et events.

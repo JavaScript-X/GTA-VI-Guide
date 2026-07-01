@@ -240,6 +240,8 @@ function createCommunityRepository(store) {
           comments: store.comments.filter((comment) => comment.postId === item.id).length,
           reactions: store.reactions.filter((reaction) => reaction.postId === item.id).length
         })),
+        crews: store.crews.map((crew) => ({ ...crew })),
+        events: store.events.map((event) => ({ ...event })),
         moderation: {
           reportsOpen: store.reports.filter((report) => report.status === "open").length,
           mode: "pre-launch-curated"
@@ -305,6 +307,31 @@ function createCommunityRepository(store) {
       };
       store.reports.push(report);
       return { ...report };
+    },
+    async createCrew(input) {
+      const crew = {
+        id: input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        name: input.name,
+        members: Number(input.members || 1),
+        focus: input.focus || "general",
+        status: input.status || "recruiting",
+        description: input.description || ""
+      };
+      store.crews.unshift(crew);
+      return { ...crew };
+    },
+    async createEvent(input) {
+      const event = {
+        id: input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        title: input.title,
+        date: input.date || "TBD",
+        type: input.type || "community",
+        seats: Number(input.seats || 4),
+        crew: input.crew || "Community",
+        description: input.description || ""
+      };
+      store.events.unshift(event);
+      return { ...event };
     },
     async listReports() {
       return {

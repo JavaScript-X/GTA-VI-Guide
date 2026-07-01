@@ -3,6 +3,8 @@ import { setDashboard, setPlatform, setSession, clearSession, store } from "./st
 import {
   createCommunityPost,
   createComment,
+  createCrew,
+  createEvent,
   createGuide,
   deleteGuide,
   deleteAccount,
@@ -319,6 +321,49 @@ function bindInteractions() {
         setFormStatus("comment", "Commentaire ajoute.");
       } catch (error) {
         setFormStatus("comment", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const crewForm = document.querySelector("#crew-form");
+  if (crewForm) {
+    crewForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(crewForm);
+      try {
+        await createCrew({
+          name: formData.get("name"),
+          focus: formData.get("focus"),
+          members: Number(formData.get("members")),
+          status: formData.get("status"),
+          description: formData.get("description")
+        });
+        await refreshDashboard("crews");
+        setFormStatus("crew", "Crew ajoute a l'annuaire.");
+      } catch (error) {
+        setFormStatus("crew", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const eventForm = document.querySelector("#event-form");
+  if (eventForm) {
+    eventForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(eventForm);
+      try {
+        await createEvent({
+          title: formData.get("title"),
+          type: formData.get("type"),
+          date: formData.get("date"),
+          seats: Number(formData.get("seats")),
+          crew: formData.get("crew"),
+          description: formData.get("description")
+        });
+        await refreshDashboard("events");
+        setFormStatus("event", "Event ajoute au calendrier.");
+      } catch (error) {
+        setFormStatus("event", `Erreur: ${error.message}`, true);
       }
     });
   }

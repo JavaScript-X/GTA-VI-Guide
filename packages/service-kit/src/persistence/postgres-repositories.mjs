@@ -1,4 +1,4 @@
-import { achievements, communityFeed, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
+import { achievements, communityFeed, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
 import { hashPassword } from "../auth.mjs";
 import { getDatabaseUrl, isPostgresConfigured, loadPostgresDriver } from "./postgres-adapter.mjs";
 
@@ -58,7 +58,9 @@ async function seedDatabase() {
     seedProfile(user.id),
     seedAchievements(user.id),
     seedGuides(),
-    seedCommunityPosts(user.id)
+    seedCommunityPosts(user.id),
+    seedCrews(),
+    seedEvents()
   ]);
 }
 
@@ -192,6 +194,32 @@ async function seedCommunityPosts(userId) {
   }
 }
 
+async function seedCrews() {
+  for (const crew of crews) {
+    await pool.query(
+      `
+        INSERT INTO community_service.crews (id, name, members, focus, status, description)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id) DO NOTHING
+      `,
+      [crew.id, crew.name, crew.members, crew.focus, crew.status, crew.description]
+    );
+  }
+}
+
+async function seedEvents() {
+  for (const event of events) {
+    await pool.query(
+      `
+        INSERT INTO community_service.events (id, title, starts_at_label, type, seats, crew_name, description)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (id) DO NOTHING
+      `,
+      [event.id, event.title, event.date, event.type, event.seats, event.crew, event.description]
+    );
+  }
+}
+
 function mapUser(row) {
   if (!row) {
     return null;
@@ -260,6 +288,29 @@ function mapPost(row) {
     score: Number(row.score || 0),
     comments: Number(row.comments_count || row.replies_count || 0),
     reactions: Number(row.reactions_count || 0)
+  };
+}
+
+function mapCrew(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    members: Number(row.members || 0),
+    focus: row.focus,
+    status: row.status,
+    description: row.description || ""
+  };
+}
+
+function mapEvent(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    date: row.starts_at_label,
+    type: row.type,
+    seats: Number(row.seats || 0),
+    crew: row.crew_name,
+    description: row.description || ""
   };
 }
 
@@ -705,8 +756,26 @@ function createCommunityRepository(db) {
       const reports = await db.query(
         "SELECT count(*)::int AS reports_open FROM community_service.moderation_reports WHERE status = 'open'"
       );
+      const crews = await db.query(
+        `
+          SELECT id, name, members, focus, status, description
+          FROM community_service.crews
+          ORDER BY created_at DESC, name
+          LIMIT 50
+        `
+      );
+      const events = await db.query(
+        `
+          SELECT id, title, starts_at_label, type, seats, crew_name, description
+          FROM community_service.events
+          ORDER BY created_at DESC, title
+          LIMIT 50
+        `
+      );
       return {
         feed: feed.rows.map(mapPost),
+        crews: crews.rows.map(mapCrew),
+        events: events.rows.map(mapEvent),
         moderation: {
           reportsOpen: reports.rows[0]?.reports_open || 0,
           mode: "pre-launch-curated"
@@ -799,6 +868,53 @@ function createCommunityRepository(db) {
         status: result.rows[0].status,
         createdAt: result.rows[0].created_at.toISOString()
       };
+    },
+    async createCrew(input) {
+      const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const result = await db.query(
+        `
+          INSERT INTO community_service.crews (id, name, members, focus, status, description)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE
+          SET name = EXCLUDED.name,
+              members = EXCLUDED.members,
+              focus = EXCLUDED.focus,
+              status = EXCLUDED.status,
+              description = EXCLUDED.description,
+              updated_at = now()
+          RETURNING id, name, members, focus, status, description
+        `,
+        [id, input.name, Number(input.members || 1), input.focus || "general", input.status || "recruiting", input.description || ""]
+      );
+      return mapCrew(result.rows[0]);
+    },
+    async createEvent(input) {
+      const id = input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const result = await db.query(
+        `
+          INSERT INTO community_service.events (id, title, starts_at_label, type, seats, crew_name, description)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (id) DO UPDATE
+          SET title = EXCLUDED.title,
+              starts_at_label = EXCLUDED.starts_at_label,
+              type = EXCLUDED.type,
+              seats = EXCLUDED.seats,
+              crew_name = EXCLUDED.crew_name,
+              description = EXCLUDED.description,
+              updated_at = now()
+          RETURNING id, title, starts_at_label, type, seats, crew_name, description
+        `,
+        [
+          id,
+          input.title,
+          input.date || "TBD",
+          input.type || "community",
+          Number(input.seats || 4),
+          input.crew || "Community",
+          input.description || ""
+        ]
+      );
+      return mapEvent(result.rows[0]);
     },
     async listReports() {
       const result = await db.query(

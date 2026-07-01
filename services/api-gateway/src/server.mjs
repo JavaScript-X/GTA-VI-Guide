@@ -196,6 +196,24 @@ createJsonService({
       }
     },
     {
+      method: "POST",
+      path: "/api/crews",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/crews", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/events",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/events", body);
+      }
+    },
+    {
       method: "GET",
       path: "/api/reports",
       handler: async () => getServiceData("community", "/reports")
@@ -262,7 +280,7 @@ createJsonService({
           ],
           infrastructure: [
             { label: "PostgreSQL schemas", status: "ready", detail: "identity, profiles, achievements, knowledge, community" },
-            { label: "Versioned migrations", status: "ready", detail: "V001-V003" },
+            { label: "Versioned migrations", status: "ready", detail: "V001-V005" },
             { label: "RabbitMQ event bus", status: "compose-ready", detail: "sync and async events" },
             { label: "MinIO object storage", status: "compose-ready", detail: "future media uploads" },
             { label: "Prometheus metrics", status: "enabled", detail: "/metrics per service" },
