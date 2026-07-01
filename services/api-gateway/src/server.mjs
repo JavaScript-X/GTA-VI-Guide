@@ -206,11 +206,43 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/api/crews/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/crews/update", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/crews/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/crews/delete", body);
+      }
+    },
+    {
+      method: "POST",
       path: "/api/events",
       statusCode: 201,
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
         return postServiceData("community", "/events", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/events/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/events/update", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/events/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/events/delete", body);
       }
     },
     {

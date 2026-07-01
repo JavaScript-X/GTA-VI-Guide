@@ -6,7 +6,7 @@ export function crewsPage(state) {
   const list = crews
     .map(
       (crew) =>
-        `<article class="list-item"><div class="item-title"><span>${crew.name}</span><span class="badge">${crew.status}</span></div><p class="muted">${crew.members} membres - focus ${crew.focus}</p><p class="muted">${crew.description || "Organisation communautaire."}</p></article>`
+        `<article class="list-item"><div class="item-title"><span>${crew.name}</span><span class="badge">${crew.status}</span></div><p class="muted">${crew.members} membres - focus ${crew.focus}</p><p class="muted">${crew.description || "Organisation communautaire."}</p><div class="form-actions"><button class="button ghost compact" type="button" data-crew-status="${crew.id}">Curated</button><button class="button ghost compact" type="button" data-crew-delete="${crew.id}">Supprimer</button></div></article>`
     )
     .join("");
   return page(

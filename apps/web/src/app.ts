@@ -6,6 +6,8 @@ import {
   createCrew,
   createEvent,
   createGuide,
+  deleteCrew,
+  deleteEvent,
   deleteGuide,
   deleteAccount,
   loadDashboard,
@@ -14,6 +16,8 @@ import {
   reactToPost,
   register,
   reportCommunityPost,
+  updateCrew,
+  updateEvent,
   updateGuide,
   updateAchievementProgress,
   updateProfileCompletion
@@ -346,6 +350,30 @@ function bindInteractions() {
     });
   }
 
+  document.querySelectorAll("[data-crew-status]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await updateCrew({ id: button.dataset.crewStatus, status: "curated" });
+        await refreshDashboard("crews");
+        setFormStatus("crew", "Crew mis en avant.");
+      } catch (error) {
+        setFormStatus("crew", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-crew-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await deleteCrew(button.dataset.crewDelete);
+        await refreshDashboard("crews");
+        setFormStatus("crew", "Crew supprime.");
+      } catch (error) {
+        setFormStatus("crew", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
   const eventForm = document.querySelector("#event-form");
   if (eventForm) {
     eventForm.addEventListener("submit", async (event) => {
@@ -367,6 +395,30 @@ function bindInteractions() {
       }
     });
   }
+
+  document.querySelectorAll("[data-event-status]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await updateEvent({ id: button.dataset.eventStatus, type: "featured" });
+        await refreshDashboard("events");
+        setFormStatus("event", "Event mis en avant.");
+      } catch (error) {
+        setFormStatus("event", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-event-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await deleteEvent(button.dataset.eventDelete);
+        await refreshDashboard("events");
+        setFormStatus("event", "Event supprime.");
+      } catch (error) {
+        setFormStatus("event", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
 
   const achievementForm = document.querySelector("#achievement-progress-form");
   if (achievementForm) {

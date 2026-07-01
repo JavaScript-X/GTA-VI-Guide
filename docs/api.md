@@ -49,9 +49,25 @@ Creates a moderation report for a community post.
 
 Creates or updates a community crew.
 
+`POST /api/crews/update`
+
+Updates a community crew.
+
+`POST /api/crews/delete`
+
+Deletes a community crew.
+
 `POST /api/events`
 
 Creates or updates a community event.
+
+`POST /api/events/update`
+
+Updates a community event.
+
+`POST /api/events/delete`
+
+Deletes a community event.
 
 `GET /api/reports`
 
@@ -192,9 +208,25 @@ Creates a moderation report.
 
 Creates or updates a community crew.
 
+`POST /crews/update`
+
+Updates a community crew.
+
+`POST /crews/delete`
+
+Deletes a community crew.
+
 `POST /events`
 
 Creates or updates a community event.
+
+`POST /events/update`
+
+Updates a community event.
+
+`POST /events/delete`
+
+Deletes a community event.
 
 `GET /reports`
 

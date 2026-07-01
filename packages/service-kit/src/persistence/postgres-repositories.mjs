@@ -888,6 +888,49 @@ function createCommunityRepository(db) {
       );
       return mapCrew(result.rows[0]);
     },
+    async updateCrew(id, input) {
+      const existing = await db.query(
+        "SELECT id, name, members, focus, status, description FROM community_service.crews WHERE id = $1",
+        [id]
+      );
+      if (!existing.rows[0]) {
+        return null;
+      }
+      const current = mapCrew(existing.rows[0]);
+      const result = await db.query(
+        `
+          UPDATE community_service.crews
+          SET name = $2,
+              members = $3,
+              focus = $4,
+              status = $5,
+              description = $6,
+              updated_at = now()
+          WHERE id = $1
+          RETURNING id, name, members, focus, status, description
+        `,
+        [
+          id,
+          input.name || current.name,
+          input.members === undefined ? current.members : Number(input.members),
+          input.focus || current.focus,
+          input.status || current.status,
+          input.description ?? current.description
+        ]
+      );
+      return mapCrew(result.rows[0]);
+    },
+    async deleteCrew(id) {
+      const result = await db.query(
+        `
+          DELETE FROM community_service.crews
+          WHERE id = $1
+          RETURNING id, name, members, focus, status, description
+        `,
+        [id]
+      );
+      return result.rows[0] ? { ...mapCrew(result.rows[0]), deleted: true } : null;
+    },
     async createEvent(input) {
       const id = input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       const result = await db.query(
@@ -915,6 +958,51 @@ function createCommunityRepository(db) {
         ]
       );
       return mapEvent(result.rows[0]);
+    },
+    async updateEvent(id, input) {
+      const existing = await db.query(
+        "SELECT id, title, starts_at_label, type, seats, crew_name, description FROM community_service.events WHERE id = $1",
+        [id]
+      );
+      if (!existing.rows[0]) {
+        return null;
+      }
+      const current = mapEvent(existing.rows[0]);
+      const result = await db.query(
+        `
+          UPDATE community_service.events
+          SET title = $2,
+              starts_at_label = $3,
+              type = $4,
+              seats = $5,
+              crew_name = $6,
+              description = $7,
+              updated_at = now()
+          WHERE id = $1
+          RETURNING id, title, starts_at_label, type, seats, crew_name, description
+        `,
+        [
+          id,
+          input.title || current.title,
+          input.date || current.date,
+          input.type || current.type,
+          input.seats === undefined ? current.seats : Number(input.seats),
+          input.crew || current.crew,
+          input.description ?? current.description
+        ]
+      );
+      return mapEvent(result.rows[0]);
+    },
+    async deleteEvent(id) {
+      const result = await db.query(
+        `
+          DELETE FROM community_service.events
+          WHERE id = $1
+          RETURNING id, title, starts_at_label, type, seats, crew_name, description
+        `,
+        [id]
+      );
+      return result.rows[0] ? { ...mapEvent(result.rows[0]), deleted: true } : null;
     },
     async listReports() {
       const result = await db.query(

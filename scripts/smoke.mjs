@@ -268,6 +268,53 @@ try {
   if (event.status !== 201) {
     throw new Error(`Event creation returned ${event.status}`);
   }
+  const eventPayload = await event.json();
+
+  const crewUpdate = await fetch(`http://localhost:${ports.gateway}/api/crews/update`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: crewPayload.data.id,
+      status: "curated"
+    })
+  });
+  if (!crewUpdate.ok) {
+    throw new Error(`Crew update returned ${crewUpdate.status}`);
+  }
+
+  const eventUpdate = await fetch(`http://localhost:${ports.gateway}/api/events/update`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: eventPayload.data.id,
+      type: "featured"
+    })
+  });
+  if (!eventUpdate.ok) {
+    throw new Error(`Event update returned ${eventUpdate.status}`);
+  }
+
+  const eventDelete = await fetch(`http://localhost:${ports.gateway}/api/events/delete`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: eventPayload.data.id
+    })
+  });
+  if (!eventDelete.ok) {
+    throw new Error(`Event delete returned ${eventDelete.status}`);
+  }
+
+  const crewDelete = await fetch(`http://localhost:${ports.gateway}/api/crews/delete`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: crewPayload.data.id
+    })
+  });
+  if (!crewDelete.ok) {
+    throw new Error(`Crew delete returned ${crewDelete.status}`);
+  }
 
   const reports = await fetch(`http://localhost:${ports.gateway}/api/reports`);
   if (!reports.ok) {

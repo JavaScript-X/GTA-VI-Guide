@@ -89,8 +89,24 @@ export async function createCrew(input) {
   return postJsonWithFallback(["/api/crews", "http://localhost:8080/api/crews"], input);
 }
 
+export async function updateCrew(input) {
+  return postJsonWithFallback(["/api/crews/update", "http://localhost:8080/api/crews/update"], input);
+}
+
+export async function deleteCrew(id) {
+  return postJsonWithFallback(["/api/crews/delete", "http://localhost:8080/api/crews/delete"], { id });
+}
+
 export async function createEvent(input) {
   return postJsonWithFallback(["/api/events", "http://localhost:8080/api/events"], input);
+}
+
+export async function updateEvent(input) {
+  return postJsonWithFallback(["/api/events/update", "http://localhost:8080/api/events/update"], input);
+}
+
+export async function deleteEvent(id) {
+  return postJsonWithFallback(["/api/events/delete", "http://localhost:8080/api/events/delete"], { id });
 }
 
 export async function resolveReport(reportId, status = "resolved") {

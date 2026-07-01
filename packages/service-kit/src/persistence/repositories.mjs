@@ -320,6 +320,28 @@ function createCommunityRepository(store) {
       store.crews.unshift(crew);
       return { ...crew };
     },
+    async updateCrew(id, input) {
+      const crew = store.crews.find((item) => item.id === id);
+      if (!crew) {
+        return null;
+      }
+      Object.assign(crew, {
+        name: input.name || crew.name,
+        members: input.members === undefined ? crew.members : Number(input.members),
+        focus: input.focus || crew.focus,
+        status: input.status || crew.status,
+        description: input.description ?? crew.description
+      });
+      return { ...crew };
+    },
+    async deleteCrew(id) {
+      const index = store.crews.findIndex((item) => item.id === id);
+      if (index < 0) {
+        return null;
+      }
+      const [deleted] = store.crews.splice(index, 1);
+      return { ...deleted, deleted: true };
+    },
     async createEvent(input) {
       const event = {
         id: input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
@@ -332,6 +354,29 @@ function createCommunityRepository(store) {
       };
       store.events.unshift(event);
       return { ...event };
+    },
+    async updateEvent(id, input) {
+      const event = store.events.find((item) => item.id === id);
+      if (!event) {
+        return null;
+      }
+      Object.assign(event, {
+        title: input.title || event.title,
+        date: input.date || event.date,
+        type: input.type || event.type,
+        seats: input.seats === undefined ? event.seats : Number(input.seats),
+        crew: input.crew || event.crew,
+        description: input.description ?? event.description
+      });
+      return { ...event };
+    },
+    async deleteEvent(id) {
+      const index = store.events.findIndex((item) => item.id === id);
+      if (index < 0) {
+        return null;
+      }
+      const [deleted] = store.events.splice(index, 1);
+      return { ...deleted, deleted: true };
     },
     async listReports() {
       return {

@@ -6,7 +6,7 @@ export function eventsPage(state) {
   const list = events
     .map(
       (event) =>
-        `<article class="list-item"><div class="item-title"><span>${event.title}</span><span class="badge">${event.type}</span></div><p class="muted">${event.date} - ${event.seats} places - ${event.crew || "Community"}</p><p class="muted">${event.description || "Session communautaire."}</p></article>`
+        `<article class="list-item"><div class="item-title"><span>${event.title}</span><span class="badge">${event.type}</span></div><p class="muted">${event.date} - ${event.seats} places - ${event.crew || "Community"}</p><p class="muted">${event.description || "Session communautaire."}</p><div class="form-actions"><button class="button ghost compact" type="button" data-event-status="${event.id}">Feature</button><button class="button ghost compact" type="button" data-event-delete="${event.id}">Supprimer</button></div></article>`
     )
     .join("");
   return page(

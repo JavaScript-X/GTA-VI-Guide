@@ -120,6 +120,36 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/crews/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const crew = await communityRepository.updateCrew(body.id, body);
+        if (!crew) {
+          const error = new Error("Crew not found");
+          error.statusCode = 404;
+          error.code = "crew_not_found";
+          throw error;
+        }
+        return crew;
+      }
+    },
+    {
+      method: "POST",
+      path: "/crews/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const crew = await communityRepository.deleteCrew(body.id);
+        if (!crew) {
+          const error = new Error("Crew not found");
+          error.statusCode = 404;
+          error.code = "crew_not_found";
+          throw error;
+        }
+        return crew;
+      }
+    },
+    {
+      method: "POST",
       path: "/events",
       statusCode: 201,
       handler: async ({ request }) => {
@@ -131,6 +161,36 @@ createJsonService({
           throw error;
         }
         return communityRepository.createEvent(body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/events/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const event = await communityRepository.updateEvent(body.id, body);
+        if (!event) {
+          const error = new Error("Event not found");
+          error.statusCode = 404;
+          error.code = "event_not_found";
+          throw error;
+        }
+        return event;
+      }
+    },
+    {
+      method: "POST",
+      path: "/events/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const event = await communityRepository.deleteEvent(body.id);
+        if (!event) {
+          const error = new Error("Event not found");
+          error.statusCode = 404;
+          error.code = "event_not_found";
+          throw error;
+        }
+        return event;
       }
     },
     {

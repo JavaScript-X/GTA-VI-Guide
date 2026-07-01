@@ -148,6 +148,31 @@ describe("repositories", () => {
     assert.ok(community.events.some((item) => item.id === event.id));
   });
 
+  it("updates and deletes crews and events", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    await repositories.community.createCrew({
+      name: "Editable Crew",
+      members: 3
+    });
+    await repositories.community.createEvent({
+      title: "Editable Event",
+      seats: 3
+    });
+
+    const crew = await repositories.community.updateCrew("editable-crew", { status: "curated" });
+    const event = await repositories.community.updateEvent("editable-event", { type: "featured" });
+    const deletedCrew = await repositories.community.deleteCrew("editable-crew");
+    const deletedEvent = await repositories.community.deleteEvent("editable-event");
+    const community = await repositories.community.getFeed();
+
+    assert.equal(crew.status, "curated");
+    assert.equal(event.type, "featured");
+    assert.equal(deletedCrew.deleted, true);
+    assert.equal(deletedEvent.deleted, true);
+    assert.equal(community.crews.some((item) => item.id === "editable-crew"), false);
+    assert.equal(community.events.some((item) => item.id === "editable-event"), false);
+  });
+
   it("falls back to memory repositories when PostgreSQL is not configured", async () => {
     const repositories = createRepositories();
     const user = await repositories.identity.findUserByEmail("vice@example.com");
