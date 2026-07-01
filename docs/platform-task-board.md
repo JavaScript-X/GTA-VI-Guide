@@ -35,8 +35,9 @@ vraiment utilisables en production.
 - Persistance: les repositories ont maintenant un adapter PostgreSQL runtime
   optionnel via `pg`, avec fallback memoire quand `DATABASE_URL` ou le driver
   ne sont pas disponibles. Il reste a valider contre une vraie base en CI.
-- Authentification: login, JWT, refresh et logout existent, mais les utilisateurs
-  et sessions refresh ne sont pas persistes en PostgreSQL.
+- Authentification: login, JWT, refresh, logout, hash refresh token, expiration
+  refresh et suppression compte existent. Il reste a ajouter cookies securises,
+  CSRF et verification email/reset password.
 - Gateway: il agrege les donnees et l'auth, mais tous les workflows CRUD ne
   passent pas encore par lui.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
@@ -65,8 +66,8 @@ vraiment utilisables en production.
 ## Pas encore faits
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
-- Persistance PostgreSQL avancee pour les workflows restants: suppression
-  compte, moderation complete, commentaires, crews, events et uploads.
+- Persistance PostgreSQL avancee pour les workflows restants: moderation
+  complete, commentaires, crews, events et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - CRUD complet guides: edition, publication, revision, suppression et recherche.
 - CRUD complet communaute: posts, commentaires, reactions, reports, moderation,
@@ -76,7 +77,7 @@ vraiment utilisables en production.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
 - Synchronisation officielle PSN, Xbox et Rockstar via OAuth officiel uniquement.
 - Chiffrement/rotation des tokens provider et integration secret manager reelle.
-- Export, revocation et suppression complete des donnees utilisateur.
+- Export donnees utilisateur et suppression physique/anonymisation configurable.
 - Email verification, reset password et hardening session production.
 - CDN frontend/assets et strategie cache.
 - Helm chart ou release Kubernetes complete.
@@ -94,7 +95,7 @@ vraiment utilisables en production.
 3. Ajouter smoke tests sur les routes d'ecriture gateway.
 4. Ajouter des tests CI du runner sur une vraie base PostgreSQL.
 5. Tester l'adapter PostgreSQL runtime contre une vraie base.
-6. Durcir Identity: expiration refresh, hash token, suppression compte.
+6. Ajouter cookies securises, CSRF, verification email et reset password.
 7. Completer Knowledge, Community, Achievements et Profile.
 8. Completer CRUD guides et communaute avec moderation.
 9. Brancher RabbitMQ pour les evenements et le sync-worker.
@@ -114,5 +115,7 @@ vraiment utilisables en production.
   `platform.schema_migrations`.
 - Fait: ajouter l'adapter PostgreSQL runtime sous les repositories, active
   quand `DATABASE_URL` et `pg` sont disponibles.
-- Prochaine etape: tester cet adapter contre une vraie base PostgreSQL en CI ou
-  Docker Compose.
+- Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
+  et suppression compte/revocation.
+- Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
+  en CI ou Docker Compose.

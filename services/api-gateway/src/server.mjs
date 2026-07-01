@@ -23,6 +23,16 @@ async function postServiceData(service, path, body) {
   return payload.data;
 }
 
+async function deleteServiceData(service, path, request) {
+  const payload = await fetchJson(`${services[service]}${path}`, {
+    method: "DELETE",
+    headers: {
+      authorization: request.headers.authorization || ""
+    }
+  });
+  return payload.data;
+}
+
 createJsonService({
   name: "api-gateway",
   port,
@@ -109,6 +119,11 @@ createJsonService({
         const body = await readJsonBody(request);
         return postServiceData("identity", "/auth/logout", body);
       }
+    },
+    {
+      method: "DELETE",
+      path: "/api/me",
+      handler: async ({ request }) => deleteServiceData("identity", "/me", request)
     },
     {
       method: "POST",

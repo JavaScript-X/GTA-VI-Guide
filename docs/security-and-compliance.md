@@ -17,6 +17,7 @@ only request consent through OAuth or platform-approved authorization.
 - Audit logs for account linking and moderation actions.
 - Rate limiting and abuse detection.
 - Clear distinction between official synced data and manually entered data.
+- Refresh tokens must be stored as hashes and checked for expiration/revocation.
 
 ## Legal And Community Safety
 

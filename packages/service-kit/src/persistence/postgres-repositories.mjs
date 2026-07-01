@@ -304,25 +304,26 @@ function createIdentityRepository(db) {
         linkedAccounts: accounts.rows.map(mapLinkedAccount)
       };
     },
-    async createRefreshSession(refreshToken, session) {
+    async createRefreshSession(refreshTokenHash, session) {
       const result = await db.query(
         `
           INSERT INTO identity_service.refresh_sessions (
             user_id, refresh_token_hash, expires_at
           )
-          VALUES ($1, $2, now() + interval '30 days')
+          VALUES ($1, $2, $3)
           RETURNING user_id, refresh_token_hash, created_at, expires_at, revoked_at
         `,
-        [session.userId, refreshToken]
+        [session.userId, refreshTokenHash, session.expiresAt]
       );
       return {
         userId: result.rows[0].user_id,
         email: session.email,
         createdAt: result.rows[0].created_at.toISOString(),
+        expiresAt: result.rows[0].expires_at.toISOString(),
         revokedAt: result.rows[0].revoked_at
       };
     },
-    async findRefreshSession(refreshToken) {
+    async findRefreshSession(refreshTokenHash) {
       const result = await db.query(
         `
           SELECT s.user_id, s.refresh_token_hash, s.created_at, s.expires_at, s.revoked_at, u.email
@@ -330,7 +331,7 @@ function createIdentityRepository(db) {
           JOIN identity_service.users u ON u.id = s.user_id
           WHERE s.refresh_token_hash = $1
         `,
-        [refreshToken]
+        [refreshTokenHash]
       );
       const row = result.rows[0];
       if (!row) {
@@ -344,14 +345,14 @@ function createIdentityRepository(db) {
         revokedAt: row.revoked_at ? row.revoked_at.toISOString() : null
       };
     },
-    async revokeRefreshSession(refreshToken) {
-      const existing = await this.findRefreshSession(refreshToken);
+    async revokeRefreshSession(refreshTokenHash) {
+      const existing = await this.findRefreshSession(refreshTokenHash);
       if (!existing) {
         return null;
       }
       await db.query(
         "UPDATE identity_service.refresh_sessions SET revoked_at = now() WHERE refresh_token_hash = $1",
-        [refreshToken]
+        [refreshTokenHash]
       );
       return { ...existing, revokedAt: new Date().toISOString() };
     },
@@ -426,6 +427,37 @@ function createIdentityRepository(db) {
     },
     async listRoles() {
       return ["player", "contributor", "moderator", "admin"];
+    },
+    async deleteUserData(userId, requestId) {
+      await db.query("UPDATE identity_service.refresh_sessions SET revoked_at = now() WHERE user_id = $1", [userId]);
+      await db.query(
+        "UPDATE identity_service.linked_accounts SET revoked_at = now(), sync_status = 'revoked' WHERE user_id = $1",
+        [userId]
+      );
+      await db.query("UPDATE identity_service.users SET deleted_at = now(), updated_at = now() WHERE id = $1", [userId]);
+      await db.query(
+        `
+          INSERT INTO identity_service.audit_log (actor_user_id, action, target_type, target_id, request_id, metadata)
+          VALUES ($1, 'account.deleted', 'user', $1, $2, $3::jsonb)
+        `,
+        [
+          userId,
+          requestId || null,
+          JSON.stringify({
+            type: "account.deleted",
+            userId,
+            requestId,
+            revokedSessions: true,
+            revokedLinkedAccounts: true
+          })
+        ]
+      );
+      return {
+        type: "account.deleted",
+        userId,
+        requestId,
+        createdAt: new Date().toISOString()
+      };
     }
   };
 }

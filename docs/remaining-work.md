@@ -10,8 +10,10 @@ prepared integration boundaries.
   adapter through `pg`. Local development still falls back to memory when
   `DATABASE_URL` or the driver are unavailable.
 - Authentication can persist users, refresh sessions, consent events, and audit
-  logs through the PostgreSQL adapter, but token hashing, expiration enforcement,
-  and account deletion hardening still need production work.
+  logs through the PostgreSQL adapter. Refresh tokens are hashed, expiration is
+  enforced, logout revokes sessions, and account deletion revokes sessions and
+  linked accounts. Secure cookies, CSRF protection, email verification, and reset
+  password still need production work.
 - PSN, Xbox, and Rockstar accounts are not truly connected. Only the safe OAuth
   boundary and consent model exist.
 - Player tracking, achievements, vehicles, map districts, crews, and events are
@@ -41,10 +43,11 @@ prepared integration boundaries.
 
 1. Add CI coverage for the PostgreSQL adapter and migration runner against a
    real PostgreSQL target.
-2. Harden refresh sessions with token hashing and expiration enforcement.
-3. Add account deletion and full consent revocation flows.
-4. Add CRUD APIs for guides.
-5. Add CRUD APIs for community posts, comments, reports, crews, and events.
+2. Add secure cookie session transport and CSRF protection for browser sessions.
+3. Add email verification and reset password.
+4. Add data export and configurable anonymization/deletion policy.
+5. Add CRUD APIs for guides.
+6. Add CRUD APIs for community posts, comments, reports, crews, and events.
 7. Add editable player profile, achievement progress, garage/vehicles, and map
    points.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.

@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { getEnv } from "./config.mjs";
 
 function base64UrlEncode(value) {
@@ -70,6 +70,10 @@ export function verifyJwt(token, { secret } = {}) {
 
 export function createRefreshToken() {
   return randomBytes(48).toString("base64url");
+}
+
+export function hashRefreshToken(token) {
+  return createHash("sha256").update(String(token || "")).digest("hex");
 }
 
 export function getBearerToken(request) {

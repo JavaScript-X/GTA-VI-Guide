@@ -27,6 +27,14 @@ export async function postJsonWithFallback(paths, payload) {
   );
 }
 
+export async function requestWithFallback(paths, options = {}) {
+  return fetchJsonWithFallback(
+    paths.map((url) => {
+      return new Request(url, options);
+    })
+  );
+}
+
 export async function loadDashboard() {
   return fetchJsonWithFallback(["/api/dashboard", "http://localhost:8080/api/dashboard"]);
 }
@@ -64,5 +72,14 @@ export async function updateAchievementProgress(id, progress) {
 export async function updateProfileCompletion(completion) {
   return postJsonWithFallback(["/api/profiles/me/completion", "http://localhost:8080/api/profiles/me/completion"], {
     completion
+  });
+}
+
+export async function deleteAccount(accessToken) {
+  return requestWithFallback(["/api/me", "http://localhost:8080/api/me", "http://localhost:8081/me"], {
+    method: "DELETE",
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
   });
 }

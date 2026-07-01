@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { hashPassword, signJwt, verifyJwt, verifyPassword } from "../packages/service-kit/src/auth.mjs";
+import { hashPassword, hashRefreshToken, signJwt, verifyJwt, verifyPassword } from "../packages/service-kit/src/auth.mjs";
 
 describe("auth helpers", () => {
   it("hashes and verifies passwords", () => {
@@ -32,5 +32,14 @@ describe("auth helpers", () => {
     const tampered = `${token.slice(0, -1)}x`;
 
     assert.throws(() => verifyJwt(tampered, { secret: "test-secret" }), /Invalid token/);
+  });
+
+  it("hashes refresh tokens without keeping the raw token", () => {
+    const token = "refresh-token-value";
+    const hashed = hashRefreshToken(token);
+
+    assert.notEqual(hashed, token);
+    assert.equal(hashed.length, 64);
+    assert.equal(hashRefreshToken(token), hashed);
   });
 });

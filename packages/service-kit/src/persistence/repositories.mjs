@@ -30,30 +30,32 @@ function publicUser(user) {
 function createIdentityRepository(store) {
   return {
     async findUserByEmail(email) {
-      return store.users.get(String(email).toLowerCase()) || null;
+      const user = store.users.get(String(email).toLowerCase()) || null;
+      return user?.deletedAt ? null : user;
     },
     async findUserById(id) {
-      return store.usersById.get(id) || null;
+      const user = store.usersById.get(id) || null;
+      return user?.deletedAt ? null : user;
     },
     async getDefaultUser() {
       return publicUser(store.users.get("vice@example.com"));
     },
     async getUserWithLinkedAccounts(userId) {
-      const user = store.usersById.get(userId) || store.users.get("vice@example.com");
+      const user = await this.findUserById(userId) || store.users.get("vice@example.com");
       return {
         user: publicUser(user),
         linkedAccounts: store.linkedAccounts.map((account) => ({ ...account }))
       };
     },
-    async createRefreshSession(refreshToken, session) {
-      store.refreshSessions.set(refreshToken, { ...session });
-      return store.refreshSessions.get(refreshToken);
+    async createRefreshSession(refreshTokenHash, session) {
+      store.refreshSessions.set(refreshTokenHash, { ...session, refreshTokenHash });
+      return store.refreshSessions.get(refreshTokenHash);
     },
-    async findRefreshSession(refreshToken) {
-      return store.refreshSessions.get(refreshToken) || null;
+    async findRefreshSession(refreshTokenHash) {
+      return store.refreshSessions.get(refreshTokenHash) || null;
     },
-    async revokeRefreshSession(refreshToken) {
-      const session = store.refreshSessions.get(refreshToken);
+    async revokeRefreshSession(refreshTokenHash) {
+      const session = store.refreshSessions.get(refreshTokenHash);
       if (session) {
         session.revokedAt = new Date().toISOString();
       }
@@ -86,6 +88,33 @@ function createIdentityRepository(store) {
     },
     async listRoles() {
       return ["player", "contributor", "moderator", "admin"];
+    },
+    async deleteUserData(userId, requestId) {
+      const user = store.usersById.get(userId);
+      if (!user) {
+        return null;
+      }
+      user.deletedAt = new Date().toISOString();
+      const userByEmail = store.users.get(String(user.email || "").toLowerCase());
+      if (userByEmail) {
+        userByEmail.deletedAt = user.deletedAt;
+      }
+      for (const session of store.refreshSessions.values()) {
+        if (session.userId === userId) {
+          session.revokedAt = session.revokedAt || new Date().toISOString();
+        }
+      }
+      for (const account of store.linkedAccounts) {
+        account.status = "revoked";
+      }
+      const event = {
+        type: "account.deleted",
+        userId,
+        requestId,
+        createdAt: new Date().toISOString()
+      };
+      store.auditLog.push(event);
+      return event;
     }
   };
 }

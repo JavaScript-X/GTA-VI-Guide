@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createMemoryStore } from "../packages/service-kit/src/persistence/memory-store.mjs";
 import { createRepositories } from "../packages/service-kit/src/persistence/repositories.mjs";
 import { createPostgresReadiness } from "../packages/service-kit/src/persistence/postgres-adapter.mjs";
+import { hashRefreshToken } from "../packages/service-kit/src/auth.mjs";
 
 describe("repositories", () => {
   it("authenticates against the identity repository seed user", async () => {
@@ -60,5 +61,25 @@ describe("repositories", () => {
     assert.equal(user.email, "vice@example.com");
     assert.equal(readiness.configured, false);
     assert.equal(readiness.mode, "memory-fallback");
+  });
+
+  it("stores refresh sessions by hashed token and deletes account data", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const user = await repositories.identity.findUserByEmail("vice@example.com");
+    const tokenHash = hashRefreshToken("raw-refresh-token");
+
+    await repositories.identity.createRefreshSession(tokenHash, {
+      userId: user.id,
+      email: user.email,
+      expiresAt: new Date(Date.now() + 60000).toISOString()
+    });
+
+    assert.equal(await repositories.identity.findRefreshSession("raw-refresh-token"), null);
+    assert.equal((await repositories.identity.findRefreshSession(tokenHash)).userId, user.id);
+
+    await repositories.identity.deleteUserData(user.id, "request_1");
+
+    assert.equal(await repositories.identity.findUserByEmail("vice@example.com"), null);
+    assert.ok((await repositories.identity.findRefreshSession(tokenHash)).revokedAt);
   });
 });

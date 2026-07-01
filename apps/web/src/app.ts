@@ -3,6 +3,7 @@ import { setDashboard, setPlatform, setSession, clearSession, store } from "./st
 import {
   createCommunityPost,
   createGuide,
+  deleteAccount,
   loadDashboard,
   loadPlatform,
   login,
@@ -122,6 +123,25 @@ function bindInteractions() {
       clearSession();
       renderApp();
       navigate("account");
+    });
+  }
+
+  const deleteAccountButton = document.querySelector("#delete-account-button");
+  if (deleteAccountButton) {
+    deleteAccountButton.addEventListener("click", async () => {
+      const confirmed = window.confirm("Supprimer ce compte et revoquer les sessions ?");
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await deleteAccount(store.session.accessToken);
+        clearSession();
+        renderApp();
+        navigate("settings");
+        setFormStatus("delete-account", "Compte supprime et sessions revoquees.");
+      } catch (error) {
+        setFormStatus("delete-account", `Erreur: ${error.message}`, true);
+      }
     });
   }
 

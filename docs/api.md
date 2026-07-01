@@ -37,11 +37,36 @@ Updates manual achievement progress for the current player snapshot.
 
 Updates manual profile completion categories.
 
+`DELETE /api/me`
+
+Deletes the authenticated account boundary through the Identity Service. Current
+behavior disables the user, revokes refresh sessions, revokes linked accounts,
+and writes an audit event.
+
 ## Identity Service
 
 `GET /me`
 
 Returns the current user and linked account states.
+
+`POST /auth/login`
+
+Authenticates a user and returns a JWT access token plus a refresh token. Refresh
+tokens are stored as hashes server-side.
+
+`POST /auth/refresh`
+
+Issues a new session when the refresh token is valid, not revoked, and not
+expired.
+
+`POST /auth/logout`
+
+Revokes a refresh session.
+
+`DELETE /me`
+
+Deletes the authenticated user boundary, revokes sessions and linked accounts,
+and records an audit event.
 
 `POST /link-intents`
 

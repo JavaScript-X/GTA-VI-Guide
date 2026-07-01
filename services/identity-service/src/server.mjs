@@ -1,10 +1,12 @@
 import {
   createRefreshToken,
+  hashRefreshToken,
   requireRole,
   requireUser,
   signJwt,
   verifyPassword
 } from "../../../packages/service-kit/src/auth.mjs";
+import { getNumberEnv } from "../../../packages/service-kit/src/config.mjs";
 import { createJsonService, readJsonBody } from "../../../packages/service-kit/src/http.mjs";
 import { createRepositories } from "../../../packages/service-kit/src/persistence/repositories.mjs";
 import { createPostgresReadiness } from "../../../packages/service-kit/src/persistence/postgres-adapter.mjs";
@@ -12,6 +14,7 @@ import { createPostgresReadiness } from "../../../packages/service-kit/src/persi
 const port = Number(process.env.IDENTITY_SERVICE_PORT || 8081);
 const repositories = createRepositories();
 const identityRepository = repositories.identity;
+const refreshTtlSeconds = getNumberEnv("JWT_REFRESH_TTL_SECONDS", "2592000");
 
 async function createSession(user, requestId) {
   const accessToken = signJwt({
@@ -21,10 +24,13 @@ async function createSession(user, requestId) {
     roles: user.roles
   });
   const refreshToken = createRefreshToken();
-  await identityRepository.createRefreshSession(refreshToken, {
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+  const expiresAt = new Date(Date.now() + refreshTtlSeconds * 1000).toISOString();
+  await identityRepository.createRefreshSession(refreshTokenHash, {
     userId: user.id,
     email: user.email,
     createdAt: new Date().toISOString(),
+    expiresAt,
     revokedAt: null
   });
   await identityRepository.appendAuditEvent({
@@ -33,7 +39,11 @@ async function createSession(user, requestId) {
     requestId,
     createdAt: new Date().toISOString()
   });
-  return { accessToken, refreshToken, tokenType: "Bearer", expiresIn: 900 };
+  return { accessToken, refreshToken, tokenType: "Bearer", expiresIn: 900, refreshExpiresAt: expiresAt };
+}
+
+function isExpired(session) {
+  return session.expiresAt && Date.parse(session.expiresAt) <= Date.now();
 }
 
 createJsonService({
@@ -94,9 +104,9 @@ createJsonService({
       handler: async ({ request, requestId }) => {
         const body = await readJsonBody(request);
         const refreshToken = String(body.refreshToken || "");
-        const session = await identityRepository.findRefreshSession(refreshToken);
+        const session = await identityRepository.findRefreshSession(hashRefreshToken(refreshToken));
 
-        if (!session || session.revokedAt) {
+        if (!session || session.revokedAt || isExpired(session)) {
           const error = new Error("Invalid refresh token");
           error.statusCode = 401;
           error.code = "invalid_refresh_token";
@@ -116,7 +126,7 @@ createJsonService({
       handler: async ({ request, requestId }) => {
         const body = await readJsonBody(request);
         const refreshToken = String(body.refreshToken || "");
-        const session = await identityRepository.revokeRefreshSession(refreshToken);
+        const session = await identityRepository.revokeRefreshSession(hashRefreshToken(refreshToken));
 
         if (session) {
           await identityRepository.appendAuditEvent({
@@ -128,6 +138,18 @@ createJsonService({
         }
 
         return { status: "logged_out" };
+      }
+    },
+    {
+      method: "DELETE",
+      path: "/me",
+      handler: async ({ request, requestId }) => {
+        const claims = requireUser(request);
+        await identityRepository.deleteUserData(claims.sub, requestId);
+        return {
+          status: "account_deleted",
+          dataRetention: "identity disabled, sessions revoked, consents revoked"
+        };
       }
     },
     {

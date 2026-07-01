@@ -124,6 +124,25 @@ try {
   if (!loginPayload.data.session?.accessToken) {
     throw new Error("Login payload is missing access token");
   }
+  if (!loginPayload.data.session?.refreshExpiresAt) {
+    throw new Error("Login payload is missing refresh expiration");
+  }
+
+  const refresh = await fetch(`http://localhost:${ports.gateway}/api/auth/refresh`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      refreshToken: loginPayload.data.session.refreshToken
+    })
+  });
+  if (!refresh.ok) {
+    throw new Error(`Refresh endpoint returned ${refresh.status}`);
+  }
+
+  const refreshPayload = await refresh.json();
+  if (!refreshPayload.data.session?.accessToken || !refreshPayload.data.session?.refreshExpiresAt) {
+    throw new Error("Refresh payload is missing hardened session fields");
+  }
 
   const guide = await fetch(`http://localhost:${ports.gateway}/api/guides`, {
     method: "POST",
@@ -187,6 +206,27 @@ try {
   });
   if (!completion.ok) {
     throw new Error(`Profile completion returned ${completion.status}`);
+  }
+
+  const logout = await fetch(`http://localhost:${ports.gateway}/api/auth/logout`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      refreshToken: refreshPayload.data.session.refreshToken
+    })
+  });
+  if (!logout.ok) {
+    throw new Error(`Logout endpoint returned ${logout.status}`);
+  }
+
+  const deleteAccount = await fetch(`http://localhost:${ports.gateway}/api/me`, {
+    method: "DELETE",
+    headers: {
+      authorization: `Bearer ${refreshPayload.data.session.accessToken}`
+    }
+  });
+  if (!deleteAccount.ok) {
+    throw new Error(`Delete account endpoint returned ${deleteAccount.status}`);
   }
 
   console.log("Smoke test passed.");
