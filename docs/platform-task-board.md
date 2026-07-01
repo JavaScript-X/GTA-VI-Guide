@@ -44,8 +44,8 @@ vraiment utilisables en production.
   edition, moderation, commentaires, reactions et recherche restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
-- Migrations: le runner applique des fichiers SQL, mais doit encore verifier
-  `platform.schema_migrations` avant chaque execution.
+- Migrations: le runner sait maintenant verifier `platform.schema_migrations`
+  avant chaque execution, mais il depend encore du client local `psql`.
 - CI/CD: la fondation existe, mais scan, push registry et deploy production sont
   encore a finaliser selon le provider.
 - Kubernetes: manifests de base presents, mais pas de Helm chart ni packaging
@@ -66,7 +66,7 @@ vraiment utilisables en production.
 - Adapter PostgreSQL reel pour chaque repository.
 - Persistance PostgreSQL des users, refresh sessions, linked accounts, consents,
   audit logs, guides, posts, reports, achievements et profils.
-- Runner de migrations idempotent base sur `schema_migrations`.
+- Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - CRUD complet guides: edition, publication, revision, suppression et recherche.
 - CRUD complet communaute: posts, commentaires, reactions, reports, moderation,
   crews et events.
@@ -91,7 +91,7 @@ vraiment utilisables en production.
 1. Exposer par le Gateway les actions deja disponibles dans les services.
 2. Rendre les pages frontend capables de creer guide, post, report et progression.
 3. Ajouter smoke tests sur les routes d'ecriture gateway.
-4. Implementer le runner de migrations idempotent.
+4. Ajouter des tests CI du runner sur une vraie base PostgreSQL.
 5. Ajouter l'adapter PostgreSQL runtime.
 6. Persister Identity: users, sessions, consents et audit logs.
 7. Persister Knowledge, Community, Achievements et Profile.
@@ -109,5 +109,6 @@ vraiment utilisables en production.
   reports, achievements et completion profil.
 - Fait: ajouter les premiers formulaires frontend connectes a ces actions.
 - Fait: etendre le smoke test pour valider ces workflows.
-- Prochaine etape: rendre le runner de migrations idempotent avec
+- Fait: rendre le runner de migrations idempotent avec
   `platform.schema_migrations`.
+- Prochaine etape: ajouter l'adapter PostgreSQL runtime sous les repositories.

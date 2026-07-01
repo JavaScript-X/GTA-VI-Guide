@@ -21,8 +21,9 @@ prepared integration boundaries.
   messages yet.
 - RabbitMQ and MinIO are configured, but services do not publish/consume events
   or store uploaded files yet.
-- A migration runner exists, but it requires `psql` locally and does not yet
-  track applied migrations before executing files.
+- A migration runner exists and checks `platform.schema_migrations` before each
+  file, but it still requires `psql` locally and needs CI coverage with a real
+  PostgreSQL target.
 - CI/CD still has placeholder scan and deployment steps.
 - Kubernetes manifests are a foundation, not a complete environment-specific
   release package.
@@ -38,8 +39,7 @@ prepared integration boundaries.
 ## Next Implementation Order
 
 1. Add a real PostgreSQL adapter under the repository boundary.
-2. Improve the migration runner to check `platform.schema_migrations` before
-   applying each migration.
+2. Add CI coverage for the migration runner against a real PostgreSQL target.
 3. Persist users, refresh sessions, linked accounts, consent events, and audit
    logs.
 4. Replace guide, achievement, profile, and community mock reads with
