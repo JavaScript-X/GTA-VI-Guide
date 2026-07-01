@@ -55,6 +55,7 @@ function currentRoute() {
 
 function navigate(route) {
   const page = route || "home";
+  document.body.classList.remove("menu-open");
   document.querySelectorAll(".page").forEach((section) => {
     section.classList.toggle("is-active", section.dataset.page === page);
   });
@@ -84,6 +85,18 @@ function setFormStatus(name, message, isError = false) {
 }
 
 function bindInteractions() {
+  document.querySelectorAll("[data-menu-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.body.classList.add("menu-open");
+    });
+  });
+
+  document.querySelectorAll("[data-menu-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.body.classList.remove("menu-open");
+    });
+  });
+
   document.querySelectorAll("[data-route]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();

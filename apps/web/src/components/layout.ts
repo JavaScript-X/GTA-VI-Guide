@@ -16,10 +16,14 @@ export const routes = [
 export function shell(content) {
   const primaryRoutes = routes.filter((route) => route.group === "main");
   const secondaryRoutes = routes.filter((route) => route.group === "more");
+  const allRoutes = [...primaryRoutes, ...secondaryRoutes];
   return `
     <header class="topbar">
       <div class="topbar-inner">
         <a class="brand" href="#home" data-route="home"><span>VI</span> Guide</a>
+        <button class="menu-toggle" type="button" data-menu-toggle aria-label="Ouvrir le menu">
+          <span></span><span></span><span></span>
+        </button>
         <nav class="nav" aria-label="Navigation principale">
           ${primaryRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
           <details class="nav-more">
@@ -31,6 +35,16 @@ export function shell(content) {
         </nav>
       </div>
     </header>
+    <div class="drawer-backdrop" data-menu-close></div>
+    <aside class="mobile-drawer" aria-label="Menu mobile">
+      <div class="drawer-head">
+        <a class="brand" href="#home" data-route="home"><span>VI</span> Guide</a>
+        <button class="drawer-close" type="button" data-menu-close aria-label="Fermer le menu">Fermer</button>
+      </div>
+      <nav class="drawer-nav">
+        ${allRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+      </nav>
+    </aside>
     <main>${content}</main>
   `;
 }
