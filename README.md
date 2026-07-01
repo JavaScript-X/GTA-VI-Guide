@@ -77,6 +77,7 @@ requirements are available.
 - [Deployment checklist](docs/deployment-checklist.md)
 - [Deployability status](docs/deployability-status.md)
 - [Remaining work](docs/remaining-work.md)
+- [Platform task board](docs/platform-task-board.md)
 - [Runbook](docs/runbook.md)
 - [Security and compliance](docs/security-and-compliance.md)
 - [Delivery backlog](docs/backlog.md)
