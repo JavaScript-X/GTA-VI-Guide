@@ -13,6 +13,7 @@ COPY infra ./infra
 
 ENV NODE_ENV=production
 
+RUN npm install --omit=dev
 RUN node scripts/build-web.mjs
 
 USER app

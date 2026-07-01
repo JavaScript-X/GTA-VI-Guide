@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createMemoryStore } from "../packages/service-kit/src/persistence/memory-store.mjs";
 import { createRepositories } from "../packages/service-kit/src/persistence/repositories.mjs";
+import { createPostgresReadiness } from "../packages/service-kit/src/persistence/postgres-adapter.mjs";
 
 describe("repositories", () => {
   it("authenticates against the identity repository seed user", async () => {
@@ -49,5 +50,15 @@ describe("repositories", () => {
     assert.equal(post.channel, "events");
     assert.equal(report.status, "open");
     assert.equal(feed.moderation.reportsOpen, 1);
+  });
+
+  it("falls back to memory repositories when PostgreSQL is not configured", async () => {
+    const repositories = createRepositories();
+    const user = await repositories.identity.findUserByEmail("vice@example.com");
+    const readiness = createPostgresReadiness();
+
+    assert.equal(user.email, "vice@example.com");
+    assert.equal(readiness.configured, false);
+    assert.equal(readiness.mode, "memory-fallback");
   });
 });

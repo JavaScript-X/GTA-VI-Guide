@@ -66,3 +66,5 @@ Example manifests live in `infra/k8s`. Before applying them:
 - Replace image names.
 - Create real secrets from your secret manager.
 - Point `DATABASE_URL` at production PostgreSQL.
+- Install production dependencies so the optional `pg` runtime adapter is
+  available. Without `pg`, services intentionally fall back to memory mode.

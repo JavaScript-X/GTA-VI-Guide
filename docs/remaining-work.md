@@ -6,11 +6,12 @@ prepared integration boundaries.
 
 ## Not Fully Functional Yet
 
-- Services now use a repository boundary, but the active runtime adapter is still
-  memory fallback until the PostgreSQL driver is added.
-- Authentication works as a local foundation through repositories, but users and
-  refresh sessions are not persisted in PostgreSQL yet.
-- Refresh tokens are stored in memory and are lost on service restart.
+- Services now use a repository boundary with an optional PostgreSQL runtime
+  adapter through `pg`. Local development still falls back to memory when
+  `DATABASE_URL` or the driver are unavailable.
+- Authentication can persist users, refresh sessions, consent events, and audit
+  logs through the PostgreSQL adapter, but token hashing, expiration enforcement,
+  and account deletion hardening still need production work.
 - PSN, Xbox, and Rockstar accounts are not truly connected. Only the safe OAuth
   boundary and consent model exist.
 - Player tracking, achievements, vehicles, map districts, crews, and events are
@@ -38,14 +39,12 @@ prepared integration boundaries.
 
 ## Next Implementation Order
 
-1. Add a real PostgreSQL adapter under the repository boundary.
-2. Add CI coverage for the migration runner against a real PostgreSQL target.
-3. Persist users, refresh sessions, linked accounts, consent events, and audit
-   logs.
-4. Replace guide, achievement, profile, and community mock reads with
-   repositories.
-5. Add CRUD APIs for guides.
-6. Add CRUD APIs for community posts, comments, reports, crews, and events.
+1. Add CI coverage for the PostgreSQL adapter and migration runner against a
+   real PostgreSQL target.
+2. Harden refresh sessions with token hashing and expiration enforcement.
+3. Add account deletion and full consent revocation flows.
+4. Add CRUD APIs for guides.
+5. Add CRUD APIs for community posts, comments, reports, crews, and events.
 7. Add editable player profile, achievement progress, garage/vehicles, and map
    points.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.

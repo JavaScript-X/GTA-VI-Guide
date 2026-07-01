@@ -32,8 +32,9 @@ vraiment utilisables en production.
 
 ## Complets a moitie
 
-- Persistance: les repositories existent, mais l'execution utilise encore un
-  store memoire. PostgreSQL est schema-ready, pas encore runtime-ready.
+- Persistance: les repositories ont maintenant un adapter PostgreSQL runtime
+  optionnel via `pg`, avec fallback memoire quand `DATABASE_URL` ou le driver
+  ne sont pas disponibles. Il reste a valider contre une vraie base en CI.
 - Authentification: login, JWT, refresh et logout existent, mais les utilisateurs
   et sessions refresh ne sont pas persistes en PostgreSQL.
 - Gateway: il agrege les donnees et l'auth, mais tous les workflows CRUD ne
@@ -63,9 +64,9 @@ vraiment utilisables en production.
 
 ## Pas encore faits
 
-- Adapter PostgreSQL reel pour chaque repository.
-- Persistance PostgreSQL des users, refresh sessions, linked accounts, consents,
-  audit logs, guides, posts, reports, achievements et profils.
+- Validation CI de l'adapter PostgreSQL contre une vraie base.
+- Persistance PostgreSQL avancee pour les workflows restants: suppression
+  compte, moderation complete, commentaires, crews, events et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - CRUD complet guides: edition, publication, revision, suppression et recherche.
 - CRUD complet communaute: posts, commentaires, reactions, reports, moderation,
@@ -92,9 +93,9 @@ vraiment utilisables en production.
 2. Rendre les pages frontend capables de creer guide, post, report et progression.
 3. Ajouter smoke tests sur les routes d'ecriture gateway.
 4. Ajouter des tests CI du runner sur une vraie base PostgreSQL.
-5. Ajouter l'adapter PostgreSQL runtime.
-6. Persister Identity: users, sessions, consents et audit logs.
-7. Persister Knowledge, Community, Achievements et Profile.
+5. Tester l'adapter PostgreSQL runtime contre une vraie base.
+6. Durcir Identity: expiration refresh, hash token, suppression compte.
+7. Completer Knowledge, Community, Achievements et Profile.
 8. Completer CRUD guides et communaute avec moderation.
 9. Brancher RabbitMQ pour les evenements et le sync-worker.
 10. Ajouter upload objet MinIO/S3.
@@ -111,4 +112,7 @@ vraiment utilisables en production.
 - Fait: etendre le smoke test pour valider ces workflows.
 - Fait: rendre le runner de migrations idempotent avec
   `platform.schema_migrations`.
-- Prochaine etape: ajouter l'adapter PostgreSQL runtime sous les repositories.
+- Fait: ajouter l'adapter PostgreSQL runtime sous les repositories, active
+  quand `DATABASE_URL` et `pg` sont disponibles.
+- Prochaine etape: tester cet adapter contre une vraie base PostgreSQL en CI ou
+  Docker Compose.

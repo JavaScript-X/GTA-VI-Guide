@@ -1,0 +1,641 @@
+import { achievements, communityFeed, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
+import { hashPassword } from "../auth.mjs";
+import { getDatabaseUrl, isPostgresConfigured, loadPostgresDriver } from "./postgres-adapter.mjs";
+
+const defaultEmail = "vice@example.com";
+let pool;
+let seedPromise;
+
+export function createPostgresRepositories() {
+  if (!isPostgresConfigured()) {
+    return null;
+  }
+
+  const pg = loadPostgresDriver();
+  if (!pg) {
+    return null;
+  }
+
+  if (!pool) {
+    pool = new pg.Pool({ connectionString: getDatabaseUrl() });
+  }
+
+  const db = {
+    async query(text, params = []) {
+      await ensureSeedData();
+      return pool.query(text, params);
+    },
+    async rawQuery(text, params = []) {
+      return pool.query(text, params);
+    }
+  };
+
+  return {
+    identity: createIdentityRepository(db),
+    profiles: createProfileRepository(db),
+    achievements: createAchievementRepository(db),
+    knowledge: createKnowledgeRepository(db),
+    community: createCommunityRepository(db)
+  };
+}
+
+async function ensureSeedData() {
+  if (!pool) {
+    return;
+  }
+
+  if (!seedPromise) {
+    seedPromise = seedDatabase();
+  }
+
+  await seedPromise;
+}
+
+async function seedDatabase() {
+  const user = await upsertDefaultUser();
+  await Promise.all([
+    seedLinkedAccounts(user.id),
+    seedProfile(user.id),
+    seedAchievements(user.id),
+    seedGuides(),
+    seedCommunityPosts(user.id)
+  ]);
+}
+
+async function upsertDefaultUser() {
+  const result = await pool.query(
+    `
+      INSERT INTO identity_service.users (display_name, email, password_hash, locale, roles, reputation)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (email) DO UPDATE
+      SET display_name = EXCLUDED.display_name,
+          password_hash = COALESCE(identity_service.users.password_hash, EXCLUDED.password_hash),
+          locale = EXCLUDED.locale,
+          roles = EXCLUDED.roles,
+          reputation = EXCLUDED.reputation,
+          updated_at = now()
+      RETURNING id, display_name, email, password_hash, locale, roles, reputation, created_at, updated_at
+    `,
+    [
+      sampleUser.displayName,
+      defaultEmail,
+      hashPassword("ChangeMe123!"),
+      sampleUser.locale,
+      ["player", "contributor", "moderator"],
+      sampleUser.reputation
+    ]
+  );
+  return mapUser(result.rows[0]);
+}
+
+async function seedLinkedAccounts(userId) {
+  for (const account of linkedAccounts) {
+    await pool.query(
+      `
+        INSERT INTO identity_service.linked_accounts (
+          user_id, provider, external_handle, sync_status, data_source, last_sync_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (provider, external_handle) DO UPDATE
+        SET sync_status = EXCLUDED.sync_status,
+            data_source = EXCLUDED.data_source,
+            last_sync_at = EXCLUDED.last_sync_at
+      `,
+      [
+        userId,
+        account.provider,
+        account.handle,
+        account.status,
+        account.status === "mock-linked" ? "manual" : "manual",
+        account.lastSyncAt
+      ]
+    );
+  }
+}
+
+async function seedProfile(userId) {
+  const character = profileSnapshot.activeCharacter;
+  await pool.query(
+    `
+      INSERT INTO game_profile_service.player_snapshots (
+        user_id, platform, character_name, level, crew_name, cash_balance, bank_balance, completion, source
+      )
+      SELECT $1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'manual'
+      WHERE NOT EXISTS (
+        SELECT 1 FROM game_profile_service.player_snapshots WHERE user_id = $1
+      )
+    `,
+    [
+      userId,
+      profileSnapshot.platforms[0],
+      character.name,
+      character.level,
+      character.crew,
+      character.cash,
+      character.bank,
+      JSON.stringify(profileSnapshot.completion)
+    ]
+  );
+}
+
+async function seedAchievements(userId) {
+  for (const achievement of achievements) {
+    await pool.query(
+      `
+        INSERT INTO achievement_service.achievements (id, title, category, rarity, points)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id) DO UPDATE
+        SET title = EXCLUDED.title,
+            category = EXCLUDED.category,
+            rarity = EXCLUDED.rarity,
+            points = EXCLUDED.points
+      `,
+      [achievement.id, achievement.title, achievement.category, achievement.rarity, achievement.points]
+    );
+
+    await pool.query(
+      `
+        INSERT INTO achievement_service.user_achievement_progress (user_id, achievement_id, progress, source)
+        VALUES ($1, $2, $3, 'manual')
+        ON CONFLICT (user_id, achievement_id) DO NOTHING
+      `,
+      [userId, achievement.id, achievement.progress]
+    );
+  }
+}
+
+async function seedGuides() {
+  for (const guide of guides) {
+    await pool.query(
+      `
+        INSERT INTO knowledge_service.guides (id, title, language, status, summary, tags)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id) DO NOTHING
+      `,
+      [guide.id, guide.title, guide.language, guide.status, guide.summary, guide.tags]
+    );
+  }
+}
+
+async function seedCommunityPosts(userId) {
+  for (const post of communityFeed) {
+    await pool.query(
+      `
+        INSERT INTO community_service.posts (author_id, channel, title, body, score, replies_count)
+        SELECT $1, $2, $3, '', $4, $5
+        WHERE NOT EXISTS (
+          SELECT 1 FROM community_service.posts WHERE title = $3
+        )
+      `,
+      [userId, post.channel, post.title, post.score, post.replies]
+    );
+  }
+}
+
+function mapUser(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    displayName: row.display_name,
+    email: row.email,
+    passwordHash: row.password_hash,
+    locale: row.locale,
+    roles: row.roles || [],
+    reputation: row.reputation
+  };
+}
+
+function publicUser(user) {
+  if (!user) {
+    return null;
+  }
+  const { passwordHash, ...safeUser } = user;
+  return safeUser;
+}
+
+function mapLinkedAccount(row) {
+  return {
+    provider: row.provider,
+    handle: row.external_handle,
+    status: row.sync_status,
+    lastSyncAt: row.last_sync_at ? row.last_sync_at.toISOString() : null,
+    dataSource: row.data_source === "manual" ? "manual-preview" : row.data_source
+  };
+}
+
+function mapAchievement(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    rarity: row.rarity,
+    points: row.points,
+    progress: Number(row.progress || 0)
+  };
+}
+
+function mapGuide(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    type: "guide",
+    language: row.language,
+    status: row.status,
+    tags: row.tags || [],
+    summary: row.summary
+  };
+}
+
+function mapPost(row) {
+  return {
+    id: row.id,
+    author: row.author || "Vice Explorer",
+    channel: row.channel,
+    title: row.title,
+    body: row.body || "",
+    replies: Number(row.replies_count || 0),
+    score: Number(row.score || 0)
+  };
+}
+
+async function defaultUser(db) {
+  const result = await db.query(
+    "SELECT id, display_name, email, password_hash, locale, roles, reputation FROM identity_service.users WHERE email = $1",
+    [defaultEmail]
+  );
+  return mapUser(result.rows[0]);
+}
+
+function createIdentityRepository(db) {
+  return {
+    async findUserByEmail(email) {
+      const result = await db.query(
+        "SELECT id, display_name, email, password_hash, locale, roles, reputation FROM identity_service.users WHERE lower(email) = lower($1) AND deleted_at IS NULL",
+        [email]
+      );
+      return mapUser(result.rows[0]);
+    },
+    async findUserById(id) {
+      const result = await db.query(
+        "SELECT id, display_name, email, password_hash, locale, roles, reputation FROM identity_service.users WHERE id = $1 AND deleted_at IS NULL",
+        [id]
+      );
+      return mapUser(result.rows[0]);
+    },
+    async getDefaultUser() {
+      return publicUser(await defaultUser(db));
+    },
+    async getUserWithLinkedAccounts(userId) {
+      const user = await this.findUserById(userId) || await defaultUser(db);
+      const accounts = await db.query(
+        `
+          SELECT provider, external_handle, sync_status, data_source, last_sync_at
+          FROM identity_service.linked_accounts
+          WHERE user_id = $1
+          ORDER BY provider
+        `,
+        [user.id]
+      );
+      return {
+        user: publicUser(user),
+        linkedAccounts: accounts.rows.map(mapLinkedAccount)
+      };
+    },
+    async createRefreshSession(refreshToken, session) {
+      const result = await db.query(
+        `
+          INSERT INTO identity_service.refresh_sessions (
+            user_id, refresh_token_hash, expires_at
+          )
+          VALUES ($1, $2, now() + interval '30 days')
+          RETURNING user_id, refresh_token_hash, created_at, expires_at, revoked_at
+        `,
+        [session.userId, refreshToken]
+      );
+      return {
+        userId: result.rows[0].user_id,
+        email: session.email,
+        createdAt: result.rows[0].created_at.toISOString(),
+        revokedAt: result.rows[0].revoked_at
+      };
+    },
+    async findRefreshSession(refreshToken) {
+      const result = await db.query(
+        `
+          SELECT s.user_id, s.refresh_token_hash, s.created_at, s.expires_at, s.revoked_at, u.email
+          FROM identity_service.refresh_sessions s
+          JOIN identity_service.users u ON u.id = s.user_id
+          WHERE s.refresh_token_hash = $1
+        `,
+        [refreshToken]
+      );
+      const row = result.rows[0];
+      if (!row) {
+        return null;
+      }
+      return {
+        userId: row.user_id,
+        email: row.email,
+        createdAt: row.created_at.toISOString(),
+        expiresAt: row.expires_at.toISOString(),
+        revokedAt: row.revoked_at ? row.revoked_at.toISOString() : null
+      };
+    },
+    async revokeRefreshSession(refreshToken) {
+      const existing = await this.findRefreshSession(refreshToken);
+      if (!existing) {
+        return null;
+      }
+      await db.query(
+        "UPDATE identity_service.refresh_sessions SET revoked_at = now() WHERE refresh_token_hash = $1",
+        [refreshToken]
+      );
+      return { ...existing, revokedAt: new Date().toISOString() };
+    },
+    async appendAuditEvent(event) {
+      await db.query(
+        `
+          INSERT INTO identity_service.audit_log (actor_user_id, action, target_type, target_id, request_id, metadata)
+          VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+        `,
+        [
+          event.userId || null,
+          event.type || event.action,
+          event.targetType || null,
+          event.targetId || event.provider || null,
+          event.requestId || null,
+          JSON.stringify(event)
+        ]
+      );
+      return event;
+    },
+    async listAuditEvents(limit = 50) {
+      const result = await db.query(
+        `
+          SELECT action, actor_user_id, target_type, target_id, request_id, metadata, created_at
+          FROM identity_service.audit_log
+          ORDER BY created_at DESC
+          LIMIT $1
+        `,
+        [limit]
+      );
+      return result.rows.map((row) => ({
+        type: row.action,
+        userId: row.actor_user_id,
+        targetType: row.target_type,
+        targetId: row.target_id,
+        requestId: row.request_id,
+        metadata: row.metadata,
+        createdAt: row.created_at.toISOString()
+      }));
+    },
+    async listConsents() {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          SELECT provider, external_handle, sync_status, data_source, last_sync_at
+          FROM identity_service.linked_accounts
+          WHERE user_id = $1
+          ORDER BY provider
+        `,
+        [user.id]
+      );
+      return result.rows.map(mapLinkedAccount);
+    },
+    async revokeConsent(userId, provider) {
+      await db.query(
+        `
+          INSERT INTO identity_service.consent_events (user_id, provider, action)
+          VALUES ($1, $2, 'revoked')
+        `,
+        [userId, provider]
+      );
+      await db.query(
+        "UPDATE identity_service.linked_accounts SET revoked_at = now(), sync_status = 'revoked' WHERE user_id = $1 AND provider = $2",
+        [userId, provider]
+      );
+      return {
+        type: "consent.revoked",
+        userId,
+        provider,
+        createdAt: new Date().toISOString()
+      };
+    },
+    async listRoles() {
+      return ["player", "contributor", "moderator", "admin"];
+    }
+  };
+}
+
+function createProfileRepository(db) {
+  return {
+    async getMyProfile() {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          SELECT platform, character_name, level, crew_name, cash_balance, bank_balance, completion, source
+          FROM game_profile_service.player_snapshots
+          WHERE user_id = $1
+          ORDER BY captured_at DESC
+          LIMIT 1
+        `,
+        [user.id]
+      );
+      const row = result.rows[0];
+      return {
+        playerId: user.id,
+        platforms: row ? [row.platform, "rockstar"] : profileSnapshot.platforms,
+        activeCharacter: row
+          ? {
+              name: row.character_name,
+              level: row.level,
+              crew: row.crew_name,
+              cash: Number(row.cash_balance),
+              bank: Number(row.bank_balance),
+              properties: profileSnapshot.activeCharacter.properties,
+              vehicles: profileSnapshot.activeCharacter.vehicles
+            }
+          : profileSnapshot.activeCharacter,
+        completion: row?.completion || profileSnapshot.completion,
+        syncMode: row?.source || "manual"
+      };
+    },
+    async updateCompletion(completion) {
+      const user = await defaultUser(db);
+      await db.query(
+        `
+          UPDATE game_profile_service.player_snapshots
+          SET completion = completion || $2::jsonb
+          WHERE id = (
+            SELECT id FROM game_profile_service.player_snapshots
+            WHERE user_id = $1
+            ORDER BY captured_at DESC
+            LIMIT 1
+          )
+        `,
+        [user.id, JSON.stringify(completion)]
+      );
+      return this.getMyProfile();
+    }
+  };
+}
+
+function createAchievementRepository(db) {
+  return {
+    async listAchievements() {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          SELECT a.id, a.title, a.category, a.rarity, a.points, COALESCE(p.progress, 0) AS progress
+          FROM achievement_service.achievements a
+          LEFT JOIN achievement_service.user_achievement_progress p
+            ON p.achievement_id = a.id AND p.user_id = $1
+          ORDER BY a.category, a.title
+        `,
+        [user.id]
+      );
+      const items = result.rows.map(mapAchievement);
+      return {
+        achievements: items,
+        summary: {
+          total: items.length,
+          completed: items.filter((achievement) => achievement.progress === 100).length,
+          averageProgress: Math.round(
+            items.reduce((sum, achievement) => sum + achievement.progress, 0) / Math.max(items.length, 1)
+          )
+        }
+      };
+    },
+    async updateProgress(id, progress) {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          INSERT INTO achievement_service.user_achievement_progress (user_id, achievement_id, progress, source, completed_at)
+          VALUES ($1, $2, $3, 'manual', CASE WHEN $3 = 100 THEN now() ELSE NULL END)
+          ON CONFLICT (user_id, achievement_id) DO UPDATE
+          SET progress = EXCLUDED.progress,
+              completed_at = EXCLUDED.completed_at,
+              updated_at = now()
+          RETURNING achievement_id
+        `,
+        [user.id, id, progress]
+      );
+      if (!result.rows[0]) {
+        return null;
+      }
+      const list = await this.listAchievements();
+      return list.achievements.find((achievement) => achievement.id === id) || null;
+    }
+  };
+}
+
+function createKnowledgeRepository(db) {
+  return {
+    async listGuides({ tag } = {}) {
+      const result = tag
+        ? await db.query(
+            `
+              SELECT id, title, language, status, summary, tags
+              FROM knowledge_service.guides
+              WHERE $1 = ANY(tags)
+              ORDER BY updated_at DESC
+            `,
+            [tag.toLowerCase()]
+          )
+        : await db.query(
+            `
+              SELECT id, title, language, status, summary, tags
+              FROM knowledge_service.guides
+              ORDER BY updated_at DESC
+            `
+          );
+      const items = result.rows.map(mapGuide);
+      return {
+        guides: items,
+        total: items.length
+      };
+    },
+    async createGuide(input) {
+      const id = input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const result = await db.query(
+        `
+          INSERT INTO knowledge_service.guides (id, title, language, status, summary, tags)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE
+          SET title = EXCLUDED.title,
+              language = EXCLUDED.language,
+              status = EXCLUDED.status,
+              summary = EXCLUDED.summary,
+              tags = EXCLUDED.tags,
+              updated_at = now()
+          RETURNING id, title, language, status, summary, tags
+        `,
+        [id, input.title, input.language || "fr", input.status || "draft", input.summary || "", input.tags || []]
+      );
+      return mapGuide(result.rows[0]);
+    }
+  };
+}
+
+function createCommunityRepository(db) {
+  return {
+    async getFeed() {
+      const feed = await db.query(
+        `
+          SELECT p.id, u.display_name AS author, p.channel, p.title, p.body, p.score, p.replies_count
+          FROM community_service.posts p
+          LEFT JOIN identity_service.users u ON u.id = p.author_id
+          WHERE p.moderation_status = 'visible'
+          ORDER BY p.created_at DESC
+          LIMIT 50
+        `
+      );
+      const reports = await db.query(
+        "SELECT count(*)::int AS reports_open FROM community_service.moderation_reports WHERE status = 'open'"
+      );
+      return {
+        feed: feed.rows.map(mapPost),
+        moderation: {
+          reportsOpen: reports.rows[0]?.reports_open || 0,
+          mode: "pre-launch-curated"
+        }
+      };
+    },
+    async createPost(input) {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          INSERT INTO community_service.posts (author_id, channel, title, body)
+          VALUES ($1, $2, $3, $4)
+          RETURNING id, channel, title, body, score, replies_count
+        `,
+        [user.id, input.channel || "general", input.title, input.body || ""]
+      );
+      return {
+        ...mapPost(result.rows[0]),
+        author: input.author || user.displayName
+      };
+    },
+    async reportPost(postId, reason) {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          INSERT INTO community_service.moderation_reports (post_id, reporter_id, reason)
+          VALUES ($1, $2, $3)
+          RETURNING id, post_id, reason, status, created_at
+        `,
+        [postId, user.id, reason]
+      );
+      return {
+        id: result.rows[0].id,
+        postId: result.rows[0].post_id,
+        reason: result.rows[0].reason,
+        status: result.rows[0].status,
+        createdAt: result.rows[0].created_at.toISOString()
+      };
+    }
+  };
+}

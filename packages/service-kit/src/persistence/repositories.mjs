@@ -1,12 +1,21 @@
 import { memoryStore } from "./memory-store.mjs";
+import { createPostgresRepositories } from "./postgres-repositories.mjs";
 
-export function createRepositories(store = memoryStore) {
+export function createRepositories(store) {
+  if (!store) {
+    const postgresRepositories = createPostgresRepositories();
+    if (postgresRepositories) {
+      return postgresRepositories;
+    }
+  }
+
+  const activeStore = store || memoryStore;
   return {
-    identity: createIdentityRepository(store),
-    profiles: createProfileRepository(store),
-    achievements: createAchievementRepository(store),
-    knowledge: createKnowledgeRepository(store),
-    community: createCommunityRepository(store)
+    identity: createIdentityRepository(activeStore),
+    profiles: createProfileRepository(activeStore),
+    achievements: createAchievementRepository(activeStore),
+    knowledge: createKnowledgeRepository(activeStore),
+    community: createCommunityRepository(activeStore)
   };
 }
 
