@@ -10,6 +10,18 @@ export function panel(title, eyebrow, content, className = "") {
   `;
 }
 
+export function appSection(title, copy, content = "", className = "") {
+  return `
+    <section class="app-section ${className}">
+      <div class="section-title">
+        <h2>${title}</h2>
+        ${copy ? `<p>${copy}</p>` : ""}
+      </div>
+      ${content}
+    </section>
+  `;
+}
+
 export function featureCard(icon, title, copy) {
   return `
     <article class="feature-card">
@@ -22,11 +34,24 @@ export function featureCard(icon, title, copy) {
 
 export function statCard(value, label) {
   return `
-    <div>
+    <article class="stat-card">
       <span class="metric">${value}</span>
       <span>${label}</span>
-    </div>
+    </article>
   `;
+}
+
+export function quickLink(route, title, copy) {
+  return `
+    <a class="quick-link" href="#${route}" data-route="${route}">
+      <strong>${title}</strong>
+      <span>${copy}</span>
+    </a>
+  `;
+}
+
+export function emptyState(title, copy) {
+  return `<div class="empty-state"><strong>${title}</strong><p>${copy}</p></div>`;
 }
 
 export function badge(text) {

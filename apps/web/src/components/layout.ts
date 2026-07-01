@@ -1,25 +1,35 @@
 export const routes = [
-  { id: "home", label: "Accueil" },
-  { id: "guides", label: "Guides" },
-  { id: "tracking", label: "Suivi" },
-  { id: "achievements", label: "Achievements" },
-  { id: "map", label: "Carte" },
-  { id: "vehicles", label: "Vehicules" },
-  { id: "crews", label: "Crews" },
-  { id: "events", label: "Events" },
-  { id: "community", label: "Communaute" },
-  { id: "account", label: "Compte" },
-  { id: "settings", label: "Parametres" },
-  { id: "platform", label: "Plateforme" }
+  { id: "home", label: "Accueil", group: "main" },
+  { id: "guides", label: "Guides", group: "main" },
+  { id: "tracking", label: "Suivi", group: "main" },
+  { id: "community", label: "Communaute", group: "main" },
+  { id: "account", label: "Compte", group: "main" },
+  { id: "achievements", label: "Achievements", group: "more" },
+  { id: "map", label: "Carte", group: "more" },
+  { id: "vehicles", label: "Vehicules", group: "more" },
+  { id: "crews", label: "Crews", group: "more" },
+  { id: "events", label: "Events", group: "more" },
+  { id: "settings", label: "Parametres", group: "more" },
+  { id: "platform", label: "Plateforme", group: "more" }
 ];
 
 export function shell(content) {
+  const primaryRoutes = routes.filter((route) => route.group === "main");
+  const secondaryRoutes = routes.filter((route) => route.group === "more");
   return `
     <header class="topbar">
-      <a class="brand" href="#home" data-route="home">GTA VI Guide</a>
-      <nav class="nav" aria-label="Navigation principale">
-        ${routes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
-      </nav>
+      <div class="topbar-inner">
+        <a class="brand" href="#home" data-route="home"><span>VI</span> Guide</a>
+        <nav class="nav" aria-label="Navigation principale">
+          ${primaryRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+          <details class="nav-more">
+            <summary>Plus</summary>
+            <div class="nav-menu">
+              ${secondaryRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+            </div>
+          </details>
+        </nav>
+      </div>
     </header>
     <main>${content}</main>
   `;
@@ -37,4 +47,16 @@ export function heading(eyebrow, title, copy) {
       <p>${copy}</p>
     </div>
   `;
+}
+
+export function appGrid(content, variant = "") {
+  return `<div class="app-grid ${variant}">${content}</div>`;
+}
+
+export function splitLayout(main, aside = "") {
+  return `<div class="split-layout"><div class="main-column">${main}</div><aside class="side-column">${aside}</aside></div>`;
+}
+
+export function actionBar(content) {
+  return `<div class="action-bar">${content}</div>`;
 }
