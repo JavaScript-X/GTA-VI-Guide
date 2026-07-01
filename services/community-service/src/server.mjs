@@ -46,6 +46,50 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/comments",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.postId || !body.body) {
+          const error = new Error("postId and body are required");
+          error.statusCode = 400;
+          error.code = "invalid_comment";
+          throw error;
+        }
+        const comment = await communityRepository.addComment(body.postId, body);
+        if (!comment) {
+          const error = new Error("Post not found");
+          error.statusCode = 404;
+          error.code = "post_not_found";
+          throw error;
+        }
+        return comment;
+      }
+    },
+    {
+      method: "POST",
+      path: "/reactions",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.postId) {
+          const error = new Error("postId is required");
+          error.statusCode = 400;
+          error.code = "invalid_reaction";
+          throw error;
+        }
+        const reaction = await communityRepository.reactToPost(body.postId, body);
+        if (!reaction) {
+          const error = new Error("Post not found");
+          error.statusCode = 404;
+          error.code = "post_not_found";
+          throw error;
+        }
+        return reaction;
+      }
+    },
+    {
+      method: "POST",
       path: "/reports",
       statusCode: 201,
       handler: async ({ request }) => {

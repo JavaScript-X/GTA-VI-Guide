@@ -235,7 +235,11 @@ function createCommunityRepository(store) {
   return {
     async getFeed() {
       return {
-        feed: store.communityFeed.map((item) => ({ ...item })),
+        feed: store.communityFeed.map((item) => ({
+          ...item,
+          comments: store.comments.filter((comment) => comment.postId === item.id).length,
+          reactions: store.reactions.filter((reaction) => reaction.postId === item.id).length
+        })),
         moderation: {
           reportsOpen: store.reports.filter((report) => report.status === "open").length,
           mode: "pre-launch-curated"
@@ -255,6 +259,41 @@ function createCommunityRepository(store) {
       store.posts.push(post);
       store.communityFeed.unshift(post);
       return { ...post };
+    },
+    async addComment(postId, input) {
+      const post = store.posts.find((item) => item.id === postId) || store.communityFeed.find((item) => item.id === postId);
+      if (!post) {
+        return null;
+      }
+      const comment = {
+        id: `comment_${String(store.comments.length + 1).padStart(3, "0")}`,
+        postId,
+        author: input.author || "Vice Explorer",
+        body: input.body,
+        createdAt: new Date().toISOString()
+      };
+      store.comments.push(comment);
+      post.replies = (post.replies || 0) + 1;
+      return { ...comment };
+    },
+    async reactToPost(postId, input = {}) {
+      const post = store.posts.find((item) => item.id === postId) || store.communityFeed.find((item) => item.id === postId);
+      if (!post) {
+        return null;
+      }
+      const reaction = {
+        id: `reaction_${String(store.reactions.length + 1).padStart(3, "0")}`,
+        postId,
+        type: input.type || "like",
+        author: input.author || "Vice Explorer",
+        createdAt: new Date().toISOString()
+      };
+      store.reactions.push(reaction);
+      post.score = (post.score || 0) + 1;
+      return {
+        ...reaction,
+        score: post.score
+      };
     },
     async reportPost(postId, reason) {
       const report = {

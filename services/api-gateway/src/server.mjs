@@ -170,6 +170,24 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/api/comments",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/comments", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/reactions",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/reactions", body);
+      }
+    },
+    {
+      method: "POST",
       path: "/api/reports",
       statusCode: 201,
       handler: async ({ request }) => {

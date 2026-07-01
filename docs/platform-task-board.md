@@ -42,8 +42,8 @@ vraiment utilisables en production.
   passent pas encore par lui.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
   encore des apercus ou de la lecture seule.
-- Guides et communaute: creation, update/delete guides et moderation basique
-  posts/reports existent. Commentaires, reactions, recherche, crews et events
+- Guides et communaute: creation, update/delete guides, commentaires, reactions
+  et moderation basique posts/reports existent. Recherche, crews et events
   restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
@@ -71,7 +71,7 @@ vraiment utilisables en production.
   complete, commentaires, crews, events et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Recherche et workflow editorial avance des guides.
-- CRUD complet communaute: commentaires, reactions, crews et events.
+- CRUD complet communaute: edition/suppression commentaires, crews et events.
 - Dashboard admin/moderateur avec file de signalements et audit logs.
 - Upload images/fichiers via MinIO/S3/R2.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
@@ -117,7 +117,8 @@ vraiment utilisables en production.
   quand `DATABASE_URL` et `pg` sont disponibles.
 - Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
   et suppression compte/revocation.
-- Fait: ajouter update/delete guides et moderation basique posts/reports.
+- Fait: ajouter update/delete guides, commentaires/reactions et moderation
+  basique posts/reports.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL

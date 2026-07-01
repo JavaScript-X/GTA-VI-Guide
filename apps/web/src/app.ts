@@ -2,12 +2,14 @@ import { shell } from "./components/layout.ts";
 import { setDashboard, setPlatform, setSession, clearSession, store } from "./state/store.ts";
 import {
   createCommunityPost,
+  createComment,
   createGuide,
   deleteGuide,
   deleteAccount,
   loadDashboard,
   loadPlatform,
   login,
+  reactToPost,
   register,
   reportCommunityPost,
   updateGuide,
@@ -275,6 +277,33 @@ function bindInteractions() {
       }
     });
   });
+
+  document.querySelectorAll("[data-react-post]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await reactToPost(button.dataset.reactPost, "like");
+        await refreshDashboard("community");
+        setFormStatus("comment", "Reaction ajoutee.");
+      } catch (error) {
+        setFormStatus("comment", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  const commentForm = document.querySelector("#community-comment-form");
+  if (commentForm) {
+    commentForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(commentForm);
+      try {
+        await createComment(formData.get("postId"), formData.get("body"));
+        await refreshDashboard("community");
+        setFormStatus("comment", "Commentaire ajoute.");
+      } catch (error) {
+        setFormStatus("comment", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
 
   const achievementForm = document.querySelector("#achievement-progress-form");
   if (achievementForm) {

@@ -33,6 +33,8 @@ export function createMemoryStore() {
       moderationStatus: "visible",
       createdAt: new Date().toISOString()
     })),
+    comments: [],
+    reactions: [],
     reports: []
   };
 }

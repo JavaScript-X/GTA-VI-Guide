@@ -33,6 +33,14 @@ Deletes a guide by id.
 
 Creates a community post through the Community Service.
 
+`POST /api/comments`
+
+Adds a comment to a community post.
+
+`POST /api/reactions`
+
+Adds or updates a reaction on a community post.
+
 `POST /api/reports`
 
 Creates a moderation report for a community post.
@@ -159,6 +167,14 @@ Returns curated community activity and moderation state.
 `POST /posts`
 
 Creates a community post.
+
+`POST /comments`
+
+Adds a comment to a community post.
+
+`POST /reactions`
+
+Adds or updates a reaction on a community post.
 
 `POST /reports`
 

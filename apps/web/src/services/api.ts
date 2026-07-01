@@ -73,6 +73,14 @@ export async function createCommunityPost(input) {
   return postJsonWithFallback(["/api/posts", "http://localhost:8080/api/posts"], input);
 }
 
+export async function createComment(postId, body) {
+  return postJsonWithFallback(["/api/comments", "http://localhost:8080/api/comments"], { postId, body });
+}
+
+export async function reactToPost(postId, type = "like") {
+  return postJsonWithFallback(["/api/reactions", "http://localhost:8080/api/reactions"], { postId, type });
+}
+
 export async function reportCommunityPost(postId, reason) {
   return postJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"], { postId, reason });
 }

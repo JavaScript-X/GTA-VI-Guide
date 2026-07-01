@@ -202,6 +202,30 @@ try {
   }
 
   const postPayload = await post.json();
+  const comment = await fetch(`http://localhost:${ports.gateway}/api/comments`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      postId: postPayload.data.id,
+      body: "Smoke test comment."
+    })
+  });
+  if (comment.status !== 201) {
+    throw new Error(`Comment creation returned ${comment.status}`);
+  }
+
+  const reaction = await fetch(`http://localhost:${ports.gateway}/api/reactions`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      postId: postPayload.data.id,
+      type: "like"
+    })
+  });
+  if (reaction.status !== 201) {
+    throw new Error(`Reaction creation returned ${reaction.status}`);
+  }
+
   const report = await fetch(`http://localhost:${ports.gateway}/api/reports`, {
     method: "POST",
     headers: { "content-type": "application/json" },

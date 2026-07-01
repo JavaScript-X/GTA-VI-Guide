@@ -257,7 +257,9 @@ function mapPost(row) {
     title: row.title,
     body: row.body || "",
     replies: Number(row.replies_count || 0),
-    score: Number(row.score || 0)
+    score: Number(row.score || 0),
+    comments: Number(row.comments_count || row.replies_count || 0),
+    reactions: Number(row.reactions_count || 0)
   };
 }
 
@@ -681,8 +683,20 @@ function createCommunityRepository(db) {
       const feed = await db.query(
         `
           SELECT p.id, u.display_name AS author, p.channel, p.title, p.body, p.score, p.replies_count
+          , COALESCE(c.comments_count, 0) AS comments_count
+          , COALESCE(r.reactions_count, 0) AS reactions_count
           FROM community_service.posts p
           LEFT JOIN identity_service.users u ON u.id = p.author_id
+          LEFT JOIN (
+            SELECT post_id, count(*)::int AS comments_count
+            FROM community_service.comments
+            GROUP BY post_id
+          ) c ON c.post_id = p.id
+          LEFT JOIN (
+            SELECT post_id, count(*)::int AS reactions_count
+            FROM community_service.reactions
+            GROUP BY post_id
+          ) r ON r.post_id = p.id
           WHERE p.moderation_status = 'visible'
           ORDER BY p.created_at DESC
           LIMIT 50
@@ -712,6 +726,60 @@ function createCommunityRepository(db) {
       return {
         ...mapPost(result.rows[0]),
         author: input.author || user.displayName
+      };
+    },
+    async addComment(postId, input) {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          INSERT INTO community_service.comments (post_id, author_id, body)
+          VALUES ($1, $2, $3)
+          RETURNING id, post_id, body, created_at
+        `,
+        [postId, user.id, input.body]
+      );
+      await db.query(
+        "UPDATE community_service.posts SET replies_count = replies_count + 1 WHERE id = $1",
+        [postId]
+      );
+      return {
+        id: result.rows[0].id,
+        postId: result.rows[0].post_id,
+        author: input.author || user.displayName,
+        body: result.rows[0].body,
+        createdAt: result.rows[0].created_at.toISOString()
+      };
+    },
+    async reactToPost(postId, input = {}) {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          INSERT INTO community_service.reactions (post_id, user_id, type)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (post_id, user_id, type) DO UPDATE
+          SET created_at = now()
+          RETURNING id, post_id, type, created_at
+        `,
+        [postId, user.id, input.type || "like"]
+      );
+      const score = await db.query(
+        `
+          UPDATE community_service.posts
+          SET score = (
+            SELECT count(*)::int FROM community_service.reactions WHERE post_id = $1
+          )
+          WHERE id = $1
+          RETURNING score
+        `,
+        [postId]
+      );
+      return {
+        id: result.rows[0].id,
+        postId: result.rows[0].post_id,
+        type: result.rows[0].type,
+        author: input.author || user.displayName,
+        score: Number(score.rows[0]?.score || 0),
+        createdAt: result.rows[0].created_at.toISOString()
       };
     },
     async reportPost(postId, reason) {

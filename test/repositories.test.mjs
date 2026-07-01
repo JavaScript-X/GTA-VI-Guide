@@ -87,6 +87,27 @@ describe("repositories", () => {
     assert.equal(feed.moderation.reportsOpen, 1);
   });
 
+  it("adds comments and reactions to community posts", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const post = await repositories.community.createPost({
+      title: "Comment target",
+      channel: "general"
+    });
+    const comment = await repositories.community.addComment(post.id, {
+      body: "Useful reply."
+    });
+    const reaction = await repositories.community.reactToPost(post.id, {
+      type: "like"
+    });
+    const feed = await repositories.community.getFeed();
+    const updated = feed.feed.find((item) => item.id === post.id);
+
+    assert.equal(comment.postId, post.id);
+    assert.equal(reaction.score, 1);
+    assert.equal(updated.replies, 1);
+    assert.equal(updated.reactions, 1);
+  });
+
   it("resolves reports and moderates posts", async () => {
     const repositories = createRepositories(createMemoryStore());
     const post = await repositories.community.createPost({

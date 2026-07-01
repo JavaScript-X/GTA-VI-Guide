@@ -61,12 +61,14 @@ export const fallbackDashboard = {
   community: {
     feed: [
       {
+        id: "post_001",
         title: "Quels guides voulez-vous pour le lancement ?",
         channel: "guides",
         replies: 18,
         score: 96
       },
       {
+        id: "event_001",
         title: "Session crew: preparation braquages et decouverte map",
         channel: "events",
         replies: 7,
