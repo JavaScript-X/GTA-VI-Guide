@@ -8,6 +8,7 @@ import {
   loadDashboard,
   loadPlatform,
   login,
+  register,
   reportCommunityPost,
   updateGuide,
   updateAchievementProgress,
@@ -98,6 +99,23 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-auth-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      store.authMode = button.dataset.authMode;
+      renderApp();
+      navigate("account");
+    });
+  });
+
+  document.querySelectorAll("[data-provider-auth]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setFormStatus(
+        "auth",
+        `${button.dataset.providerAuth.toUpperCase()} sera active uniquement via OAuth officiel approuve.`
+      );
+    });
+  });
+
   const loginForm = document.querySelector("#login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
@@ -113,8 +131,29 @@ function bindInteractions() {
         renderApp();
         navigate("account");
       } catch (error) {
-        const box = document.querySelector(".session-box");
-        box.textContent = `Connexion impossible: ${error.message}`;
+        setFormStatus("auth", `Connexion impossible: ${error.message}`, true);
+      }
+    });
+  }
+
+  const signupForm = document.querySelector("#signup-form");
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(signupForm);
+      try {
+        const payload = await register(formData.get("displayName"), formData.get("email"), formData.get("password"));
+        setSession({
+          user: payload.data.user,
+          accessToken: payload.data.session.accessToken,
+          refreshToken: payload.data.session.refreshToken
+        });
+        store.authMode = "signin";
+        renderApp();
+        navigate("account");
+        setFormStatus("auth", "Compte cree et session active.");
+      } catch (error) {
+        setFormStatus("auth", `Inscription impossible: ${error.message}`, true);
       }
     });
   }

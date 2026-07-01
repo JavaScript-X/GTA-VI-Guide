@@ -8,7 +8,8 @@ export const store = {
     refreshToken: null,
     user: null
   },
-  guideFilter: "all"
+  guideFilter: "all",
+  authMode: "signin"
 };
 
 export function setDashboard(dashboard) {

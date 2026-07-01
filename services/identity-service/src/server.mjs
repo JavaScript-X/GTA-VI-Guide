@@ -100,6 +100,40 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/auth/register",
+      statusCode: 201,
+      handler: async ({ request, requestId }) => {
+        const body = await readJsonBody(request);
+        const displayName = String(body.displayName || "").trim();
+        const email = String(body.email || "").toLowerCase();
+        const password = String(body.password || "");
+
+        if (!displayName || !email.includes("@") || password.length < 8) {
+          const error = new Error("displayName, valid email, and password with 8+ characters are required");
+          error.statusCode = 400;
+          error.code = "invalid_registration";
+          throw error;
+        }
+
+        const user = await identityRepository.createUser({
+          displayName,
+          email,
+          password,
+          locale: body.locale || "fr-FR"
+        });
+        await identityRepository.appendAuditEvent({
+          type: "user.registered",
+          userId: user.id,
+          requestId
+        });
+        return {
+          user,
+          session: await createSession(user, requestId)
+        };
+      }
+    },
+    {
+      method: "POST",
       path: "/auth/refresh",
       handler: async ({ request, requestId }) => {
         const body = await readJsonBody(request);

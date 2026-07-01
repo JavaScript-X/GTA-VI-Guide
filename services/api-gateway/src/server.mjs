@@ -106,6 +106,15 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/api/auth/register",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("identity", "/auth/register", body);
+      }
+    },
+    {
+      method: "POST",
       path: "/api/auth/refresh",
       handler: async ({ request }) => {
         const body = await readJsonBody(request);

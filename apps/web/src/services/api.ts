@@ -50,6 +50,13 @@ export async function login(email, password) {
   );
 }
 
+export async function register(displayName, email, password) {
+  return postJsonWithFallback(
+    ["/api/auth/register", "http://localhost:8080/api/auth/register", "http://localhost:8081/auth/register"],
+    { displayName, email, password }
+  );
+}
+
 export async function createGuide(input) {
   return postJsonWithFallback(["/api/guides", "http://localhost:8080/api/guides"], input);
 }

@@ -118,5 +118,7 @@ vraiment utilisables en production.
 - Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
   et suppression compte/revocation.
 - Fait: ajouter update/delete guides et moderation basique posts/reports.
+- Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
+  boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
   en CI ou Docker Compose, puis ajouter commentaires/reactions.

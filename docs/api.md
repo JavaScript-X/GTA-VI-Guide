@@ -74,6 +74,10 @@ Returns the current user and linked account states.
 Authenticates a user and returns a JWT access token plus a refresh token. Refresh
 tokens are stored as hashes server-side.
 
+`POST /auth/register`
+
+Creates a user account and returns an authenticated session.
+
 `POST /auth/refresh`
 
 Issues a new session when the refresh token is valid, not revoked, and not

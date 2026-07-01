@@ -108,6 +108,24 @@ try {
     throw new Error("Platform payload is missing deployability domains");
   }
 
+  const register = await fetch(`http://localhost:${ports.gateway}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      displayName: "Smoke Runner",
+      email: `smoke-${Date.now()}@example.com`,
+      password: "ChangeMe123!"
+    })
+  });
+  if (register.status !== 201) {
+    throw new Error(`Register endpoint returned ${register.status}`);
+  }
+
+  const registerPayload = await register.json();
+  if (!registerPayload.data.session?.accessToken || !registerPayload.data.user?.id) {
+    throw new Error("Register payload is missing user session");
+  }
+
   const login = await fetch(`http://localhost:${ports.gateway}/api/auth/login`, {
     method: "POST",
     headers: { "content-type": "application/json" },

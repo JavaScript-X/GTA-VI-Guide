@@ -271,6 +271,29 @@ async function defaultUser(db) {
 
 function createIdentityRepository(db) {
   return {
+    async createUser(input) {
+      const result = await db.query(
+        `
+          INSERT INTO identity_service.users (display_name, email, password_hash, locale, roles, reputation)
+          VALUES ($1, $2, $3, $4, ARRAY['player'], 0)
+          ON CONFLICT (email) DO NOTHING
+          RETURNING id, display_name, email, password_hash, locale, roles, reputation
+        `,
+        [
+          input.displayName,
+          String(input.email || "").toLowerCase(),
+          hashPassword(input.password),
+          input.locale || "fr-FR"
+        ]
+      );
+      if (!result.rows[0]) {
+        const error = new Error("Email already registered");
+        error.statusCode = 409;
+        error.code = "email_exists";
+        throw error;
+      }
+      return publicUser(mapUser(result.rows[0]));
+    },
     async findUserByEmail(email) {
       const result = await db.query(
         "SELECT id, display_name, email, password_hash, locale, roles, reputation FROM identity_service.users WHERE lower(email) = lower($1) AND deleted_at IS NULL",

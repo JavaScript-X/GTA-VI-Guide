@@ -14,6 +14,20 @@ describe("repositories", () => {
     assert.ok(user.passwordHash.startsWith("scrypt:"));
   });
 
+  it("registers users through the identity repository", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const user = await repositories.identity.createUser({
+      displayName: "Neon Driver",
+      email: "neon@example.com",
+      password: "ChangeMe123!"
+    });
+    const stored = await repositories.identity.findUserByEmail("neon@example.com");
+
+    assert.equal(user.email, "neon@example.com");
+    assert.equal(user.roles[0], "player");
+    assert.ok(stored.passwordHash.startsWith("scrypt:"));
+  });
+
   it("creates guides through the knowledge repository", async () => {
     const repositories = createRepositories(createMemoryStore());
     const guide = await repositories.knowledge.createGuide({

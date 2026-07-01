@@ -1,5 +1,6 @@
 import { memoryStore } from "./memory-store.mjs";
 import { createPostgresRepositories } from "./postgres-repositories.mjs";
+import { hashPassword } from "../auth.mjs";
 
 export function createRepositories(store) {
   if (!store) {
@@ -29,6 +30,27 @@ function publicUser(user) {
 
 function createIdentityRepository(store) {
   return {
+    async createUser(input) {
+      const email = String(input.email || "").toLowerCase();
+      if (store.users.has(email)) {
+        const error = new Error("Email already registered");
+        error.statusCode = 409;
+        error.code = "email_exists";
+        throw error;
+      }
+      const user = {
+        id: `user_${Date.now()}`,
+        displayName: input.displayName,
+        email,
+        passwordHash: hashPassword(input.password),
+        locale: input.locale || "fr-FR",
+        roles: ["player"],
+        reputation: 0
+      };
+      store.users.set(email, user);
+      store.usersById.set(user.id, user);
+      return publicUser(user);
+    },
     async findUserByEmail(email) {
       const user = store.users.get(String(email).toLowerCase()) || null;
       return user?.deletedAt ? null : user;
