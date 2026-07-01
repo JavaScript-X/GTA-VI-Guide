@@ -183,6 +183,28 @@ function createKnowledgeRepository(store) {
       };
       store.guides.push(guide);
       return { ...guide };
+    },
+    async updateGuide(id, input) {
+      const guide = store.guides.find((item) => item.id === id);
+      if (!guide) {
+        return null;
+      }
+      Object.assign(guide, {
+        title: input.title || guide.title,
+        language: input.language || guide.language,
+        status: input.status || guide.status,
+        tags: input.tags || guide.tags,
+        summary: input.summary ?? guide.summary
+      });
+      return { ...guide };
+    },
+    async deleteGuide(id) {
+      const index = store.guides.findIndex((item) => item.id === id);
+      if (index < 0) {
+        return null;
+      }
+      const [deleted] = store.guides.splice(index, 1);
+      return { ...deleted, deleted: true };
     }
   };
 }
@@ -222,6 +244,32 @@ function createCommunityRepository(store) {
       };
       store.reports.push(report);
       return { ...report };
+    },
+    async listReports() {
+      return {
+        reports: store.reports.map((report) => ({ ...report })),
+        total: store.reports.length
+      };
+    },
+    async resolveReport(reportId, status = "resolved") {
+      const report = store.reports.find((item) => item.id === reportId);
+      if (!report) {
+        return null;
+      }
+      report.status = status;
+      report.resolvedAt = new Date().toISOString();
+      return { ...report };
+    },
+    async moderatePost(postId, status = "hidden") {
+      const post = store.posts.find((item) => item.id === postId) || store.communityFeed.find((item) => item.id === postId);
+      if (!post) {
+        return null;
+      }
+      post.moderationStatus = status;
+      if (status !== "visible") {
+        store.communityFeed = store.communityFeed.filter((item) => item.id !== postId);
+      }
+      return { ...post, moderationStatus: status };
     }
   };
 }

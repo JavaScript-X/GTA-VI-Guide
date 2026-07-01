@@ -54,12 +54,34 @@ export async function createGuide(input) {
   return postJsonWithFallback(["/api/guides", "http://localhost:8080/api/guides"], input);
 }
 
+export async function updateGuide(input) {
+  return postJsonWithFallback(["/api/guides/update", "http://localhost:8080/api/guides/update"], input);
+}
+
+export async function deleteGuide(id) {
+  return postJsonWithFallback(["/api/guides/delete", "http://localhost:8080/api/guides/delete"], { id });
+}
+
 export async function createCommunityPost(input) {
   return postJsonWithFallback(["/api/posts", "http://localhost:8080/api/posts"], input);
 }
 
 export async function reportCommunityPost(postId, reason) {
   return postJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"], { postId, reason });
+}
+
+export async function resolveReport(reportId, status = "resolved") {
+  return postJsonWithFallback(["/api/reports/resolve", "http://localhost:8080/api/reports/resolve"], {
+    reportId,
+    status
+  });
+}
+
+export async function moderatePost(postId, status = "hidden") {
+  return postJsonWithFallback(["/api/posts/moderate", "http://localhost:8080/api/posts/moderate"], {
+    postId,
+    status
+  });
 }
 
 export async function updateAchievementProgress(id, progress) {

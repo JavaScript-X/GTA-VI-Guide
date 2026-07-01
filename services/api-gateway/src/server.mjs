@@ -136,6 +136,22 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/api/guides/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("knowledge", "/guides/update", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/guides/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("knowledge", "/guides/delete", body);
+      }
+    },
+    {
+      method: "POST",
       path: "/api/posts",
       statusCode: 201,
       handler: async ({ request }) => {
@@ -150,6 +166,27 @@ createJsonService({
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
         return postServiceData("community", "/reports", body);
+      }
+    },
+    {
+      method: "GET",
+      path: "/api/reports",
+      handler: async () => getServiceData("community", "/reports")
+    },
+    {
+      method: "POST",
+      path: "/api/reports/resolve",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/reports/resolve", body);
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/posts/moderate",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("community", "/posts/moderate", body);
       }
     },
     {

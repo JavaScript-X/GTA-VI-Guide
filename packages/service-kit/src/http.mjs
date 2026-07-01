@@ -26,7 +26,7 @@ function setCorsHeaders(request, response, allowedOrigins) {
   const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
   response.setHeader("access-control-allow-origin", allowedOrigin);
   response.setHeader("vary", "Origin");
-  response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
+  response.setHeader("access-control-allow-methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
   response.setHeader("access-control-allow-headers", "content-type,x-request-id,authorization");
 }
 

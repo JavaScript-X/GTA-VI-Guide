@@ -3,11 +3,13 @@ import { setDashboard, setPlatform, setSession, clearSession, store } from "./st
 import {
   createCommunityPost,
   createGuide,
+  deleteGuide,
   deleteAccount,
   loadDashboard,
   loadPlatform,
   login,
   reportCommunityPost,
+  updateGuide,
   updateAchievementProgress,
   updateProfileCompletion
 } from "./services/api.ts";
@@ -166,6 +168,30 @@ function bindInteractions() {
       }
     });
   }
+
+  document.querySelectorAll("[data-guide-edit]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await updateGuide({ id: button.dataset.guideEdit, status: "editorial" });
+        await refreshDashboard("guides");
+        setFormStatus("guide", "Guide passe en relecture.");
+      } catch (error) {
+        setFormStatus("guide", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-guide-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await deleteGuide(button.dataset.guideDelete);
+        await refreshDashboard("guides");
+        setFormStatus("guide", "Guide archive.");
+      } catch (error) {
+        setFormStatus("guide", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
 
   const postForm = document.querySelector("#community-post-form");
   if (postForm) {

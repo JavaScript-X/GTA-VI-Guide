@@ -18,8 +18,10 @@ prepared integration boundaries.
   boundary and consent model exist.
 - Player tracking, achievements, vehicles, map districts, crews, and events are
   still based on mock/fallback data.
-- The frontend has pages for the full platform, but most actions are not real
-  CRUD workflows yet.
+- The frontend has pages for the full platform and first write workflows for
+  guides, community posts, reports, achievement progress, completion, and
+  account deletion. Comments, reactions, crews, events, uploads, and search
+  still need full UI flows.
 - The sync worker currently logs readiness only; it does not consume RabbitMQ
   messages yet.
 - RabbitMQ and MinIO are configured, but services do not publish/consume events
@@ -46,9 +48,9 @@ prepared integration boundaries.
 2. Add secure cookie session transport and CSRF protection for browser sessions.
 3. Add email verification and reset password.
 4. Add data export and configurable anonymization/deletion policy.
-5. Add CRUD APIs for guides.
-6. Add CRUD APIs for community posts, comments, reports, crews, and events.
-7. Add editable player profile, achievement progress, garage/vehicles, and map
+5. Add search and advanced editorial workflows for guides.
+6. Add CRUD APIs for community comments, reactions, crews, and events.
+7. Add editable player profile, garage/vehicles, and map
    points.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.
 9. Add MinIO-backed upload flow for guide/media assets.

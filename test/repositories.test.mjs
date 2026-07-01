@@ -27,6 +27,26 @@ describe("repositories", () => {
     assert.ok(guides.guides.some((item) => item.id === "test-guide"));
   });
 
+  it("updates and deletes guides through the knowledge repository", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    await repositories.knowledge.createGuide({
+      title: "Editorial Guide",
+      tags: ["online"],
+      summary: "A guide to update."
+    });
+
+    const updated = await repositories.knowledge.updateGuide("editorial-guide", {
+      status: "editorial",
+      summary: "Updated."
+    });
+    const deleted = await repositories.knowledge.deleteGuide("editorial-guide");
+    const guides = await repositories.knowledge.listGuides();
+
+    assert.equal(updated.status, "editorial");
+    assert.equal(deleted.deleted, true);
+    assert.equal(guides.guides.some((item) => item.id === "editorial-guide"), false);
+  });
+
   it("updates achievement progress", async () => {
     const repositories = createRepositories(createMemoryStore());
     const updated = await repositories.achievements.updateProgress("collector-instinct", 80);
@@ -51,6 +71,24 @@ describe("repositories", () => {
     assert.equal(post.channel, "events");
     assert.equal(report.status, "open");
     assert.equal(feed.moderation.reportsOpen, 1);
+  });
+
+  it("resolves reports and moderates posts", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const post = await repositories.community.createPost({
+      title: "Post to moderate",
+      channel: "general"
+    });
+    const report = await repositories.community.reportPost(post.id, "spam");
+    const resolved = await repositories.community.resolveReport(report.id, "resolved");
+    const moderated = await repositories.community.moderatePost(post.id, "hidden");
+    const reports = await repositories.community.listReports();
+    const feed = await repositories.community.getFeed();
+
+    assert.equal(resolved.status, "resolved");
+    assert.equal(moderated.moderationStatus, "hidden");
+    assert.equal(reports.total, 1);
+    assert.equal(feed.feed.some((item) => item.id === post.id), false);
   });
 
   it("falls back to memory repositories when PostgreSQL is not configured", async () => {

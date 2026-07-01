@@ -608,6 +608,46 @@ function createKnowledgeRepository(db) {
         [id, input.title, input.language || "fr", input.status || "draft", input.summary || "", input.tags || []]
       );
       return mapGuide(result.rows[0]);
+    },
+    async updateGuide(id, input) {
+      const existing = await db.query("SELECT id, title, language, status, summary, tags FROM knowledge_service.guides WHERE id = $1", [id]);
+      if (!existing.rows[0]) {
+        return null;
+      }
+      const current = mapGuide(existing.rows[0]);
+      const result = await db.query(
+        `
+          UPDATE knowledge_service.guides
+          SET title = $2,
+              language = $3,
+              status = $4,
+              summary = $5,
+              tags = $6,
+              updated_at = now()
+          WHERE id = $1
+          RETURNING id, title, language, status, summary, tags
+        `,
+        [
+          id,
+          input.title || current.title,
+          input.language || current.language,
+          input.status || current.status,
+          input.summary ?? current.summary,
+          input.tags || current.tags
+        ]
+      );
+      return mapGuide(result.rows[0]);
+    },
+    async deleteGuide(id) {
+      const result = await db.query(
+        `
+          DELETE FROM knowledge_service.guides
+          WHERE id = $1
+          RETURNING id, title, language, status, summary, tags
+        `,
+        [id]
+      );
+      return result.rows[0] ? { ...mapGuide(result.rows[0]), deleted: true } : null;
     }
   };
 }
@@ -668,6 +708,62 @@ function createCommunityRepository(db) {
         status: result.rows[0].status,
         createdAt: result.rows[0].created_at.toISOString()
       };
+    },
+    async listReports() {
+      const result = await db.query(
+        `
+          SELECT id, post_id, reason, status, created_at, resolved_at
+          FROM community_service.moderation_reports
+          ORDER BY created_at DESC
+          LIMIT 100
+        `
+      );
+      return {
+        reports: result.rows.map((row) => ({
+          id: row.id,
+          postId: row.post_id,
+          reason: row.reason,
+          status: row.status,
+          createdAt: row.created_at.toISOString(),
+          resolvedAt: row.resolved_at ? row.resolved_at.toISOString() : null
+        })),
+        total: result.rows.length
+      };
+    },
+    async resolveReport(reportId, status = "resolved") {
+      const result = await db.query(
+        `
+          UPDATE community_service.moderation_reports
+          SET status = $2,
+              resolved_at = now()
+          WHERE id = $1
+          RETURNING id, post_id, reason, status, created_at, resolved_at
+        `,
+        [reportId, status]
+      );
+      const row = result.rows[0];
+      return row
+        ? {
+            id: row.id,
+            postId: row.post_id,
+            reason: row.reason,
+            status: row.status,
+            createdAt: row.created_at.toISOString(),
+            resolvedAt: row.resolved_at ? row.resolved_at.toISOString() : null
+          }
+        : null;
+    },
+    async moderatePost(postId, status = "hidden") {
+      const result = await db.query(
+        `
+          UPDATE community_service.posts
+          SET moderation_status = $2
+          WHERE id = $1
+          RETURNING id, channel, title, body, score, replies_count, moderation_status
+        `,
+        [postId, status]
+      );
+      return result.rows[0] ? { ...mapPost(result.rows[0]), moderationStatus: result.rows[0].moderation_status } : null;
     }
   };
 }

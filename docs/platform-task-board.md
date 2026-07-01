@@ -42,8 +42,9 @@ vraiment utilisables en production.
   passent pas encore par lui.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
   encore des apercus ou de la lecture seule.
-- Guides et communaute: creation possible cote service, mais workflows complets
-  edition, moderation, commentaires, reactions et recherche restent incomplets.
+- Guides et communaute: creation, update/delete guides et moderation basique
+  posts/reports existent. Commentaires, reactions, recherche, crews et events
+  restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
@@ -69,9 +70,8 @@ vraiment utilisables en production.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
   complete, commentaires, crews, events et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
-- CRUD complet guides: edition, publication, revision, suppression et recherche.
-- CRUD complet communaute: posts, commentaires, reactions, reports, moderation,
-  crews et events.
+- Recherche et workflow editorial avance des guides.
+- CRUD complet communaute: commentaires, reactions, crews et events.
 - Dashboard admin/moderateur avec file de signalements et audit logs.
 - Upload images/fichiers via MinIO/S3/R2.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
@@ -97,7 +97,7 @@ vraiment utilisables en production.
 5. Tester l'adapter PostgreSQL runtime contre une vraie base.
 6. Ajouter cookies securises, CSRF, verification email et reset password.
 7. Completer Knowledge, Community, Achievements et Profile.
-8. Completer CRUD guides et communaute avec moderation.
+8. Ajouter recherche, commentaires, reactions, crews et events.
 9. Brancher RabbitMQ pour les evenements et le sync-worker.
 10. Ajouter upload objet MinIO/S3.
 11. Remplacer le build frontend leger par TypeScript strict.
@@ -117,5 +117,6 @@ vraiment utilisables en production.
   quand `DATABASE_URL` et `pg` sont disponibles.
 - Fait: durcir Identity avec refresh tokens hashes, expiration, logout renforce
   et suppression compte/revocation.
+- Fait: ajouter update/delete guides et moderation basique posts/reports.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
-  en CI ou Docker Compose.
+  en CI ou Docker Compose, puis ajouter commentaires/reactions.

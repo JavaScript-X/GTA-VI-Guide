@@ -46,6 +46,48 @@ createJsonService({
         }
         return knowledgeRepository.createGuide(body);
       }
+    },
+    {
+      method: "POST",
+      path: "/guides/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.id) {
+          const error = new Error("Guide id is required");
+          error.statusCode = 400;
+          error.code = "invalid_guide";
+          throw error;
+        }
+        const guide = await knowledgeRepository.updateGuide(body.id, body);
+        if (!guide) {
+          const error = new Error("Guide not found");
+          error.statusCode = 404;
+          error.code = "guide_not_found";
+          throw error;
+        }
+        return guide;
+      }
+    },
+    {
+      method: "POST",
+      path: "/guides/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.id) {
+          const error = new Error("Guide id is required");
+          error.statusCode = 400;
+          error.code = "invalid_guide";
+          throw error;
+        }
+        const guide = await knowledgeRepository.deleteGuide(body.id);
+        if (!guide) {
+          const error = new Error("Guide not found");
+          error.statusCode = 404;
+          error.code = "guide_not_found";
+          throw error;
+        }
+        return guide;
+      }
     }
   ]
 });

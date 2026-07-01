@@ -156,6 +156,19 @@ try {
   if (guide.status !== 201) {
     throw new Error(`Guide creation returned ${guide.status}`);
   }
+  const guidePayload = await guide.json();
+
+  const guideUpdate = await fetch(`http://localhost:${ports.gateway}/api/guides/update`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: guidePayload.data.id,
+      status: "editorial"
+    })
+  });
+  if (!guideUpdate.ok) {
+    throw new Error(`Guide update returned ${guideUpdate.status}`);
+  }
 
   const post = await fetch(`http://localhost:${ports.gateway}/api/posts`, {
     method: "POST",
@@ -182,6 +195,36 @@ try {
   if (report.status !== 201) {
     throw new Error(`Report creation returned ${report.status}`);
   }
+  const reportPayload = await report.json();
+
+  const reports = await fetch(`http://localhost:${ports.gateway}/api/reports`);
+  if (!reports.ok) {
+    throw new Error(`Reports endpoint returned ${reports.status}`);
+  }
+
+  const reportResolve = await fetch(`http://localhost:${ports.gateway}/api/reports/resolve`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      reportId: reportPayload.data.id,
+      status: "resolved"
+    })
+  });
+  if (!reportResolve.ok) {
+    throw new Error(`Report resolve returned ${reportResolve.status}`);
+  }
+
+  const postModerate = await fetch(`http://localhost:${ports.gateway}/api/posts/moderate`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      postId: postPayload.data.id,
+      status: "hidden"
+    })
+  });
+  if (!postModerate.ok) {
+    throw new Error(`Post moderation returned ${postModerate.status}`);
+  }
 
   const progress = await fetch(`http://localhost:${ports.gateway}/api/achievements/progress`, {
     method: "POST",
@@ -206,6 +249,17 @@ try {
   });
   if (!completion.ok) {
     throw new Error(`Profile completion returned ${completion.status}`);
+  }
+
+  const guideDelete = await fetch(`http://localhost:${ports.gateway}/api/guides/delete`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: guidePayload.data.id
+    })
+  });
+  if (!guideDelete.ok) {
+    throw new Error(`Guide delete returned ${guideDelete.status}`);
   }
 
   const logout = await fetch(`http://localhost:${ports.gateway}/api/auth/logout`, {

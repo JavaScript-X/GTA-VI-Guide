@@ -21,6 +21,14 @@ Aggregates:
 
 Creates a draft community guide through the Knowledge Service.
 
+`POST /api/guides/update`
+
+Updates guide metadata such as status, title, summary, language, or tags.
+
+`POST /api/guides/delete`
+
+Deletes a guide by id.
+
 `POST /api/posts`
 
 Creates a community post through the Community Service.
@@ -28,6 +36,18 @@ Creates a community post through the Community Service.
 `POST /api/reports`
 
 Creates a moderation report for a community post.
+
+`GET /api/reports`
+
+Lists moderation reports.
+
+`POST /api/reports/resolve`
+
+Resolves or changes the status of a moderation report.
+
+`POST /api/posts/moderate`
+
+Changes post moderation status, for example hiding a reported post.
 
 `POST /api/achievements/progress`
 
@@ -118,6 +138,14 @@ Filters guides by tag.
 
 Creates a draft guide.
 
+`POST /guides/update`
+
+Updates guide metadata and editorial status.
+
+`POST /guides/delete`
+
+Deletes a guide by id.
+
 ## Community Service
 
 `GET /feed`
@@ -131,3 +159,15 @@ Creates a community post.
 `POST /reports`
 
 Creates a moderation report.
+
+`GET /reports`
+
+Lists moderation reports.
+
+`POST /reports/resolve`
+
+Resolves or changes report status.
+
+`POST /posts/moderate`
+
+Changes post moderation status.

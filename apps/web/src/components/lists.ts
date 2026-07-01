@@ -9,6 +9,10 @@ export function guideCard(guide) {
       </div>
       <p class="muted">${guide.summary}</p>
       <div class="tag-row">${(guide.tags || []).map((tag) => `<span>${tag}</span>`).join("")}</div>
+      <div class="form-actions">
+        <button class="button ghost compact" type="button" data-guide-edit="${guide.id}">Relecture</button>
+        <button class="button ghost compact" type="button" data-guide-delete="${guide.id}">Supprimer</button>
+      </div>
     </article>
   `;
 }
