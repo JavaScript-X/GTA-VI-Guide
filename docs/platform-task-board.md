@@ -42,10 +42,10 @@ vraiment utilisables en production.
   passent pas encore par lui.
 - Frontend: toutes les pages principales existent, mais plusieurs actions sont
   encore des apercus ou de la lecture seule.
-- Guides et communaute: creation, update/delete guides, commentaires, reactions,
-  crews/events avec edition/suppression, recherche frontend et moderation
-  basique posts/reports existent. Recherche backend et workflows avances restent
-  incomplets.
+- Guides et communaute: creation, update/delete guides, commentaires avec
+  edition/suppression, reactions, crews/events avec edition/suppression,
+  recherche frontend et moderation basique posts/reports existent. Recherche
+  backend et workflows avances restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
@@ -69,11 +69,10 @@ vraiment utilisables en production.
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
-  complete, edition/suppression commentaires et uploads.
+  complete et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Recherche backend et workflow editorial avance des guides.
-- CRUD complet communaute: edition/suppression commentaires et moderation
-  avancee.
+- CRUD complet communaute: moderation avancee et workflows roles/audit.
 - Dashboard admin/moderateur avec file de signalements et audit logs.
 - Upload images/fichiers via MinIO/S3/R2.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
@@ -124,5 +123,4 @@ vraiment utilisables en production.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
-  en CI ou Docker Compose, puis ajouter edition/suppression commentaires et
-  recherche backend.
+  en CI ou Docker Compose, puis ajouter recherche backend.

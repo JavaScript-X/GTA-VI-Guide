@@ -22,8 +22,7 @@ prepared integration boundaries.
 - The frontend has pages for the full platform and first write workflows for
   guides, community posts, reports, achievement progress, completion, and
   account deletion. Comments, reactions, crews and events now have write flows.
-  Uploads, backend search, comment edit/delete, and advanced moderation still
-  need full UI flows.
+  Uploads, backend search, and advanced moderation still need full UI flows.
 - The sync worker currently logs readiness only; it does not consume RabbitMQ
   messages yet.
 - RabbitMQ and MinIO are configured, but services do not publish/consume events
@@ -51,7 +50,7 @@ prepared integration boundaries.
 3. Add email verification and reset password.
 4. Add data export and configurable anonymization/deletion policy.
 5. Add backend search and advanced editorial workflows for guides.
-6. Add edit/delete APIs for community comments.
+6. Add advanced moderation queues and role-gated community actions.
 7. Add editable player profile, garage/vehicles, and map
    points.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.

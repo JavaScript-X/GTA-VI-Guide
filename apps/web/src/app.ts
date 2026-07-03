@@ -6,6 +6,7 @@ import {
   createCrew,
   createEvent,
   createGuide,
+  deleteComment,
   deleteCrew,
   deleteEvent,
   deleteGuide,
@@ -16,6 +17,7 @@ import {
   reactToPost,
   register,
   reportCommunityPost,
+  updateComment,
   updateCrew,
   updateEvent,
   updateGuide,
@@ -325,6 +327,28 @@ function bindInteractions() {
         setFormStatus("comment", "Commentaire ajoute.");
       } catch (error) {
         setFormStatus("comment", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const commentManageForm = document.querySelector("#community-comment-manage-form");
+  if (commentManageForm) {
+    commentManageForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(commentManageForm);
+      const action = event.submitter?.value || "update";
+      try {
+        if (action === "delete") {
+          await deleteComment(formData.get("id"));
+          await refreshDashboard("community");
+          setFormStatus("comment-manage", "Commentaire supprime.");
+          return;
+        }
+        await updateComment(formData.get("id"), formData.get("body"));
+        await refreshDashboard("community");
+        setFormStatus("comment-manage", "Commentaire mis a jour.");
+      } catch (error) {
+        setFormStatus("comment-manage", `Erreur: ${error.message}`, true);
       }
     });
   }

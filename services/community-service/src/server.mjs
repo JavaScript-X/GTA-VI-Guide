@@ -68,6 +68,42 @@ createJsonService({
     },
     {
       method: "POST",
+      path: "/comments/update",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.id || !body.body) {
+          const error = new Error("id and body are required");
+          error.statusCode = 400;
+          error.code = "invalid_comment_update";
+          throw error;
+        }
+        const comment = await communityRepository.updateComment(body.id, body);
+        if (!comment) {
+          const error = new Error("Comment not found");
+          error.statusCode = 404;
+          error.code = "comment_not_found";
+          throw error;
+        }
+        return comment;
+      }
+    },
+    {
+      method: "POST",
+      path: "/comments/delete",
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const comment = await communityRepository.deleteComment(body.id);
+        if (!comment) {
+          const error = new Error("Comment not found");
+          error.statusCode = 404;
+          error.code = "comment_not_found";
+          throw error;
+        }
+        return comment;
+      }
+    },
+    {
+      method: "POST",
       path: "/reactions",
       statusCode: 201,
       handler: async ({ request }) => {

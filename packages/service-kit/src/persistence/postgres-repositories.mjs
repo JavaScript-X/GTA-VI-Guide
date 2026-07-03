@@ -287,7 +287,19 @@ function mapPost(row) {
     replies: Number(row.replies_count || 0),
     score: Number(row.score || 0),
     comments: Number(row.comments_count || row.replies_count || 0),
+    commentItems: [],
     reactions: Number(row.reactions_count || 0)
+  };
+}
+
+function mapComment(row) {
+  return {
+    id: row.id,
+    postId: row.post_id,
+    author: row.author || "Vice Explorer",
+    body: row.body,
+    createdAt: row.created_at ? row.created_at.toISOString() : null,
+    updatedAt: row.updated_at ? row.updated_at.toISOString() : null
   };
 }
 
@@ -772,8 +784,31 @@ function createCommunityRepository(db) {
           LIMIT 50
         `
       );
+      const posts = feed.rows.map(mapPost);
+      if (posts.length > 0) {
+        const comments = await db.query(
+          `
+            SELECT c.id, c.post_id, u.display_name AS author, c.body, c.created_at, c.updated_at
+            FROM community_service.comments c
+            LEFT JOIN identity_service.users u ON u.id = c.author_id
+            WHERE c.post_id = ANY($1::uuid[])
+            ORDER BY c.created_at DESC
+            LIMIT 100
+          `,
+          [posts.map((post) => post.id)]
+        );
+        const commentsByPost = new Map();
+        for (const comment of comments.rows.map(mapComment)) {
+          const list = commentsByPost.get(comment.postId) || [];
+          list.push(comment);
+          commentsByPost.set(comment.postId, list);
+        }
+        for (const post of posts) {
+          post.commentItems = commentsByPost.get(post.id) || [];
+        }
+      }
       return {
-        feed: feed.rows.map(mapPost),
+        feed: posts,
         crews: crews.rows.map(mapCrew),
         events: events.rows.map(mapEvent),
         moderation: {
@@ -818,6 +853,37 @@ function createCommunityRepository(db) {
         body: result.rows[0].body,
         createdAt: result.rows[0].created_at.toISOString()
       };
+    },
+    async updateComment(id, input) {
+      const result = await db.query(
+        `
+          UPDATE community_service.comments
+          SET body = $2,
+              updated_at = now()
+          WHERE id = $1
+          RETURNING id, post_id, body, created_at, updated_at
+        `,
+        [id, input.body]
+      );
+      return result.rows[0] ? mapComment(result.rows[0]) : null;
+    },
+    async deleteComment(id) {
+      const result = await db.query(
+        `
+          DELETE FROM community_service.comments
+          WHERE id = $1
+          RETURNING id, post_id, body, created_at, updated_at
+        `,
+        [id]
+      );
+      if (!result.rows[0]) {
+        return null;
+      }
+      await db.query(
+        "UPDATE community_service.posts SET replies_count = GREATEST(replies_count - 1, 0) WHERE id = $1",
+        [result.rows[0].post_id]
+      );
+      return { ...mapComment(result.rows[0]), deleted: true };
     },
     async reactToPost(postId, input = {}) {
       const user = await defaultUser(db);

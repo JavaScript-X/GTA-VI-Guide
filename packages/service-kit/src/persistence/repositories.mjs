@@ -238,6 +238,9 @@ function createCommunityRepository(store) {
         feed: store.communityFeed.map((item) => ({
           ...item,
           comments: store.comments.filter((comment) => comment.postId === item.id).length,
+          commentItems: store.comments
+            .filter((comment) => comment.postId === item.id)
+            .map((comment) => ({ ...comment })),
           reactions: store.reactions.filter((reaction) => reaction.postId === item.id).length
         })),
         crews: store.crews.map((crew) => ({ ...crew })),
@@ -277,6 +280,27 @@ function createCommunityRepository(store) {
       store.comments.push(comment);
       post.replies = (post.replies || 0) + 1;
       return { ...comment };
+    },
+    async updateComment(id, input) {
+      const comment = store.comments.find((item) => item.id === id);
+      if (!comment) {
+        return null;
+      }
+      comment.body = input.body ?? comment.body;
+      comment.updatedAt = new Date().toISOString();
+      return { ...comment };
+    },
+    async deleteComment(id) {
+      const index = store.comments.findIndex((item) => item.id === id);
+      if (index < 0) {
+        return null;
+      }
+      const [deleted] = store.comments.splice(index, 1);
+      const post = store.posts.find((item) => item.id === deleted.postId) || store.communityFeed.find((item) => item.id === deleted.postId);
+      if (post) {
+        post.replies = Math.max((post.replies || 1) - 1, 0);
+      }
+      return { ...deleted, deleted: true };
     },
     async reactToPost(postId, input = {}) {
       const post = store.posts.find((item) => item.id === postId) || store.communityFeed.find((item) => item.id === postId);

@@ -364,11 +364,20 @@ h3 {
 .page-heading p:not(.eyebrow),
 .section-title p,
 .muted,
+.comment-preview,
 .feature-card p,
 .empty-state p {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.comment-preview {
+  padding: 8px 10px;
+  border-left: 2px solid rgba(66, 232, 221, 0.38);
+  border-radius: var(--radius);
+  background: rgba(66, 232, 221, 0.055);
+  font-size: 0.86rem;
 }
 
 .section-title {

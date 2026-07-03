@@ -106,6 +106,29 @@ describe("repositories", () => {
     assert.equal(reaction.score, 1);
     assert.equal(updated.replies, 1);
     assert.equal(updated.reactions, 1);
+    assert.equal(updated.commentItems[0].body, "Useful reply.");
+  });
+
+  it("updates and deletes community comments", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const post = await repositories.community.createPost({
+      title: "Editable comment target",
+      channel: "general"
+    });
+    const comment = await repositories.community.addComment(post.id, {
+      body: "First draft."
+    });
+    const updated = await repositories.community.updateComment(comment.id, {
+      body: "Updated reply."
+    });
+    const deleted = await repositories.community.deleteComment(comment.id);
+    const feed = await repositories.community.getFeed();
+    const target = feed.feed.find((item) => item.id === post.id);
+
+    assert.equal(updated.body, "Updated reply.");
+    assert.equal(deleted.deleted, true);
+    assert.equal(target.replies, 0);
+    assert.equal(target.commentItems.length, 0);
   });
 
   it("resolves reports and moderates posts", async () => {

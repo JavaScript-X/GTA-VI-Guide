@@ -77,6 +77,14 @@ export async function createComment(postId, body) {
   return postJsonWithFallback(["/api/comments", "http://localhost:8080/api/comments"], { postId, body });
 }
 
+export async function updateComment(id, body) {
+  return postJsonWithFallback(["/api/comments/update", "http://localhost:8080/api/comments/update"], { id, body });
+}
+
+export async function deleteComment(id) {
+  return postJsonWithFallback(["/api/comments/delete", "http://localhost:8080/api/comments/delete"], { id });
+}
+
 export async function reactToPost(postId, type = "like") {
   return postJsonWithFallback(["/api/reactions", "http://localhost:8080/api/reactions"], { postId, type });
 }

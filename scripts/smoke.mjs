@@ -213,6 +213,19 @@ try {
   if (comment.status !== 201) {
     throw new Error(`Comment creation returned ${comment.status}`);
   }
+  const commentPayload = await comment.json();
+
+  const commentUpdate = await fetch(`http://localhost:${ports.gateway}/api/comments/update`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: commentPayload.data.id,
+      body: "Smoke test comment updated."
+    })
+  });
+  if (!commentUpdate.ok) {
+    throw new Error(`Comment update returned ${commentUpdate.status}`);
+  }
 
   const reaction = await fetch(`http://localhost:${ports.gateway}/api/reactions`, {
     method: "POST",
@@ -224,6 +237,17 @@ try {
   });
   if (reaction.status !== 201) {
     throw new Error(`Reaction creation returned ${reaction.status}`);
+  }
+
+  const commentDelete = await fetch(`http://localhost:${ports.gateway}/api/comments/delete`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      id: commentPayload.data.id
+    })
+  });
+  if (!commentDelete.ok) {
+    throw new Error(`Comment delete returned ${commentDelete.status}`);
   }
 
   const report = await fetch(`http://localhost:${ports.gateway}/api/reports`, {

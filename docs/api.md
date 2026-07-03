@@ -37,6 +37,14 @@ Creates a community post through the Community Service.
 
 Adds a comment to a community post.
 
+`POST /api/comments/update`
+
+Updates a community comment.
+
+`POST /api/comments/delete`
+
+Deletes a community comment.
+
 `POST /api/reactions`
 
 Adds or updates a reaction on a community post.
@@ -195,6 +203,14 @@ Creates a community post.
 `POST /comments`
 
 Adds a comment to a community post.
+
+`POST /comments/update`
+
+Updates a community comment.
+
+`POST /comments/delete`
+
+Deletes a community comment.
 
 `POST /reactions`
 
