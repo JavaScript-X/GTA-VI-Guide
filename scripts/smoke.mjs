@@ -108,6 +108,15 @@ try {
     throw new Error("Platform payload is missing deployability domains");
   }
 
+  const search = await fetch(`http://localhost:${ports.gateway}/api/search?q=Vice`);
+  if (!search.ok) {
+    throw new Error(`Search endpoint returned ${search.status}`);
+  }
+  const searchPayload = await search.json();
+  if (!searchPayload.data || typeof searchPayload.data.total !== "number") {
+    throw new Error("Search payload is missing aggregate result metadata");
+  }
+
   const register = await fetch(`http://localhost:${ports.gateway}/api/auth/register`, {
     method: "POST",
     headers: { "content-type": "application/json" },

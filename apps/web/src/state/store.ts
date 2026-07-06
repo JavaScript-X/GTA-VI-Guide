@@ -11,8 +11,15 @@ export const store = {
   guideFilter: "all",
   communityFilter: "all",
   communitySearch: "",
+  globalSearch: "",
+  searchResults: null,
   authMode: "signin"
 };
+
+export function setSearchResults(query, results) {
+  store.globalSearch = query;
+  store.searchResults = results;
+}
 
 export function setDashboard(dashboard) {
   store.dashboard = dashboard;

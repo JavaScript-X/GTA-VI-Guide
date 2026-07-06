@@ -43,9 +43,49 @@ jobs:
         run: |
           echo "Add Trivy, Grype, Snyk, or registry-native image scanning here."
 
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: gta_guide
+          POSTGRES_PASSWORD: gta_guide
+          POSTGRES_DB: gta_guide
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gta_guide -d gta_guide"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://gta_guide:gta_guide@localhost:5432/gta_guide
+      RATE_LIMIT_MAX_REQUESTS: "1000"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install runtime dependencies
+        run: npm install
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply migrations to PostgreSQL
+        run: npm run db:migrate
+
+      - name: Run smoke test against PostgreSQL adapter
+        run: npm run smoke
+
   publish:
     if: github.ref == 'refs/heads/main'
-    needs: test
+    needs: [test, postgres-integration]
     runs-on: ubuntu-latest
     permissions:
       contents: read

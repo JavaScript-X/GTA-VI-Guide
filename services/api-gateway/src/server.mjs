@@ -23,6 +23,17 @@ async function postServiceData(service, path, body) {
   return payload.data;
 }
 
+function encodePath(path, params = {}) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      search.set(key, value);
+    }
+  }
+  const suffix = search.toString();
+  return suffix ? `${path}?${suffix}` : path;
+}
+
 async function deleteServiceData(service, path, request) {
   const payload = await fetchJson(`${services[service]}${path}`, {
     method: "DELETE",
@@ -93,6 +104,35 @@ createJsonService({
           achievements: achievementData,
           knowledge,
           community
+        };
+      }
+    },
+    {
+      method: "GET",
+      path: "/api/search",
+      handler: async ({ url }) => {
+        const query = String(url.searchParams.get("q") || "").trim();
+        if (!query) {
+          return {
+            query,
+            total: 0,
+            guides: [],
+            posts: [],
+            crews: [],
+            events: []
+          };
+        }
+        const [knowledge, community] = await Promise.all([
+          getServiceData("knowledge", encodePath("/guides", { q: query })),
+          getServiceData("community", encodePath("/feed", { q: query }))
+        ]);
+        return {
+          query,
+          total: (knowledge.total || 0) + (community.total || 0),
+          guides: knowledge.guides || [],
+          posts: community.posts || [],
+          crews: community.crews || [],
+          events: community.events || []
         };
       }
     },

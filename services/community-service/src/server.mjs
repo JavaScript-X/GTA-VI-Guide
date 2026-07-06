@@ -27,7 +27,13 @@ createJsonService({
     {
       method: "GET",
       path: "/feed",
-      handler: () => communityRepository.getFeed()
+      handler: ({ url }) => {
+        const query = url.searchParams.get("q");
+        if (query) {
+          return communityRepository.searchCommunity(query);
+        }
+        return communityRepository.getFeed();
+      }
     },
     {
       method: "POST",

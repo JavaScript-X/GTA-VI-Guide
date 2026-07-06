@@ -193,6 +193,20 @@ function createKnowledgeRepository(store) {
         total: filtered.length
       };
     },
+    async searchGuides(query) {
+      const normalized = String(query || "").trim().toLowerCase();
+      if (!normalized) {
+        return { guides: [], total: 0 };
+      }
+      const items = store.guides.filter((guide) => {
+        const haystack = `${guide.title} ${guide.summary} ${(guide.tags || []).join(" ")}`.toLowerCase();
+        return haystack.includes(normalized);
+      });
+      return {
+        guides: items.map((guide) => ({ ...guide })),
+        total: items.length
+      };
+    },
     async createGuide(input) {
       const guide = {
         id: input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
@@ -249,6 +263,30 @@ function createCommunityRepository(store) {
           reportsOpen: store.reports.filter((report) => report.status === "open").length,
           mode: "pre-launch-curated"
         }
+      };
+    },
+    async searchCommunity(query) {
+      const normalized = String(query || "").trim().toLowerCase();
+      if (!normalized) {
+        return { posts: [], crews: [], events: [], total: 0 };
+      }
+      const posts = store.communityFeed.filter((post) => {
+        const haystack = `${post.title || ""} ${post.body || ""} ${post.channel || ""} ${post.author || ""}`.toLowerCase();
+        return haystack.includes(normalized);
+      });
+      const crews = store.crews.filter((crew) => {
+        const haystack = `${crew.name || ""} ${crew.focus || ""} ${crew.status || ""} ${crew.description || ""}`.toLowerCase();
+        return haystack.includes(normalized);
+      });
+      const events = store.events.filter((event) => {
+        const haystack = `${event.title || ""} ${event.type || ""} ${event.crew || ""} ${event.description || ""}`.toLowerCase();
+        return haystack.includes(normalized);
+      });
+      return {
+        posts: posts.map((post) => ({ ...post })),
+        crews: crews.map((crew) => ({ ...crew })),
+        events: events.map((event) => ({ ...event })),
+        total: posts.length + crews.length + events.length
       };
     },
     async createPost(input) {

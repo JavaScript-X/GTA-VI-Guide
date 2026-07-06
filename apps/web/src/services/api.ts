@@ -43,6 +43,11 @@ export async function loadPlatform() {
   return fetchJsonWithFallback(["/api/platform", "http://localhost:8080/api/platform"]);
 }
 
+export async function searchPlatform(query) {
+  const encoded = encodeURIComponent(query);
+  return fetchJsonWithFallback([`/api/search?q=${encoded}`, `http://localhost:8080/api/search?q=${encoded}`]);
+}
+
 export async function login(email, password) {
   return postJsonWithFallback(
     ["/api/auth/login", "http://localhost:8080/api/auth/login", "http://localhost:8081/auth/login"],

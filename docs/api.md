@@ -17,6 +17,10 @@ Aggregates:
 - Knowledge guides.
 - Community feed.
 
+`GET /api/search?q=vice`
+
+Searches guides, community posts, crews, and events through backend services.
+
 `POST /api/guides`
 
 Creates a draft community guide through the Knowledge Service.
@@ -178,6 +182,10 @@ Returns community guides.
 
 Filters guides by tag.
 
+`GET /guides?q=securite`
+
+Searches guide title, summary, and tags.
+
 `POST /guides`
 
 Creates a draft guide.
@@ -195,6 +203,10 @@ Deletes a guide by id.
 `GET /feed`
 
 Returns curated community activity and moderation state.
+
+`GET /feed?q=crew`
+
+Searches community posts, crews, and events.
 
 `POST /posts`
 

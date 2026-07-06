@@ -44,8 +44,8 @@ vraiment utilisables en production.
   encore des apercus ou de la lecture seule.
 - Guides et communaute: creation, update/delete guides, commentaires avec
   edition/suppression, reactions, crews/events avec edition/suppression,
-  recherche frontend et moderation basique posts/reports existent. Recherche
-  backend et workflows avances restent incomplets.
+  recherche frontend/backend et moderation basique posts/reports existent. Les
+  workflows avances restent incomplets.
 - Suivi joueur: profile, completion et achievements existent en lecture/ecriture
   memoire, mais pas de vraie synchronisation provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
@@ -71,7 +71,7 @@ vraiment utilisables en production.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
   complete et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
-- Recherche backend et workflow editorial avance des guides.
+- Workflow editorial avance des guides.
 - CRUD complet communaute: moderation avancee et workflows roles/audit.
 - Dashboard admin/moderateur avec file de signalements et audit logs.
 - Upload images/fichiers via MinIO/S3/R2.
@@ -123,4 +123,4 @@ vraiment utilisables en production.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
-  en CI ou Docker Compose, puis ajouter recherche backend.
+  en CI ou Docker Compose, puis ajouter moderation avancee.

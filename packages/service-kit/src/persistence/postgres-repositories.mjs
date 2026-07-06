@@ -678,6 +678,29 @@ function createKnowledgeRepository(db) {
         total: items.length
       };
     },
+    async searchGuides(query) {
+      const normalized = String(query || "").trim();
+      if (!normalized) {
+        return { guides: [], total: 0 };
+      }
+      const result = await db.query(
+        `
+          SELECT id, title, language, status, summary, tags
+          FROM knowledge_service.guides
+          WHERE title ILIKE $1
+             OR summary ILIKE $1
+             OR array_to_string(tags, ' ') ILIKE $1
+          ORDER BY updated_at DESC
+          LIMIT 25
+        `,
+        [`%${normalized}%`]
+      );
+      const items = result.rows.map(mapGuide);
+      return {
+        guides: items,
+        total: items.length
+      };
+    },
     async createGuide(input) {
       const id = input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       const result = await db.query(
@@ -815,6 +838,58 @@ function createCommunityRepository(db) {
           reportsOpen: reports.rows[0]?.reports_open || 0,
           mode: "pre-launch-curated"
         }
+      };
+    },
+    async searchCommunity(query) {
+      const normalized = String(query || "").trim();
+      if (!normalized) {
+        return { posts: [], crews: [], events: [], total: 0 };
+      }
+      const pattern = `%${normalized}%`;
+      const [posts, crews, events] = await Promise.all([
+        db.query(
+          `
+            SELECT p.id, u.display_name AS author, p.channel, p.title, p.body, p.score, p.replies_count,
+                   0::int AS comments_count,
+                   0::int AS reactions_count
+            FROM community_service.posts p
+            LEFT JOIN identity_service.users u ON u.id = p.author_id
+            WHERE p.moderation_status = 'visible'
+              AND (p.title ILIKE $1 OR p.body ILIKE $1 OR p.channel ILIKE $1 OR u.display_name ILIKE $1)
+            ORDER BY p.created_at DESC
+            LIMIT 25
+          `,
+          [pattern]
+        ),
+        db.query(
+          `
+            SELECT id, name, members, focus, status, description
+            FROM community_service.crews
+            WHERE name ILIKE $1 OR focus ILIKE $1 OR status ILIKE $1 OR description ILIKE $1
+            ORDER BY created_at DESC, name
+            LIMIT 25
+          `,
+          [pattern]
+        ),
+        db.query(
+          `
+            SELECT id, title, starts_at_label, type, seats, crew_name, description
+            FROM community_service.events
+            WHERE title ILIKE $1 OR type ILIKE $1 OR crew_name ILIKE $1 OR description ILIKE $1
+            ORDER BY created_at DESC, title
+            LIMIT 25
+          `,
+          [pattern]
+        )
+      ]);
+      const postItems = posts.rows.map(mapPost);
+      const crewItems = crews.rows.map(mapCrew);
+      const eventItems = events.rows.map(mapEvent);
+      return {
+        posts: postItems,
+        crews: crewItems,
+        events: eventItems,
+        total: postItems.length + crewItems.length + eventItems.length
       };
     },
     async createPost(input) {

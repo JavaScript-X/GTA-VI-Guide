@@ -61,6 +61,16 @@ describe("repositories", () => {
     assert.equal(guides.guides.some((item) => item.id === "editorial-guide"), false);
   });
 
+  it("searches guides and community domains", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const guides = await repositories.knowledge.searchGuides("securite");
+    const community = await repositories.community.searchCommunity("Vice");
+
+    assert.ok(guides.guides.some((guide) => guide.id === "account-linking-safety"));
+    assert.ok(community.posts.length > 0 || community.crews.length > 0 || community.events.length > 0);
+    assert.equal(community.total, community.posts.length + community.crews.length + community.events.length);
+  });
+
   it("updates achievement progress", async () => {
     const repositories = createRepositories(createMemoryStore());
     const updated = await repositories.achievements.updateProgress("collector-instinct", 80);

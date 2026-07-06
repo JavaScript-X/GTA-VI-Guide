@@ -29,6 +29,10 @@ createJsonService({
       path: "/guides",
       handler: async ({ url }) => {
         const tag = url.searchParams.get("tag");
+        const query = url.searchParams.get("q");
+        if (query) {
+          return knowledgeRepository.searchGuides(query);
+        }
         return knowledgeRepository.listGuides({ tag });
       }
     },

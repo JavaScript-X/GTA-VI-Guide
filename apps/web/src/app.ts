@@ -1,5 +1,5 @@
 import { shell } from "./components/layout.ts";
-import { setDashboard, setPlatform, setSession, clearSession, store } from "./state/store.ts";
+import { setDashboard, setPlatform, setSession, clearSession, setSearchResults, store } from "./state/store.ts";
 import {
   createCommunityPost,
   createComment,
@@ -17,6 +17,7 @@ import {
   reactToPost,
   register,
   reportCommunityPost,
+  searchPlatform,
   updateComment,
   updateCrew,
   updateEvent,
@@ -94,6 +95,31 @@ function setFormStatus(name, message, isError = false) {
   box.classList.toggle("is-error", isError);
 }
 
+function localSearch(query) {
+  const normalized = String(query || "").trim().toLowerCase();
+  const includes = (value) => String(value || "").toLowerCase().includes(normalized);
+  const guides = store.dashboard.knowledge.guides.filter((guide) =>
+    includes(`${guide.title} ${guide.summary} ${(guide.tags || []).join(" ")}`)
+  );
+  const posts = store.dashboard.community.feed.filter((post) =>
+    includes(`${post.title} ${post.body || ""} ${post.channel}`)
+  );
+  const crews = (store.dashboard.community.crews || []).filter((crew) =>
+    includes(`${crew.name} ${crew.focus} ${crew.status} ${crew.description}`)
+  );
+  const events = (store.dashboard.community.events || []).filter((event) =>
+    includes(`${event.title} ${event.type} ${event.crew} ${event.description}`)
+  );
+  return {
+    query,
+    guides,
+    posts,
+    crews,
+    events,
+    total: guides.length + posts.length + crews.length + events.length
+  };
+}
+
 function bindInteractions() {
   document.querySelectorAll("[data-menu-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -139,6 +165,29 @@ function bindInteractions() {
       navigate("community");
     });
   });
+
+  const globalSearchForm = document.querySelector("#global-search-form");
+  if (globalSearchForm) {
+    globalSearchForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(globalSearchForm);
+      const query = String(formData.get("query") || "").trim();
+      if (!query) {
+        setSearchResults("", null);
+        renderApp();
+        navigate("home");
+        return;
+      }
+      try {
+        const payload = await searchPlatform(query);
+        setSearchResults(query, payload.data);
+      } catch {
+        setSearchResults(query, localSearch(query));
+      }
+      renderApp();
+      navigate("home");
+    });
+  }
 
   document.querySelectorAll("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => {
