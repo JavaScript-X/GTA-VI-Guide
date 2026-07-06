@@ -100,6 +100,106 @@ export const guides = [
   }
 ];
 
+export const contentSources = [
+  {
+    id: "rockstar-gta-vi-official",
+    title: "Grand Theft Auto VI - Rockstar Games",
+    provider: "Rockstar Games",
+    type: "official",
+    trustLevel: "official",
+    url: "https://www.rockstargames.com/VI",
+    summary: "Page officielle GTA VI avec date de sortie, plateformes, precommande, videos, galerie et liens media.",
+    tags: ["gta-vi", "official", "release", "media", "rockstar"],
+    syncMode: "curated-link",
+    allowedUse: "Lien canonique, metadonnees courtes et attribution. Pas de copie automatique des assets sans autorisation.",
+    mediaPolicy: "Utiliser les downloads officiels seulement selon les conditions Rockstar.",
+    licenseNote: "Rockstar Games / Take-Two trademarks and copyrighted materials.",
+    lastCheckedAt: "2026-07-06T00:00:00.000Z",
+    facts: [
+      { label: "Release", value: "November 19, 2026" },
+      { label: "Platforms", value: "PlayStation 5, Xbox Series X|S" },
+      { label: "World", value: "Vice City, Leonida" }
+    ]
+  },
+  {
+    id: "rockstar-gta-vi-media",
+    title: "Downloads Media & Artwork",
+    provider: "Rockstar Games",
+    type: "media",
+    trustLevel: "official",
+    url: "https://www.rockstargames.com/VI",
+    summary: "Point d'entree vers les videos, captures et artworks officiels partageables autour de GTA VI.",
+    tags: ["media", "artwork", "screenshots", "videos", "official"],
+    syncMode: "manual-review",
+    allowedUse: "Indexer le lien et decrire le contenu. Telechargement/stockage local seulement apres validation des conditions.",
+    mediaPolicy: "Aucune image officielle n'est dupliquee dans la plateforme par defaut.",
+    licenseNote: "Official Rockstar media, usage subject to Rockstar terms.",
+    lastCheckedAt: "2026-07-06T00:00:00.000Z",
+    facts: [
+      { label: "Content", value: "Videos, screenshots, artwork" },
+      { label: "Status", value: "Official media hub" }
+    ]
+  },
+  {
+    id: "playstation-gta-vi",
+    title: "Grand Theft Auto VI - PlayStation Store",
+    provider: "PlayStation",
+    type: "platform",
+    trustLevel: "platform",
+    url: "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+    summary: "Page PlayStation officielle avec editions, prix, GTA+, fonctionnalites PS5 et informations de precommande.",
+    tags: ["ps5", "playstation", "preorder", "editions", "features"],
+    syncMode: "curated-link",
+    allowedUse: "Metadonnees courtes et lien vers PlayStation. Les prix/editions doivent etre revalides regulierement.",
+    mediaPolicy: "Ne pas hotlinker les assets PlayStation sans autorisation explicite.",
+    licenseNote: "Sony Interactive Entertainment / Rockstar Games content rights apply.",
+    lastCheckedAt: "2026-07-06T00:00:00.000Z",
+    facts: [
+      { label: "Standard", value: "$79.99" },
+      { label: "Ultimate", value: "$99.99" },
+      { label: "PS5", value: "PS5 Pro Enhanced" }
+    ]
+  },
+  {
+    id: "xbox-gta-vi",
+    title: "Grand Theft Auto VI - Xbox",
+    provider: "Xbox",
+    type: "platform",
+    trustLevel: "platform",
+    url: "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9N2S3XRD57ZR",
+    summary: "Page Xbox a surveiller pour les editions, disponibilites Series X|S et informations store.",
+    tags: ["xbox", "series-xs", "store", "preorder"],
+    syncMode: "curated-link",
+    allowedUse: "Lien canonique et donnees verifiees manuellement avant affichage public.",
+    mediaPolicy: "Assets Xbox non dupliques sans permission.",
+    licenseNote: "Microsoft/Xbox and Rockstar content rights apply.",
+    lastCheckedAt: "2026-07-06T00:00:00.000Z",
+    facts: [
+      { label: "Platform", value: "Xbox Series X|S" },
+      { label: "Mode", value: "Store monitoring" }
+    ]
+  },
+  {
+    id: "gta-fandom-gta-vi",
+    title: "Grand Theft Auto VI - GTA Wiki",
+    provider: "GTA Wiki / Fandom",
+    type: "community-wiki",
+    trustLevel: "community",
+    url: "https://gta.fandom.com/wiki/Grand_Theft_Auto_VI",
+    summary: "Wiki communautaire utile pour suivre personnages, lieux, chronologie, references et contenus confirmes.",
+    tags: ["wiki", "community", "characters", "locations", "lore"],
+    syncMode: "attributed-summary",
+    allowedUse: "Resumer, attribuer et renvoyer vers la page. Eviter la copie longue et verifier les licences des medias un par un.",
+    mediaPolicy: "Les images Fandom peuvent avoir des droits differents; ne pas les importer automatiquement.",
+    licenseNote: "Community wiki content and uploaded media may have separate licenses.",
+    lastCheckedAt: "2026-07-06T00:00:00.000Z",
+    facts: [
+      { label: "Coverage", value: "Characters, setting, development, references" },
+      { label: "Reliability", value: "Community, needs verification" }
+    ]
+  }
+];
+
 export const communityFeed = [
   {
     id: "post_001",

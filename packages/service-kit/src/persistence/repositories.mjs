@@ -207,6 +207,28 @@ function createKnowledgeRepository(store) {
         total: items.length
       };
     },
+    async listContentSources({ provider, type, trustLevel, query } = {}) {
+      const normalized = String(query || "").trim().toLowerCase();
+      const filtered = store.contentSources.filter((source) => {
+        const matchesProvider = !provider || source.provider.toLowerCase().includes(provider.toLowerCase());
+        const matchesType = !type || source.type === type;
+        const matchesTrust = !trustLevel || source.trustLevel === trustLevel;
+        const haystack = `${source.title} ${source.provider} ${source.summary} ${(source.tags || []).join(" ")}`.toLowerCase();
+        const matchesQuery = !normalized || haystack.includes(normalized);
+        return matchesProvider && matchesType && matchesTrust && matchesQuery;
+      });
+      return {
+        sources: filtered.map((source) => structuredClone(source)),
+        total: filtered.length,
+        policy: {
+          mode: "attributed-source-registry",
+          note: "Official and community sources are linked and summarized with attribution; media is not mirrored without a verified usage right."
+        }
+      };
+    },
+    async searchSources(query) {
+      return this.listContentSources({ query });
+    },
     async createGuide(input) {
       const guide = {
         id: input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),

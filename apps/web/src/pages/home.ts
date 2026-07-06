@@ -11,6 +11,7 @@ export function homePage(state) {
         <div class="item-title"><span>Resultats pour "${state.globalSearch}"</span><span class="badge">${results.total || 0}</span></div>
         <div class="result-grid">
           ${resultColumn("Guides", results.guides, (item) => item.summary)}
+          ${resultColumn("Sources", results.sources, (item) => `${item.provider} - ${item.trustLevel}`)}
           ${resultColumn("Posts", results.posts, (item) => item.channel)}
           ${resultColumn("Crews", results.crews, (item) => `${item.members} membres - ${item.focus}`)}
           ${resultColumn("Events", results.events, (item) => `${item.date} - ${item.seats} places`)}
@@ -26,7 +27,7 @@ export function homePage(state) {
           <h1>Guides, suivi et communaute GTA VI au meme endroit.</h1>
           <p>Une interface simple pour suivre ta progression, lire les guides utiles, organiser la communaute et preparer les futures integrations officielles.</p>
           <form class="hero-search" id="global-search-form">
-            <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher guides, posts, crews, events" />
+            <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher guides, sources, posts, crews" />
             <button class="button primary" type="submit">Rechercher</button>
           </form>
           ${actionBar(`
@@ -37,6 +38,7 @@ export function homePage(state) {
         ${searchResults}
         <section class="stats-grid">
           ${statCard(dashboard.knowledge.guides.length, "Guides")}
+          ${statCard((dashboard.knowledge.sources || []).length, "Sources")}
           ${statCard(dashboard.achievements.achievements.length, "Objectifs")}
           ${statCard(dashboard.profile.syncMode, "Source")}
           ${statCard(`${ready}/${state.platform.services.length}`, "Services")}
@@ -46,6 +48,7 @@ export function homePage(state) {
           "Les actions les plus utiles restent visibles sans surcharger l'ecran.",
           `<div class="quick-grid">
             ${quickLink("guides", "Guides", "Roadmaps, securite, progression.")}
+            ${quickLink("sources", "Intel", "Rockstar, stores, wikis attribues.")}
             ${quickLink("tracking", "Suivi", "Profil, completion, achievements.")}
             ${quickLink("community", "Communaute", "Posts, crews, reports.")}
             ${quickLink("account", "Compte", "Connexion, roles, comptes lies.")}

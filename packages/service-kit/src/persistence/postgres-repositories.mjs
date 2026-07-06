@@ -1,4 +1,4 @@
-import { achievements, communityFeed, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
+import { achievements, communityFeed, contentSources, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
 import { hashPassword } from "../auth.mjs";
 import { getDatabaseUrl, isPostgresConfigured, loadPostgresDriver } from "./postgres-adapter.mjs";
 
@@ -58,6 +58,7 @@ async function seedDatabase() {
     seedProfile(user.id),
     seedAchievements(user.id),
     seedGuides(),
+    seedContentSources(),
     seedCommunityPosts(user.id),
     seedCrews(),
     seedEvents()
@@ -220,6 +221,51 @@ async function seedEvents() {
   }
 }
 
+async function seedContentSources() {
+  for (const source of contentSources) {
+    await pool.query(
+      `
+        INSERT INTO knowledge_service.content_sources (
+          id, title, provider, type, trust_level, url, summary, tags, sync_mode,
+          allowed_use, media_policy, license_note, facts, last_checked_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14)
+        ON CONFLICT (id) DO UPDATE
+        SET title = EXCLUDED.title,
+            provider = EXCLUDED.provider,
+            type = EXCLUDED.type,
+            trust_level = EXCLUDED.trust_level,
+            url = EXCLUDED.url,
+            summary = EXCLUDED.summary,
+            tags = EXCLUDED.tags,
+            sync_mode = EXCLUDED.sync_mode,
+            allowed_use = EXCLUDED.allowed_use,
+            media_policy = EXCLUDED.media_policy,
+            license_note = EXCLUDED.license_note,
+            facts = EXCLUDED.facts,
+            last_checked_at = EXCLUDED.last_checked_at,
+            updated_at = now()
+      `,
+      [
+        source.id,
+        source.title,
+        source.provider,
+        source.type,
+        source.trustLevel,
+        source.url,
+        source.summary,
+        source.tags,
+        source.syncMode,
+        source.allowedUse,
+        source.mediaPolicy,
+        source.licenseNote,
+        JSON.stringify(source.facts || []),
+        source.lastCheckedAt
+      ]
+    );
+  }
+}
+
 function mapUser(row) {
   if (!row) {
     return null;
@@ -274,6 +320,25 @@ function mapGuide(row) {
     status: row.status,
     tags: row.tags || [],
     summary: row.summary
+  };
+}
+
+function mapContentSource(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    provider: row.provider,
+    type: row.type,
+    trustLevel: row.trust_level,
+    url: row.url,
+    summary: row.summary,
+    tags: row.tags || [],
+    syncMode: row.sync_mode,
+    allowedUse: row.allowed_use,
+    mediaPolicy: row.media_policy,
+    licenseNote: row.license_note,
+    facts: row.facts || [],
+    lastCheckedAt: row.last_checked_at ? row.last_checked_at.toISOString() : null
   };
 }
 
@@ -700,6 +765,53 @@ function createKnowledgeRepository(db) {
         guides: items,
         total: items.length
       };
+    },
+    async listContentSources({ provider, type, trustLevel, query } = {}) {
+      const clauses = [];
+      const params = [];
+      if (provider) {
+        params.push(`%${provider}%`);
+        clauses.push(`provider ILIKE $${params.length}`);
+      }
+      if (type) {
+        params.push(type);
+        clauses.push(`type = $${params.length}`);
+      }
+      if (trustLevel) {
+        params.push(trustLevel);
+        clauses.push(`trust_level = $${params.length}`);
+      }
+      if (query) {
+        params.push(`%${String(query).trim()}%`);
+        clauses.push(`(title ILIKE $${params.length} OR provider ILIKE $${params.length} OR summary ILIKE $${params.length} OR array_to_string(tags, ' ') ILIKE $${params.length})`);
+      }
+      const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+      const result = await db.query(
+        `
+          SELECT id, title, provider, type, trust_level, url, summary, tags, sync_mode,
+                 allowed_use, media_policy, license_note, facts, last_checked_at
+          FROM knowledge_service.content_sources
+          ${where}
+          ORDER BY
+            CASE trust_level WHEN 'official' THEN 0 WHEN 'platform' THEN 1 ELSE 2 END,
+            provider,
+            title
+          LIMIT 50
+        `,
+        params
+      );
+      const items = result.rows.map(mapContentSource);
+      return {
+        sources: items,
+        total: items.length,
+        policy: {
+          mode: "attributed-source-registry",
+          note: "Official and community sources are linked and summarized with attribution; media is not mirrored without a verified usage right."
+        }
+      };
+    },
+    async searchSources(query) {
+      return this.listContentSources({ query });
     },
     async createGuide(input) {
       const id = input.id || input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

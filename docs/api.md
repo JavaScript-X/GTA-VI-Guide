@@ -14,12 +14,20 @@ Aggregates:
 - Linked account states.
 - Game profile snapshot.
 - Achievement catalog and progress summary.
-- Knowledge guides.
+- Knowledge guides and attributed content sources.
 - Community feed.
 
 `GET /api/search?q=vice`
 
-Searches guides, community posts, crews, and events through backend services.
+Searches guides, attributed content sources, community posts, crews, and events through backend services.
+
+`GET /api/sources`
+
+Lists attributed official, platform and community content sources.
+
+`GET /api/sources?trustLevel=official&q=rockstar`
+
+Filters source registry entries by trust level and search query.
 
 `POST /api/guides`
 
@@ -190,6 +198,15 @@ Filters guides by tag.
 `GET /guides?q=securite`
 
 Searches guide title, summary, and tags.
+
+`GET /sources`
+
+Returns the curated source registry with canonical URLs, attribution, trust level,
+media policy and usage notes.
+
+`GET /sources?trustLevel=official&q=rockstar`
+
+Filters source registry entries.
 
 `POST /guides`
 

@@ -116,6 +116,18 @@ try {
   if (!searchPayload.data || typeof searchPayload.data.total !== "number") {
     throw new Error("Search payload is missing aggregate result metadata");
   }
+  if (!Array.isArray(searchPayload.data.sources)) {
+    throw new Error("Search payload is missing source results");
+  }
+
+  const sources = await fetch(`http://localhost:${ports.gateway}/api/sources`);
+  if (!sources.ok) {
+    throw new Error(`Sources endpoint returned ${sources.status}`);
+  }
+  const sourcesPayload = await sources.json();
+  if (!Array.isArray(sourcesPayload.data.sources) || sourcesPayload.data.sources.length === 0) {
+    throw new Error("Sources payload is missing registered content sources");
+  }
 
   const register = await fetch(`http://localhost:${ports.gateway}/api/auth/register`, {
     method: "POST",

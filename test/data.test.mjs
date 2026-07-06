@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { achievements, guides, linkedAccounts, profileSnapshot } from "../packages/service-kit/src/data.mjs";
+import { achievements, contentSources, guides, linkedAccounts, profileSnapshot } from "../packages/service-kit/src/data.mjs";
 
 describe("seed data", () => {
   it("contains account integration states", () => {
@@ -17,6 +17,13 @@ describe("seed data", () => {
 
   it("has French guide content for launch", () => {
     assert.ok(guides.some((guide) => guide.language === "fr"));
+  });
+
+  it("registers attributed content sources without mirrored media", () => {
+    assert.ok(contentSources.some((source) => source.trustLevel === "official"));
+    assert.ok(contentSources.some((source) => source.trustLevel === "community"));
+    assert.ok(contentSources.every((source) => source.url.startsWith("https://")));
+    assert.ok(contentSources.every((source) => source.mediaPolicy));
   });
 
   it("tracks a mock game profile snapshot", () => {

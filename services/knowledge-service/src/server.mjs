@@ -37,6 +37,18 @@ createJsonService({
       }
     },
     {
+      method: "GET",
+      path: "/sources",
+      handler: async ({ url }) => {
+        return knowledgeRepository.listContentSources({
+          provider: url.searchParams.get("provider"),
+          type: url.searchParams.get("type"),
+          trustLevel: url.searchParams.get("trustLevel"),
+          query: url.searchParams.get("q")
+        });
+      }
+    },
+    {
       method: "POST",
       path: "/guides",
       statusCode: 201,

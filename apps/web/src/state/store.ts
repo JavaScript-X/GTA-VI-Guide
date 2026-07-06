@@ -11,6 +11,8 @@ export const store = {
   guideFilter: "all",
   communityFilter: "all",
   communitySearch: "",
+  sourceFilter: "all",
+  sourceSearch: "",
   globalSearch: "",
   searchResults: null,
   moderation: {
@@ -20,6 +22,13 @@ export const store = {
   },
   authMode: "signin"
 };
+
+export function setSources(payload) {
+  store.dashboard.knowledge = {
+    ...store.dashboard.knowledge,
+    sources: payload.sources || []
+  };
+}
 
 export function setSearchResults(query, results) {
   store.globalSearch = query;

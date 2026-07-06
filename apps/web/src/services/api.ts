@@ -48,6 +48,17 @@ export async function searchPlatform(query) {
   return fetchJsonWithFallback([`/api/search?q=${encoded}`, `http://localhost:8080/api/search?q=${encoded}`]);
 }
 
+export async function loadSources(filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      params.set(key, value);
+    }
+  });
+  const suffix = params.toString() ? `?${params.toString()}` : "";
+  return fetchJsonWithFallback([`/api/sources${suffix}`, `http://localhost:8080/api/sources${suffix}`]);
+}
+
 export async function login(email, password) {
   return postJsonWithFallback(
     ["/api/auth/login", "http://localhost:8080/api/auth/login", "http://localhost:8081/auth/login"],

@@ -1,6 +1,7 @@
 export const routes = [
   { id: "home", label: "Accueil", group: "main" },
   { id: "guides", label: "Guides", group: "main" },
+  { id: "sources", label: "Intel", group: "main" },
   { id: "tracking", label: "Suivi", group: "main" },
   { id: "community", label: "Communaute", group: "main" },
   { id: "account", label: "Compte", group: "main" },

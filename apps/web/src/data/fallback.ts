@@ -56,6 +56,59 @@ export const fallbackDashboard = {
         tags: ["achievements", "completion"],
         summary: "Planifier les trophees, objectifs saisonniers et collectibles."
       }
+    ],
+    sources: [
+      {
+        id: "rockstar-gta-vi-official",
+        title: "Grand Theft Auto VI - Rockstar Games",
+        provider: "Rockstar Games",
+        type: "official",
+        trustLevel: "official",
+        url: "https://www.rockstargames.com/VI",
+        summary: "Page officielle GTA VI avec date de sortie, plateformes, precommande, videos, galerie et liens media.",
+        tags: ["gta-vi", "official", "release", "media"],
+        syncMode: "curated-link",
+        allowedUse: "Lien canonique, metadonnees courtes et attribution.",
+        mediaPolicy: "Pas de copie automatique des assets sans autorisation.",
+        licenseNote: "Rockstar Games / Take-Two rights apply.",
+        facts: [
+          { label: "Release", value: "November 19, 2026" },
+          { label: "Platforms", value: "PS5, Xbox Series X|S" }
+        ]
+      },
+      {
+        id: "playstation-gta-vi",
+        title: "Grand Theft Auto VI - PlayStation Store",
+        provider: "PlayStation",
+        type: "platform",
+        trustLevel: "platform",
+        url: "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        summary: "Editions, prix, GTA+, fonctionnalites PS5 et informations de precommande.",
+        tags: ["ps5", "preorder", "editions"],
+        syncMode: "curated-link",
+        allowedUse: "Metadonnees courtes et lien vers PlayStation.",
+        mediaPolicy: "Ne pas hotlinker les assets PlayStation.",
+        licenseNote: "Sony Interactive Entertainment / Rockstar rights apply.",
+        facts: [
+          { label: "Standard", value: "$79.99" },
+          { label: "Ultimate", value: "$99.99" }
+        ]
+      },
+      {
+        id: "gta-fandom-gta-vi",
+        title: "Grand Theft Auto VI - GTA Wiki",
+        provider: "GTA Wiki / Fandom",
+        type: "community-wiki",
+        trustLevel: "community",
+        url: "https://gta.fandom.com/wiki/Grand_Theft_Auto_VI",
+        summary: "Wiki communautaire pour personnages, lieux, chronologie, references et contenus confirmes.",
+        tags: ["wiki", "community", "characters", "locations"],
+        syncMode: "attributed-summary",
+        allowedUse: "Resumer, attribuer et renvoyer vers la page.",
+        mediaPolicy: "Verifier les licences des images une par une.",
+        licenseNote: "Community content and media may have separate licenses.",
+        facts: [{ label: "Reliability", value: "Community, needs verification" }]
+      }
     ]
   },
   community: {

@@ -1,5 +1,5 @@
 import { shell } from "./components/layout.ts";
-import { setDashboard, setPlatform, setSession, clearSession, setModeration, setSearchResults, store } from "./state/store.ts";
+import { setDashboard, setPlatform, setSession, clearSession, setModeration, setSearchResults, setSources, store } from "./state/store.ts";
 import {
   createCommunityPost,
   createComment,
@@ -15,6 +15,7 @@ import {
   loadDashboard,
   loadPlatform,
   loadReports,
+  loadSources,
   login,
   moderatePost,
   reactToPost,
@@ -31,6 +32,7 @@ import {
 } from "./services/api.ts";
 import { homePage } from "./pages/home.ts";
 import { guidesPage } from "./pages/guides.ts";
+import { sourcesPage } from "./pages/sources.ts";
 import { trackingPage } from "./pages/tracking.ts";
 import { accountPage } from "./pages/account.ts";
 import { communityPage } from "./pages/community.ts";
@@ -49,6 +51,7 @@ export function renderApp() {
     [
       homePage(store),
       guidesPage(store),
+      sourcesPage(store),
       trackingPage(store),
       achievementsPage(store),
       mapPage(store),
@@ -116,13 +119,17 @@ function localSearch(query) {
   const events = (store.dashboard.community.events || []).filter((event) =>
     includes(`${event.title} ${event.type} ${event.crew} ${event.description}`)
   );
+  const sources = (store.dashboard.knowledge.sources || []).filter((source) =>
+    includes(`${source.title} ${source.provider} ${source.summary} ${(source.tags || []).join(" ")}`)
+  );
   return {
     query,
     guides,
+    sources,
     posts,
     crews,
     events,
-    total: guides.length + posts.length + crews.length + events.length
+    total: guides.length + sources.length + posts.length + crews.length + events.length
   };
 }
 
@@ -159,6 +166,42 @@ function bindInteractions() {
       store.communityFilter = button.dataset.communityFilter;
       renderApp();
       navigate("community");
+    });
+  });
+
+  document.querySelectorAll("[data-source-filter]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      store.sourceFilter = button.dataset.sourceFilter;
+      try {
+        const payload = await loadSources({
+          trustLevel: store.sourceFilter === "all" ? "" : store.sourceFilter,
+          q: store.sourceSearch
+        });
+        setSources(payload.data);
+      } catch {
+        // Keep fallback sources visible if the API is offline.
+      }
+      renderApp();
+      navigate("sources");
+    });
+  });
+
+  document.querySelectorAll("[data-filter-search='sources']").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      store.sourceSearch = String(formData.get("query") || "");
+      try {
+        const payload = await loadSources({
+          trustLevel: store.sourceFilter === "all" ? "" : store.sourceFilter,
+          q: store.sourceSearch
+        });
+        setSources(payload.data);
+      } catch {
+        // Local filtering is handled by the page render.
+      }
+      renderApp();
+      navigate("sources");
     });
   });
 

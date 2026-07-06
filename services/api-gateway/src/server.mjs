@@ -99,11 +99,12 @@ createJsonService({
       method: "GET",
       path: "/api/dashboard",
       handler: async () => {
-        const [identity, profile, achievementData, knowledge, community] = await Promise.all([
+        const [identity, profile, achievementData, knowledge, sources, community] = await Promise.all([
           getServiceData("identity", "/me"),
           getServiceData("profiles", "/profiles/me"),
           getServiceData("achievements", "/achievements"),
           getServiceData("knowledge", "/guides"),
+          getServiceData("knowledge", "/sources"),
           getServiceData("community", "/feed")
         ]);
 
@@ -111,7 +112,10 @@ createJsonService({
           identity,
           profile,
           achievements: achievementData,
-          knowledge,
+          knowledge: {
+            ...knowledge,
+            sources: sources.sources || []
+          },
           community
         };
       }
@@ -131,14 +135,16 @@ createJsonService({
             events: []
           };
         }
-        const [knowledge, community] = await Promise.all([
+        const [knowledge, sources, community] = await Promise.all([
           getServiceData("knowledge", encodePath("/guides", { q: query })),
+          getServiceData("knowledge", encodePath("/sources", { q: query })),
           getServiceData("community", encodePath("/feed", { q: query }))
         ]);
         return {
           query,
-          total: (knowledge.total || 0) + (community.total || 0),
+          total: (knowledge.total || 0) + (sources.total || 0) + (community.total || 0),
           guides: knowledge.guides || [],
+          sources: sources.sources || [],
           posts: community.posts || [],
           crews: community.crews || [],
           events: community.events || []
@@ -206,6 +212,21 @@ createJsonService({
       handler: async ({ request }) => {
         const body = await readJsonBody(request);
         return postServiceData("knowledge", "/guides/delete", body);
+      }
+    },
+    {
+      method: "GET",
+      path: "/api/sources",
+      handler: async ({ url }) => {
+        return getServiceData(
+          "knowledge",
+          encodePath("/sources", {
+            provider: url.searchParams.get("provider"),
+            type: url.searchParams.get("type"),
+            trustLevel: url.searchParams.get("trustLevel"),
+            q: url.searchParams.get("q")
+          })
+        );
       }
     },
     {
