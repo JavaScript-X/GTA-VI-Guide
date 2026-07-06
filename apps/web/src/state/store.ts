@@ -20,8 +20,24 @@ export const store = {
     auditEvents: [],
     loaded: false
   },
-  authMode: "signin"
+  authMode: "signin",
+  launchChecklist: [
+    { id: "link-account", label: "Preparer les comptes PSN/Xbox/Rockstar", done: false },
+    { id: "read-sources", label: "Verifier les sources officielles GTA VI", done: false },
+    { id: "track-progress", label: "Initialiser le suivi joueur", done: false },
+    { id: "join-community", label: "Rejoindre une crew ou discussion", done: false }
+  ]
 };
+
+export function setLaunchChecklist(items) {
+  store.launchChecklist = items;
+}
+
+export function toggleLaunchChecklistItem(id) {
+  store.launchChecklist = store.launchChecklist.map((item) =>
+    item.id === id ? { ...item, done: !item.done } : item
+  );
+}
 
 export function setSources(payload) {
   store.dashboard.knowledge = {

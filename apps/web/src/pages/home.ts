@@ -7,9 +7,10 @@ export function homePage(state) {
   const guides = dashboard.knowledge.guides || [];
   const sources = dashboard.knowledge.sources || [];
   const posts = dashboard.community.feed || [];
-  const crews = dashboard.community.crews || [];
   const achievements = dashboard.achievements.achievements || [];
   const profile = dashboard.profile.activeCharacter;
+  const checklistDone = state.launchChecklist.filter((item) => item.done).length;
+  const checklistProgress = Math.round((checklistDone / Math.max(state.launchChecklist.length, 1)) * 100);
   const results = state.searchResults;
   const searchResults = results
     ? `
@@ -49,45 +50,38 @@ export function homePage(state) {
               <a class="button secondary" href="#tracking" data-route="tracking">Ouvrir mon suivi</a>
             `)}
             <div class="hero-tags">
-              <span>Official-first</span><span>Wiki style</span><span>Online tracker</span><span>Mobile ready</span>
+              <span>${guides.length} guides</span><span>${sources.length} sources</span><span>${posts.length} posts</span>
             </div>
           </div>
         </section>
         ${searchResults}
-        <section class="store-stats">
-          ${statCard(guides.length, "Guides")}
-          ${statCard(sources.length, "Sources")}
-          ${statCard(achievements.length, "Objectifs")}
-          ${statCard(`${profile.level}`, "Level")}
-          ${statCard(`${ready}/${state.platform.services.length}`, "Services")}
-        </section>
         <section class="discovery-row">
           <div class="shelf-head">
-            <p class="eyebrow">Featured library</p>
-            <h2>Continue ton parcours</h2>
+            <p class="eyebrow">Dashboard</p>
+            <h2>Essentiel</h2>
           </div>
-          <div class="library-shelf">
-            ${libraryCard("sources", "Intel officiel", `${sources.length} sources`, "Rockstar, PlayStation, Xbox, Wiki")}
-            ${libraryCard("guides", "Guides communaute", `${guides.length} guides`, guides[0]?.summary || "Roadmaps et securite")}
-            ${libraryCard("tracking", profile.name, `Level ${profile.level}`, `${profile.vehicles} vehicules - ${profile.properties} proprietes`)}
-            ${libraryCard("community", "Discussions", `${posts.length} posts`, `${crews.length} crews actifs`)}
+          <div class="hub-dashboard">
+            ${statCard(sources.length, "Sources")}
+            ${statCard(guides.length, "Guides")}
+            ${statCard(achievements.length, "Objectifs")}
+            ${statCard(`${ready}/${state.platform.services.length}`, "Services")}
           </div>
         </section>
         <section class="wiki-front">
           <div class="wiki-main">
             ${appSection(
-              "Pages populaires",
-              "Une entree rapide vers les zones que la communaute va consulter le plus souvent.",
+              "Acces rapide",
+              "",
               `<div class="quick-grid wiki-grid">
                 ${quickLink("sources", "Sources GTA VI", "Pages officielles, stores, wiki et politiques media.")}
                 ${quickLink("guides", "Guides de lancement", "Progression, argent, securite compte et Online.")}
-                ${quickLink("map", "Carte Leonida", "Districts, points sauvegardes et exploration.")}
-                ${quickLink("vehicles", "Garage", "Vehicules, classes, propriete et suivi joueur.")}
+                ${quickLink("tracking", "Suivi joueur", "Profil, achievements et progression personnelle.")}
+                ${quickLink("community", "Communaute", "Posts, crews et evenements actifs.")}
               </div>`
             )}
             ${appSection(
               "Activite recente",
-              "Un feed compact pour voir ce qui bouge dans la communaute.",
+              "",
               `<div class="activity-feed">
                 ${posts.slice(0, 3).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses - score ${post.score}</small></article>`).join("")}
               </div>`
@@ -95,40 +89,34 @@ export function homePage(state) {
           </div>
           <aside class="wiki-sidebar">
             <div class="sidebar-card">
-              <p class="eyebrow">Source mix</p>
-              ${sources.slice(0, 4).map((source) => `<a href="#sources" data-route="sources"><strong>${source.provider}</strong><span>${source.trustLevel}</span></a>`).join("")}
+              <p class="eyebrow">Checklist lancement</p>
+              <div class="checklist-progress">
+                <strong>${checklistDone}/${state.launchChecklist.length}</strong>
+                <span>${checklistProgress}% pret</span>
+              </div>
+              <div class="launch-checklist">
+                ${state.launchChecklist.map(checklistItem).join("")}
+              </div>
             </div>
             <div class="sidebar-card">
               <p class="eyebrow">Player snapshot</p>
               <strong>${profile.name}</strong>
-              <span>${profile.crew}</span>
-              <small>${dashboard.profile.syncMode}</small>
+              <span>Level ${profile.level} - ${profile.crew}</span>
+              <small>${profile.vehicles} vehicules - ${dashboard.profile.syncMode}</small>
             </div>
           </aside>
         </section>
-        ${appSection(
-          "Hub actions",
-          "Les actions importantes restent a portee de main, sans noyer la page.",
-          `<div class="quick-grid">
-            ${quickLink("guides", "Guides", "Roadmaps, securite, progression.")}
-            ${quickLink("sources", "Intel", "Rockstar, stores, wikis attribues.")}
-            ${quickLink("tracking", "Suivi", "Profil, completion, achievements.")}
-            ${quickLink("community", "Communaute", "Posts, crews, reports.")}
-            ${quickLink("account", "Compte", "Connexion, roles, comptes lies.")}
-          </div>`
-        )}
       </div>
     </section>
   `;
 }
 
-function libraryCard(route, title, meta, copy) {
+function checklistItem(item) {
   return `
-    <a class="library-card" href="#${route}" data-route="${route}">
-      <span>${meta}</span>
-      <strong>${title}</strong>
-      <small>${copy}</small>
-    </a>
+    <button class="checklist-item ${item.done ? "is-done" : ""}" type="button" data-checklist-toggle="${item.id}">
+      <span>${item.done ? "OK" : ""}</span>
+      <strong>${item.label}</strong>
+    </button>
   `;
 }
 

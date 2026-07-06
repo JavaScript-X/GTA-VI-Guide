@@ -1726,3 +1726,152 @@ body::before {
     font-weight: 850;
   }
 }
+
+/* Clean pass: reduce visual noise and remove redundant right dock spacing. */
+.app-frame {
+  gap: 14px;
+}
+
+.store-hero,
+.discovery-row,
+.wiki-front,
+.app-section,
+.panel,
+.feature-card,
+.guide-card,
+.source-card,
+.auth-card {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
+}
+
+.store-hero {
+  background: rgba(21, 27, 36, 0.94);
+}
+
+.hero-media {
+  min-height: 170px;
+}
+
+.capsule-art {
+  width: min(250px, 76vw);
+  aspect-ratio: 16 / 10;
+}
+
+.capsule-art span {
+  width: 46px;
+  height: 46px;
+  font-size: 1.25rem;
+}
+
+.hero-copy h1 {
+  max-width: 760px;
+}
+
+.hub-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hub-dashboard .stat-card {
+  min-height: 86px;
+}
+
+.wiki-front {
+  align-items: start;
+}
+
+.quick-link {
+  min-height: 96px;
+}
+
+.library-card {
+  min-height: 118px;
+}
+
+.checklist-progress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0 6px;
+}
+
+.checklist-progress span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.launch-checklist {
+  display: grid;
+  gap: 8px;
+}
+
+.checklist-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.045);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.checklist-item span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(79, 227, 212, 0.28);
+  border-radius: 6px;
+  color: #0b1016;
+  background: transparent;
+  font-size: 0.65rem;
+  font-weight: 950;
+}
+
+.checklist-item.is-done {
+  color: rgba(245, 247, 251, 0.72);
+  background: rgba(79, 227, 212, 0.08);
+}
+
+.checklist-item.is-done span {
+  background: var(--cyan);
+}
+
+@media (min-width: 720px) {
+  .hero-media {
+    min-height: 340px;
+  }
+
+  .hub-dashboard {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .app-frame {
+    grid-template-columns: 220px minmax(0, 1080px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 719px) {
+  .hero-media {
+    min-height: 150px;
+  }
+
+  .store-hero,
+  .discovery-row,
+  .wiki-front {
+    border-left: 0;
+    border-right: 0;
+  }
+}

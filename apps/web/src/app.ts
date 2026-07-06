@@ -1,5 +1,16 @@
 import { shell } from "./components/layout.ts";
-import { setDashboard, setPlatform, setSession, clearSession, setModeration, setSearchResults, setSources, store } from "./state/store.ts";
+import {
+  setDashboard,
+  setPlatform,
+  setSession,
+  clearSession,
+  setModeration,
+  setSearchResults,
+  setSources,
+  setLaunchChecklist,
+  toggleLaunchChecklistItem,
+  store
+} from "./state/store.ts";
 import {
   createCommunityPost,
   createComment,
@@ -150,6 +161,15 @@ function bindInteractions() {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       navigate(link.dataset.route);
+    });
+  });
+
+  document.querySelectorAll("[data-checklist-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      toggleLaunchChecklistItem(button.dataset.checklistToggle);
+      saveLaunchChecklist();
+      renderApp();
+      navigate("home");
     });
   });
 
@@ -630,6 +650,7 @@ function bindInteractions() {
 
 export async function bootstrap() {
   window.addEventListener("hashchange", () => navigate(currentRoute()));
+  loadLaunchChecklist();
   renderApp();
   try {
     const dashboard = await loadDashboard();
@@ -644,4 +665,31 @@ export async function bootstrap() {
     console.warn("Using fallback platform data", error);
   }
   renderApp();
+}
+
+function loadLaunchChecklist() {
+  try {
+    const saved = window.localStorage.getItem("gta-vi-guide.launchChecklist");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        setLaunchChecklist(
+          store.launchChecklist.map((item) => ({
+            ...item,
+            done: Boolean(parsed.find((savedItem) => savedItem.id === item.id)?.done)
+          }))
+        );
+      }
+    }
+  } catch {
+    // Local storage is optional; the checklist still works in memory.
+  }
+}
+
+function saveLaunchChecklist() {
+  try {
+    window.localStorage.setItem("gta-vi-guide.launchChecklist", JSON.stringify(store.launchChecklist));
+  } catch {
+    // Ignore storage errors in private browsing or restricted environments.
+  }
 }

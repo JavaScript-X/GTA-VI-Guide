@@ -17,7 +17,7 @@ export const routes = [
 
 export function shell(content) {
   const primaryRoutes = routes.filter((route) => route.group === "main");
-  const secondaryRoutes = routes.filter((route) => route.group === "more");
+  const secondaryRoutes = routes.filter((route) => ["achievements", "map", "vehicles", "moderation", "platform"].includes(route.id));
   const allRoutes = [...primaryRoutes, ...secondaryRoutes];
   return `
     <header class="topbar">
@@ -52,11 +52,11 @@ export function shell(content) {
       <aside class="wiki-rail" aria-label="Menu wiki">
         <a class="brand rail-brand" href="#home" data-route="home"><span>VI</span><strong>Leonida Hub</strong></a>
         <div class="rail-block">
-          <p class="rail-title">Wiki</p>
+          <p class="rail-title">Menu</p>
           ${primaryRoutes.map(railLink).join("")}
         </div>
         <div class="rail-block">
-          <p class="rail-title">Library</p>
+          <p class="rail-title">Outils</p>
           ${secondaryRoutes.map(railLink).join("")}
         </div>
         <div class="rail-card">
@@ -66,16 +66,6 @@ export function shell(content) {
         </div>
       </aside>
       <main class="content-stage">${content}</main>
-      <aside class="activity-dock" aria-label="Activite plateforme">
-        <div class="dock-card">
-          <span class="dock-label">Hub status</span>
-          <strong>Pre-launch</strong>
-          <small>Sources officielles + communaute</small>
-        </div>
-        <a class="dock-link" href="#sources" data-route="sources">Sources</a>
-        <a class="dock-link" href="#moderation" data-route="moderation">Moderation</a>
-        <a class="dock-link" href="#platform" data-route="platform">Infra</a>
-      </aside>
     </div>
   `;
 }
