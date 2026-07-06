@@ -9,6 +9,7 @@ export const routes = [
   { id: "vehicles", label: "Vehicules", group: "more" },
   { id: "crews", label: "Crews", group: "more" },
   { id: "events", label: "Events", group: "more" },
+  { id: "moderation", label: "Moderation", group: "more" },
   { id: "settings", label: "Parametres", group: "more" },
   { id: "platform", label: "Plateforme", group: "more" }
 ];

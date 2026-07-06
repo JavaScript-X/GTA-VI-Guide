@@ -1,5 +1,5 @@
 import { shell } from "./components/layout.ts";
-import { setDashboard, setPlatform, setSession, clearSession, setSearchResults, store } from "./state/store.ts";
+import { setDashboard, setPlatform, setSession, clearSession, setModeration, setSearchResults, store } from "./state/store.ts";
 import {
   createCommunityPost,
   createComment,
@@ -11,12 +11,16 @@ import {
   deleteEvent,
   deleteGuide,
   deleteAccount,
+  loadAuditLog,
   loadDashboard,
   loadPlatform,
+  loadReports,
   login,
+  moderatePost,
   reactToPost,
   register,
   reportCommunityPost,
+  resolveReport,
   searchPlatform,
   updateComment,
   updateCrew,
@@ -36,6 +40,7 @@ import { mapPage } from "./pages/map.ts";
 import { vehiclesPage } from "./pages/vehicles.ts";
 import { crewsPage } from "./pages/crews.ts";
 import { eventsPage } from "./pages/events.ts";
+import { moderationPage } from "./pages/moderation.ts";
 import { settingsPage } from "./pages/settings.ts";
 
 export function renderApp() {
@@ -50,6 +55,7 @@ export function renderApp() {
       vehiclesPage(store),
       crewsPage(store),
       eventsPage(store),
+      moderationPage(store),
       communityPage(store),
       accountPage(store),
       settingsPage(store),
@@ -401,6 +407,59 @@ function bindInteractions() {
       }
     });
   }
+
+  const moderationRefresh = document.querySelector("#moderation-refresh");
+  if (moderationRefresh) {
+    moderationRefresh.addEventListener("click", async () => {
+      try {
+        const reports = await loadReports();
+        let auditEvents = [];
+        if (store.session.accessToken) {
+          const audit = await loadAuditLog(store.session.accessToken);
+          auditEvents = audit.data.events || [];
+        }
+        setModeration({
+          reports: reports.data.reports || [],
+          auditEvents
+        });
+        renderApp();
+        navigate("moderation");
+        setFormStatus("moderation", "File de moderation actualisee.");
+      } catch (error) {
+        setFormStatus("moderation", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  document.querySelectorAll("[data-report-resolve]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await resolveReport(button.dataset.reportResolve, "resolved");
+        const reports = await loadReports();
+        setModeration({
+          reports: reports.data.reports || [],
+          auditEvents: store.moderation.auditEvents
+        });
+        renderApp();
+        navigate("moderation");
+        setFormStatus("moderation", "Signalement resolu.");
+      } catch (error) {
+        setFormStatus("moderation", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-report-hide-post]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await moderatePost(button.dataset.reportHidePost, "hidden");
+        await refreshDashboard("moderation");
+        setFormStatus("moderation", "Post masque.");
+      } catch (error) {
+        setFormStatus("moderation", `Erreur: ${error.message}`, true);
+      }
+    });
+  });
 
   const crewForm = document.querySelector("#crew-form");
   if (crewForm) {

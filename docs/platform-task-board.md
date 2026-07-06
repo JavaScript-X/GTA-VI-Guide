@@ -72,8 +72,8 @@ vraiment utilisables en production.
   complete et uploads.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Workflow editorial avance des guides.
-- CRUD complet communaute: moderation avancee et workflows roles/audit.
-- Dashboard admin/moderateur avec file de signalements et audit logs.
+- Moderation avancee restante: permissions fines, escalation, notes internes et
+  workflows roles/audit plus complets.
 - Upload images/fichiers via MinIO/S3/R2.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
 - Synchronisation officielle PSN, Xbox et Rockstar via OAuth officiel uniquement.
@@ -120,6 +120,8 @@ vraiment utilisables en production.
   et suppression compte/revocation.
 - Fait: ajouter update/delete guides, commentaires/reactions, crews/events CRUD,
   recherche frontend communaute et moderation basique posts/reports.
+- Fait: ajouter page moderation avec file de reports, resolution, masquage post
+  et lecture audit log moderateur.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL

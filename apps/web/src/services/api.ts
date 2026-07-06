@@ -98,6 +98,18 @@ export async function reportCommunityPost(postId, reason) {
   return postJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"], { postId, reason });
 }
 
+export async function loadReports() {
+  return fetchJsonWithFallback(["/api/reports", "http://localhost:8080/api/reports"]);
+}
+
+export async function loadAuditLog(accessToken) {
+  return requestWithFallback(["/api/audit-log", "http://localhost:8080/api/audit-log"], {
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  });
+}
+
 export async function createCrew(input) {
   return postJsonWithFallback(["/api/crews", "http://localhost:8080/api/crews"], input);
 }

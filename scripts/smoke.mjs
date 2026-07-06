@@ -155,6 +155,15 @@ try {
     throw new Error("Login payload is missing refresh expiration");
   }
 
+  const auditLog = await fetch(`http://localhost:${ports.gateway}/api/audit-log`, {
+    headers: {
+      authorization: `Bearer ${loginPayload.data.session.accessToken}`
+    }
+  });
+  if (!auditLog.ok) {
+    throw new Error(`Audit log endpoint returned ${auditLog.status}`);
+  }
+
   const refresh = await fetch(`http://localhost:${ports.gateway}/api/auth/refresh`, {
     method: "POST",
     headers: { "content-type": "application/json" },

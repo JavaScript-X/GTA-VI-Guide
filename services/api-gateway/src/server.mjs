@@ -44,6 +44,15 @@ async function deleteServiceData(service, path, request) {
   return payload.data;
 }
 
+async function getServiceDataWithAuth(service, path, request) {
+  const payload = await fetchJson(`${services[service]}${path}`, {
+    headers: {
+      authorization: request.headers.authorization || ""
+    }
+  });
+  return payload.data;
+}
+
 createJsonService({
   name: "api-gateway",
   port,
@@ -305,6 +314,11 @@ createJsonService({
       method: "GET",
       path: "/api/reports",
       handler: async () => getServiceData("community", "/reports")
+    },
+    {
+      method: "GET",
+      path: "/api/audit-log",
+      handler: async ({ request }) => getServiceDataWithAuth("identity", "/audit-log", request)
     },
     {
       method: "POST",

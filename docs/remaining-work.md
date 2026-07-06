@@ -22,8 +22,9 @@ prepared integration boundaries.
 - The frontend has pages for the full platform and first write workflows for
   guides, community posts, reports, achievement progress, completion, and
   account deletion. Comments, reactions, crews and events now have write flows.
-  Backend search is connected to the frontend. Uploads and advanced moderation
-  still need full UI flows.
+  Backend search is connected to the frontend. A first moderator queue exists
+  for reports, post hiding, and audit log review. Uploads and deeper moderation
+  policy flows still need full UI flows.
 - The sync worker currently logs readiness only; it does not consume RabbitMQ
   messages yet.
 - RabbitMQ and MinIO are configured, but services do not publish/consume events

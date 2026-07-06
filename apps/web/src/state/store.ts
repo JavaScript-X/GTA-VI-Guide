@@ -13,12 +13,25 @@ export const store = {
   communitySearch: "",
   globalSearch: "",
   searchResults: null,
+  moderation: {
+    reports: [],
+    auditEvents: [],
+    loaded: false
+  },
   authMode: "signin"
 };
 
 export function setSearchResults(query, results) {
   store.globalSearch = query;
   store.searchResults = results;
+}
+
+export function setModeration(data) {
+  store.moderation = {
+    reports: data.reports || [],
+    auditEvents: data.auditEvents || [],
+    loaded: true
+  };
 }
 
 export function setDashboard(dashboard) {

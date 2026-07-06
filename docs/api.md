@@ -85,6 +85,11 @@ Deletes a community event.
 
 Lists moderation reports.
 
+`GET /api/audit-log`
+
+Returns moderator-visible audit log entries through the Identity Service. Requires
+a bearer token with the `moderator` role.
+
 `POST /api/reports/resolve`
 
 Resolves or changes the status of a moderation report.
