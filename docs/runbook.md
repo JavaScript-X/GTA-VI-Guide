@@ -6,6 +6,20 @@
 docker compose up --build
 ```
 
+If `npm run dev` is already running locally, stop it before starting Docker
+Compose because it uses the same public ports for the web app and gateway. The
+Compose file only publishes the web app and gateway by default; internal
+microservices stay on the Docker network.
+
+To avoid a public port conflict without stopping another app, override the host
+ports in `.env`:
+
+```powershell
+WEB_HOST_PORT=5174
+API_GATEWAY_HOST_PORT=18080
+docker compose up --build
+```
+
 Main URLs:
 
 - App through web service: <http://localhost:5173>
