@@ -4,6 +4,12 @@ import { actionBar } from "../components/layout.ts";
 export function homePage(state) {
   const dashboard = state.dashboard;
   const ready = state.platform.services.filter((service) => service.status === "ready").length;
+  const guides = dashboard.knowledge.guides || [];
+  const sources = dashboard.knowledge.sources || [];
+  const posts = dashboard.community.feed || [];
+  const crews = dashboard.community.crews || [];
+  const achievements = dashboard.achievements.achievements || [];
+  const profile = dashboard.profile.activeCharacter;
   const results = state.searchResults;
   const searchResults = results
     ? `
@@ -22,30 +28,87 @@ export function homePage(state) {
   return `
     <section class="page is-active" data-page="home">
       <div class="home-shell">
-        <section class="home-intro">
-          <p class="eyebrow">Vice City community app</p>
-          <h1>Guides, suivi et communaute GTA VI au meme endroit.</h1>
-          <p>Une interface simple pour suivre ta progression, lire les guides utiles, organiser la communaute et preparer les futures integrations officielles.</p>
-          <form class="hero-search" id="global-search-form">
-            <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher guides, sources, posts, crews" />
-            <button class="button primary" type="submit">Rechercher</button>
-          </form>
-          ${actionBar(`
-            <a class="button primary" href="#tracking" data-route="tracking">Ouvrir mon suivi</a>
-            <a class="button secondary" href="#guides" data-route="guides">Voir les guides</a>
-          `)}
+        <section class="store-hero">
+          <div class="hero-media">
+            <div class="capsule-art">
+              <span>VI</span>
+              <strong>Leonida Hub</strong>
+              <small>Community guide platform</small>
+            </div>
+          </div>
+          <div class="hero-copy">
+            <p class="eyebrow">GTA VI community wiki</p>
+            <h1>Le hub GTA VI qui melange wiki, progression et activite communaute.</h1>
+            <p>Explore les sources officielles, prepare ton compte Online, suis les achievements et organise les crews comme une bibliotheque Steam faite pour Vice City.</p>
+            <form class="hero-search" id="global-search-form">
+              <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher guides, sources, posts, crews" />
+              <button class="button primary" type="submit">Rechercher</button>
+            </form>
+            ${actionBar(`
+              <a class="button primary" href="#sources" data-route="sources">Explorer l'intel</a>
+              <a class="button secondary" href="#tracking" data-route="tracking">Ouvrir mon suivi</a>
+            `)}
+            <div class="hero-tags">
+              <span>Official-first</span><span>Wiki style</span><span>Online tracker</span><span>Mobile ready</span>
+            </div>
+          </div>
         </section>
         ${searchResults}
-        <section class="stats-grid">
-          ${statCard(dashboard.knowledge.guides.length, "Guides")}
-          ${statCard((dashboard.knowledge.sources || []).length, "Sources")}
-          ${statCard(dashboard.achievements.achievements.length, "Objectifs")}
-          ${statCard(dashboard.profile.syncMode, "Source")}
+        <section class="store-stats">
+          ${statCard(guides.length, "Guides")}
+          ${statCard(sources.length, "Sources")}
+          ${statCard(achievements.length, "Objectifs")}
+          ${statCard(`${profile.level}`, "Level")}
           ${statCard(`${ready}/${state.platform.services.length}`, "Services")}
         </section>
+        <section class="discovery-row">
+          <div class="shelf-head">
+            <p class="eyebrow">Featured library</p>
+            <h2>Continue ton parcours</h2>
+          </div>
+          <div class="library-shelf">
+            ${libraryCard("sources", "Intel officiel", `${sources.length} sources`, "Rockstar, PlayStation, Xbox, Wiki")}
+            ${libraryCard("guides", "Guides communaute", `${guides.length} guides`, guides[0]?.summary || "Roadmaps et securite")}
+            ${libraryCard("tracking", profile.name, `Level ${profile.level}`, `${profile.vehicles} vehicules - ${profile.properties} proprietes`)}
+            ${libraryCard("community", "Discussions", `${posts.length} posts`, `${crews.length} crews actifs`)}
+          </div>
+        </section>
+        <section class="wiki-front">
+          <div class="wiki-main">
+            ${appSection(
+              "Pages populaires",
+              "Une entree rapide vers les zones que la communaute va consulter le plus souvent.",
+              `<div class="quick-grid wiki-grid">
+                ${quickLink("sources", "Sources GTA VI", "Pages officielles, stores, wiki et politiques media.")}
+                ${quickLink("guides", "Guides de lancement", "Progression, argent, securite compte et Online.")}
+                ${quickLink("map", "Carte Leonida", "Districts, points sauvegardes et exploration.")}
+                ${quickLink("vehicles", "Garage", "Vehicules, classes, propriete et suivi joueur.")}
+              </div>`
+            )}
+            ${appSection(
+              "Activite recente",
+              "Un feed compact pour voir ce qui bouge dans la communaute.",
+              `<div class="activity-feed">
+                ${posts.slice(0, 3).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses - score ${post.score}</small></article>`).join("")}
+              </div>`
+            )}
+          </div>
+          <aside class="wiki-sidebar">
+            <div class="sidebar-card">
+              <p class="eyebrow">Source mix</p>
+              ${sources.slice(0, 4).map((source) => `<a href="#sources" data-route="sources"><strong>${source.provider}</strong><span>${source.trustLevel}</span></a>`).join("")}
+            </div>
+            <div class="sidebar-card">
+              <p class="eyebrow">Player snapshot</p>
+              <strong>${profile.name}</strong>
+              <span>${profile.crew}</span>
+              <small>${dashboard.profile.syncMode}</small>
+            </div>
+          </aside>
+        </section>
         ${appSection(
-          "Acces rapide",
-          "Les actions les plus utiles restent visibles sans surcharger l'ecran.",
+          "Hub actions",
+          "Les actions importantes restent a portee de main, sans noyer la page.",
           `<div class="quick-grid">
             ${quickLink("guides", "Guides", "Roadmaps, securite, progression.")}
             ${quickLink("sources", "Intel", "Rockstar, stores, wikis attribues.")}
@@ -56,6 +119,16 @@ export function homePage(state) {
         )}
       </div>
     </section>
+  `;
+}
+
+function libraryCard(route, title, meta, copy) {
+  return `
+    <a class="library-card" href="#${route}" data-route="${route}">
+      <span>${meta}</span>
+      <strong>${title}</strong>
+      <small>${copy}</small>
+    </a>
   `;
 }
 

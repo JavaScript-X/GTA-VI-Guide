@@ -1,18 +1,18 @@
 export const routes = [
-  { id: "home", label: "Accueil", group: "main" },
-  { id: "guides", label: "Guides", group: "main" },
-  { id: "sources", label: "Intel", group: "main" },
-  { id: "tracking", label: "Suivi", group: "main" },
-  { id: "community", label: "Communaute", group: "main" },
-  { id: "account", label: "Compte", group: "main" },
-  { id: "achievements", label: "Achievements", group: "more" },
-  { id: "map", label: "Carte", group: "more" },
-  { id: "vehicles", label: "Vehicules", group: "more" },
-  { id: "crews", label: "Crews", group: "more" },
-  { id: "events", label: "Events", group: "more" },
-  { id: "moderation", label: "Moderation", group: "more" },
-  { id: "settings", label: "Parametres", group: "more" },
-  { id: "platform", label: "Plateforme", group: "more" }
+  { id: "home", label: "Accueil", group: "main", icon: "V" },
+  { id: "guides", label: "Guides", group: "main", icon: "G" },
+  { id: "sources", label: "Intel", group: "main", icon: "I" },
+  { id: "tracking", label: "Suivi", group: "main", icon: "S" },
+  { id: "community", label: "Communaute", group: "main", icon: "C" },
+  { id: "account", label: "Compte", group: "main", icon: "P" },
+  { id: "achievements", label: "Achievements", group: "more", icon: "A" },
+  { id: "map", label: "Carte", group: "more", icon: "M" },
+  { id: "vehicles", label: "Vehicules", group: "more", icon: "V" },
+  { id: "crews", label: "Crews", group: "more", icon: "K" },
+  { id: "events", label: "Events", group: "more", icon: "E" },
+  { id: "moderation", label: "Moderation", group: "more", icon: "!" },
+  { id: "settings", label: "Parametres", group: "more", icon: "O" },
+  { id: "platform", label: "Plateforme", group: "more", icon: "N" }
 ];
 
 export function shell(content) {
@@ -22,33 +22,74 @@ export function shell(content) {
   return `
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="brand" href="#home" data-route="home"><span>VI</span> Guide</a>
         <button class="menu-toggle" type="button" data-menu-toggle aria-label="Ouvrir le menu">
           <span></span><span></span><span></span>
         </button>
+        <a class="brand" href="#home" data-route="home"><span>VI</span><strong>Leonida Hub</strong></a>
         <nav class="nav" aria-label="Navigation principale">
-          ${primaryRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+          ${primaryRoutes.map(topNavLink).join("")}
           <details class="nav-more">
             <summary>Plus</summary>
             <div class="nav-menu">
-              ${secondaryRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+              ${secondaryRoutes.map(topNavLink).join("")}
             </div>
           </details>
         </nav>
+        <a class="topbar-account" href="#account" data-route="account">Compte</a>
       </div>
     </header>
     <div class="drawer-backdrop" data-menu-close></div>
     <aside class="mobile-drawer" aria-label="Menu mobile">
       <div class="drawer-head">
-        <a class="brand" href="#home" data-route="home"><span>VI</span> Guide</a>
+        <a class="brand" href="#home" data-route="home"><span>VI</span><strong>Leonida Hub</strong></a>
         <button class="drawer-close" type="button" data-menu-close aria-label="Fermer le menu">Fermer</button>
       </div>
       <nav class="drawer-nav">
-        ${allRoutes.map((route) => `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`).join("")}
+        ${allRoutes.map(drawerLink).join("")}
       </nav>
     </aside>
-    <main>${content}</main>
+    <div class="app-frame">
+      <aside class="wiki-rail" aria-label="Menu wiki">
+        <a class="brand rail-brand" href="#home" data-route="home"><span>VI</span><strong>Leonida Hub</strong></a>
+        <div class="rail-block">
+          <p class="rail-title">Wiki</p>
+          ${primaryRoutes.map(railLink).join("")}
+        </div>
+        <div class="rail-block">
+          <p class="rail-title">Library</p>
+          ${secondaryRoutes.map(railLink).join("")}
+        </div>
+        <div class="rail-card">
+          <span>Release watch</span>
+          <strong>19 Nov 2026</strong>
+          <small>PS5 / Xbox Series X|S</small>
+        </div>
+      </aside>
+      <main class="content-stage">${content}</main>
+      <aside class="activity-dock" aria-label="Activite plateforme">
+        <div class="dock-card">
+          <span class="dock-label">Hub status</span>
+          <strong>Pre-launch</strong>
+          <small>Sources officielles + communaute</small>
+        </div>
+        <a class="dock-link" href="#sources" data-route="sources">Sources</a>
+        <a class="dock-link" href="#moderation" data-route="moderation">Moderation</a>
+        <a class="dock-link" href="#platform" data-route="platform">Infra</a>
+      </aside>
+    </div>
   `;
+}
+
+function topNavLink(route) {
+  return `<a href="#${route.id}" data-route="${route.id}">${route.label}</a>`;
+}
+
+function railLink(route) {
+  return `<a class="rail-link" href="#${route.id}" data-route="${route.id}"><span>${route.icon}</span>${route.label}</a>`;
+}
+
+function drawerLink(route) {
+  return `<a href="#${route.id}" data-route="${route.id}"><span>${route.icon}</span>${route.label}</a>`;
 }
 
 export function page(id, content) {

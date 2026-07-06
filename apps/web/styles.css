@@ -1137,3 +1137,592 @@ h3 {
     min-height: 420px;
   }
 }
+
+/* Full storefront/wiki redesign */
+:root {
+  --bg: #0b1016;
+  --surface: #151b24;
+  --surface-2: #1c2631;
+  --surface-soft: rgba(255, 255, 255, 0.055);
+  --text: #f5f7fb;
+  --muted: #aeb8c6;
+  --line: rgba(255, 255, 255, 0.12);
+  --pink: #ff4f92;
+  --cyan: #4fe3d4;
+  --sun: #f3c65b;
+  --violet: #8978ff;
+  --ok: #72e6a7;
+  --danger: #ff6b8a;
+  --radius: 8px;
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(11, 16, 22, 0.62), rgba(11, 16, 22, 0.98) 38%),
+    url("/assets/vice-city-community-hero.png") center top / min(1600px, 150vw) auto no-repeat,
+    #0b1016;
+}
+
+body::before {
+  background:
+    linear-gradient(90deg, rgba(79, 227, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(255, 79, 146, 0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0.45;
+  mask-image: linear-gradient(to bottom, black, transparent 64%);
+}
+
+.topbar {
+  border-bottom: 1px solid rgba(79, 227, 212, 0.18);
+  background: rgba(11, 16, 22, 0.9);
+}
+
+.topbar-inner {
+  width: min(1440px, calc(100% - 24px));
+  min-height: 58px;
+}
+
+.brand strong {
+  letter-spacing: 0;
+}
+
+.brand span {
+  color: #0b1016;
+  background: linear-gradient(135deg, var(--cyan), var(--sun));
+  border: 0;
+  box-shadow: 0 0 22px rgba(79, 227, 212, 0.28);
+}
+
+.topbar-account {
+  display: none;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid rgba(243, 198, 91, 0.28);
+  border-radius: var(--radius);
+  color: var(--sun);
+  background: rgba(243, 198, 91, 0.08);
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.app-frame {
+  width: min(1440px, 100%);
+  display: grid;
+  gap: 16px;
+  margin: 0 auto;
+  padding: 14px 12px 48px;
+}
+
+.wiki-rail,
+.activity-dock {
+  display: none;
+}
+
+.content-stage {
+  min-width: 0;
+}
+
+.page-shell,
+.home-shell {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+
+.home-shell {
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+}
+
+.home-shell > * {
+  grid-column: 1 / -1;
+}
+
+.page-shell {
+  padding-top: 18px;
+}
+
+.page-heading {
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(79, 227, 212, 0.1), transparent 38%),
+    rgba(21, 27, 36, 0.9);
+  box-shadow: var(--shadow);
+}
+
+.page-heading h1 {
+  font-size: clamp(1.8rem, 6vw, 3.2rem);
+}
+
+.store-hero {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(79, 227, 212, 0.2);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(16, 26, 37, 0.98), rgba(24, 34, 45, 0.92)),
+    rgba(21, 27, 36, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.hero-media {
+  min-height: 220px;
+  display: grid;
+  place-items: end start;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(11, 16, 22, 0.78)),
+    url("/assets/vice-city-community-hero.png") center / cover no-repeat;
+}
+
+.capsule-art {
+  width: min(300px, 80vw);
+  aspect-ratio: 4 / 5;
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(160deg, rgba(255, 79, 146, 0.42), rgba(79, 227, 212, 0.18)),
+    rgba(11, 16, 22, 0.7);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+}
+
+.capsule-art span {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  color: #0b1016;
+  background: linear-gradient(135deg, var(--sun), var(--cyan));
+  font-size: 1.7rem;
+  font-weight: 950;
+}
+
+.capsule-art strong {
+  font-size: 1.45rem;
+}
+
+.capsule-art small,
+.library-card small,
+.activity-feed small,
+.sidebar-card small {
+  color: var(--muted);
+}
+
+.hero-copy {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+  padding: clamp(16px, 5vw, 34px);
+}
+
+.hero-copy h1 {
+  font-size: clamp(1.85rem, 5vw, 3.25rem);
+}
+
+.hero-copy p:not(.eyebrow) {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(245, 247, 251, 0.82);
+  line-height: 1.62;
+}
+
+.hero-tags,
+.source-actions,
+.source-card-head {
+  flex-wrap: wrap;
+}
+
+.hero-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.hero-tags span {
+  padding: 7px 10px;
+  border: 1px solid rgba(79, 227, 212, 0.2);
+  border-radius: var(--radius);
+  color: var(--cyan);
+  background: rgba(79, 227, 212, 0.08);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.store-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+    rgba(21, 27, 36, 0.9);
+}
+
+.metric {
+  color: var(--sun);
+  text-shadow: 0 0 20px rgba(243, 198, 91, 0.18);
+}
+
+.discovery-row,
+.wiki-front,
+.app-section,
+.panel,
+.feature-card,
+.guide-card,
+.source-card,
+.auth-card {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.035)),
+    rgba(21, 27, 36, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.discovery-row,
+.wiki-front {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius);
+}
+
+.shelf-head {
+  display: grid;
+  gap: 6px;
+}
+
+.library-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.library-card {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  min-height: 150px;
+  align-content: end;
+  padding: 14px;
+  border: 1px solid rgba(79, 227, 212, 0.14);
+  border-radius: var(--radius);
+  color: var(--text);
+  background:
+    linear-gradient(145deg, rgba(79, 227, 212, 0.16), transparent 55%),
+    linear-gradient(315deg, rgba(255, 79, 146, 0.13), transparent 48%),
+    rgba(12, 18, 26, 0.9);
+  text-decoration: none;
+}
+
+.library-card span {
+  width: fit-content;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #0b1016;
+  background: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.library-card strong {
+  font-size: 1.1rem;
+}
+
+.wiki-main,
+.wiki-sidebar,
+.activity-feed,
+.sidebar-card {
+  display: grid;
+  gap: 12px;
+}
+
+.wiki-sidebar {
+  align-content: start;
+}
+
+.sidebar-card {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  background: rgba(12, 18, 26, 0.72);
+}
+
+.sidebar-card a {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.sidebar-card a:last-child {
+  border-bottom: 0;
+}
+
+.sidebar-card a span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.activity-feed article {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.activity-feed article span {
+  width: fit-content;
+  color: var(--cyan);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.quick-link,
+.list-item,
+.account-item,
+.check-item,
+.service-item,
+.completion-item,
+.source-box,
+.profile-grid div,
+.empty-state,
+.result-item {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(12, 18, 26, 0.68);
+}
+
+.quick-link {
+  min-height: 118px;
+  align-content: end;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.quick-link:hover,
+.library-card:hover,
+.rail-link:hover,
+.dock-link:hover {
+  border-color: rgba(79, 227, 212, 0.42);
+  transform: translateY(-2px);
+}
+
+.button,
+.chip,
+.provider-button,
+.auth-tabs button,
+.text-button {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.button.primary {
+  color: #081018;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--cyan), var(--sun));
+}
+
+.button.secondary,
+.chip.is-active,
+.auth-tabs button.is-active {
+  border-color: rgba(255, 79, 146, 0.38);
+  background: rgba(255, 79, 146, 0.14);
+}
+
+.hero-search input,
+.filter-search input,
+.stack-form input,
+.stack-form select,
+.stack-form textarea,
+.login-form input,
+.auth-form input {
+  border-color: rgba(79, 227, 212, 0.16);
+  background: rgba(5, 9, 14, 0.7);
+}
+
+.mobile-drawer {
+  background:
+    linear-gradient(180deg, rgba(23, 31, 42, 0.98), rgba(11, 16, 22, 0.98)),
+    #111923;
+}
+
+.drawer-nav a {
+  gap: 10px;
+}
+
+.drawer-nav a span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  color: #0b1016;
+  background: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+@media (min-width: 720px) {
+  .topbar-account {
+    display: inline-flex;
+  }
+
+  .store-hero {
+    grid-template-columns: minmax(250px, 0.56fr) minmax(0, 1fr);
+  }
+
+  .hero-media {
+    min-height: 440px;
+  }
+
+  .store-stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .library-shelf {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .wiki-front {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.34fr);
+  }
+}
+
+@media (max-width: 719px) {
+  .hero-media {
+    min-height: 180px;
+  }
+
+  .capsule-art {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.65rem;
+    line-height: 1.08;
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    line-height: 1.48;
+  }
+
+  .hero-tags {
+    display: none;
+  }
+}
+
+@media (min-width: 1180px) {
+  .app-frame {
+    grid-template-columns: 220px minmax(0, 1fr) 150px;
+    align-items: start;
+    padding-top: 18px;
+  }
+
+  .wiki-rail,
+  .activity-dock {
+    position: sticky;
+    top: 74px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .wiki-rail {
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    background: rgba(13, 19, 27, 0.86);
+    box-shadow: var(--shadow);
+  }
+
+  .rail-brand {
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .rail-block {
+    display: grid;
+    gap: 6px;
+  }
+
+  .rail-title,
+  .dock-label {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .rail-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 38px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .rail-link span {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    color: #0b1016;
+    background: rgba(79, 227, 212, 0.9);
+    font-size: 0.68rem;
+  }
+
+  .rail-link.is-current {
+    color: var(--text);
+    border-color: rgba(79, 227, 212, 0.26);
+    background: rgba(79, 227, 212, 0.1);
+  }
+
+  .rail-card,
+  .dock-card,
+  .dock-link {
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .rail-card span,
+  .rail-card small,
+  .dock-card small {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .dock-link {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 850;
+  }
+}
