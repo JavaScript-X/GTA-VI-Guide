@@ -48,6 +48,7 @@ export function homePage(state) {
             ${actionBar(`
               <a class="button primary" href="#sources" data-route="sources">Explorer l'intel</a>
               <a class="button secondary" href="#tracking" data-route="tracking">Ouvrir mon suivi</a>
+              <a class="button ghost official" href="https://www.rockstargames.com/VI" target="_blank" rel="noreferrer">Site officiel</a>
             `)}
             <div class="hero-tags">
               <span>${guides.length} guides</span><span>${sources.length} sources</span><span>${posts.length} posts</span>
@@ -55,6 +56,14 @@ export function homePage(state) {
           </div>
         </section>
         ${searchResults}
+        <section class="official-strip">
+          <div>
+            <p class="eyebrow">Rockstar source</p>
+            <h2>Infos officielles, medias et artwork.</h2>
+          </div>
+          <p>Le hub garde une distinction claire entre donnees officielles, sources plateformes et contenu communautaire. Les medias officiels restent lies a Rockstar tant que les droits d'usage ne sont pas valides.</p>
+          <a class="button secondary compact" href="#sources" data-route="sources">Voir les sources</a>
+        </section>
         <section class="discovery-row">
           <div class="shelf-head">
             <p class="eyebrow">Dashboard</p>
