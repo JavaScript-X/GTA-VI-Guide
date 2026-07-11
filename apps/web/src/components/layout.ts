@@ -1,3 +1,5 @@
+import { loadingOverlay } from "./skeletons.ts";
+
 export const routes = [
   { id: "home", label: "Accueil", group: "main", icon: "V" },
   { id: "guides", label: "Guides", group: "main", icon: "G" },
@@ -15,7 +17,7 @@ export const routes = [
   { id: "platform", label: "Plateforme", group: "more", icon: "N" }
 ];
 
-export function shell(content) {
+export function shell(content, isBooting = false) {
   const primaryRoutes = routes.filter((route) => route.group === "main");
   const secondaryRoutes = routes.filter((route) => ["achievements", "map", "vehicles", "crews", "events", "moderation", "platform"].includes(route.id));
   const allRoutes = [...primaryRoutes, ...secondaryRoutes];
@@ -67,6 +69,7 @@ export function shell(content) {
       </aside>
       <main class="content-stage">${content}</main>
     </div>
+    ${loadingOverlay(isBooting)}
   `;
 }
 

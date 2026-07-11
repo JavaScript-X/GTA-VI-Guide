@@ -1,5 +1,6 @@
 import { appSection, quickLink, statCard } from "../components/cards.ts";
 import { actionBar } from "../components/layout.ts";
+import { skeletonGrid } from "../components/skeletons.ts";
 
 export function homePage(state) {
   const dashboard = state.dashboard;
@@ -10,7 +11,9 @@ export function homePage(state) {
   const checklistDone = state.launchChecklist.filter((item) => item.done).length;
   const checklistProgress = Math.round((checklistDone / Math.max(state.launchChecklist.length, 1)) * 100);
   const results = state.searchResults;
-  const searchResults = results
+  const searchResults = state.ui.loading.search
+    ? `<div class="search-results">${skeletonGrid(5, 2)}</div>`
+    : results
     ? `
       <div class="search-results">
         <div class="item-title"><span>Resultats pour "${state.globalSearch}"</span><span class="badge">${results.total || 0}</span></div>
@@ -53,6 +56,7 @@ export function homePage(state) {
           </div>
         </section>
         ${searchResults}
+        ${state.ui.loading.dashboard ? skeletonGrid(4, 2) : ""}
         <section class="discovery-row">
           <div class="shelf-head">
             <p class="eyebrow">Aujourd'hui</p>
@@ -81,7 +85,7 @@ export function homePage(state) {
               "Dernieres discussions",
               "",
               `<div class="activity-feed">
-                ${posts.slice(0, 2).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses</small></article>`).join("")}
+                ${state.ui.loading.dashboard ? skeletonGrid(2, 2) : posts.slice(0, 2).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses</small></article>`).join("")}
               </div>`
             )}
           </div>

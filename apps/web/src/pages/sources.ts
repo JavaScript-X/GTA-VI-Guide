@@ -1,5 +1,6 @@
 import { badge } from "../components/cards.ts";
 import { heading, page } from "../components/layout.ts";
+import { skeletonGrid } from "../components/skeletons.ts";
 
 const trustLabels = {
   official: "Officiel",
@@ -53,7 +54,7 @@ export function sourcesPage(state) {
         </form>
       </div>
       <section class="source-grid">
-        ${visible.length ? visible.map(sourceCard).join("") : emptySources()}
+        ${state.ui.loading.sources ? skeletonGrid(6, 4) : visible.length ? visible.map(sourceCard).join("") : emptySources()}
       </section>
       <section class="source-policy">
         <div>

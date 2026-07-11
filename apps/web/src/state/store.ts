@@ -1,6 +1,10 @@
 import { fallbackDashboard, fallbackPlatform } from "../data/fallback.ts";
 
 export const store = {
+  ui: {
+    isBooting: true,
+    loading: {}
+  },
   dashboard: fallbackDashboard,
   platform: fallbackPlatform,
   session: {
@@ -28,6 +32,23 @@ export const store = {
     { id: "join-community", label: "Rejoindre une crew ou discussion", done: false }
   ]
 };
+
+export function setBooting(isBooting) {
+  store.ui = {
+    ...store.ui,
+    isBooting
+  };
+}
+
+export function setLoading(key, value) {
+  store.ui = {
+    ...store.ui,
+    loading: {
+      ...store.ui.loading,
+      [key]: value
+    }
+  };
+}
 
 export function setLaunchChecklist(items) {
   store.launchChecklist = items;

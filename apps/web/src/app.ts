@@ -8,9 +8,12 @@ import {
   setSearchResults,
   setSources,
   setLaunchChecklist,
+  setBooting,
+  setLoading,
   toggleLaunchChecklistItem,
   store
 } from "./state/store.ts";
+import { bootSkeletonPage } from "./components/skeletons.ts";
 import {
   createCommunityPost,
   createComment,
@@ -58,26 +61,30 @@ import { settingsPage } from "./pages/settings.ts";
 
 export function renderApp() {
   const app = document.querySelector("#app");
+  const content = store.ui.isBooting
+    ? bootSkeletonPage()
+    : [
+        homePage(store),
+        guidesPage(store),
+        sourcesPage(store),
+        trackingPage(store),
+        achievementsPage(store),
+        mapPage(store),
+        vehiclesPage(store),
+        crewsPage(store),
+        eventsPage(store),
+        moderationPage(store),
+        communityPage(store),
+        accountPage(store),
+        settingsPage(store),
+        platformPage(store)
+      ].join("");
   app.innerHTML = shell(
-    [
-      homePage(store),
-      guidesPage(store),
-      sourcesPage(store),
-      trackingPage(store),
-      achievementsPage(store),
-      mapPage(store),
-      vehiclesPage(store),
-      crewsPage(store),
-      eventsPage(store),
-      moderationPage(store),
-      communityPage(store),
-      accountPage(store),
-      settingsPage(store),
-      platformPage(store)
-    ].join("")
+    content,
+    store.ui.isBooting
   );
   bindInteractions();
-  navigate(currentRoute());
+  navigate(store.ui.isBooting ? "home" : currentRoute());
 }
 
 function currentRoute() {
@@ -100,10 +107,17 @@ function navigate(route) {
 }
 
 async function refreshDashboard(route) {
-  const dashboard = await loadDashboard();
-  setDashboard(dashboard.data);
+  setLoading("dashboard", true);
   renderApp();
   navigate(route);
+  try {
+    const dashboard = await loadDashboard();
+    setDashboard(dashboard.data);
+  } finally {
+    setLoading("dashboard", false);
+    renderApp();
+    navigate(route);
+  }
 }
 
 function setFormStatus(name, message, isError = false) {
@@ -192,6 +206,9 @@ function bindInteractions() {
   document.querySelectorAll("[data-source-filter]").forEach((button) => {
     button.addEventListener("click", async () => {
       store.sourceFilter = button.dataset.sourceFilter;
+      setLoading("sources", true);
+      renderApp();
+      navigate("sources");
       try {
         const payload = await loadSources({
           trustLevel: store.sourceFilter === "all" ? "" : store.sourceFilter,
@@ -200,6 +217,8 @@ function bindInteractions() {
         setSources(payload.data);
       } catch {
         // Keep fallback sources visible if the API is offline.
+      } finally {
+        setLoading("sources", false);
       }
       renderApp();
       navigate("sources");
@@ -211,6 +230,9 @@ function bindInteractions() {
       event.preventDefault();
       const formData = new FormData(form);
       store.sourceSearch = String(formData.get("query") || "");
+      setLoading("sources", true);
+      renderApp();
+      navigate("sources");
       try {
         const payload = await loadSources({
           trustLevel: store.sourceFilter === "all" ? "" : store.sourceFilter,
@@ -219,6 +241,8 @@ function bindInteractions() {
         setSources(payload.data);
       } catch {
         // Local filtering is handled by the page render.
+      } finally {
+        setLoading("sources", false);
       }
       renderApp();
       navigate("sources");
@@ -247,11 +271,16 @@ function bindInteractions() {
         navigate("home");
         return;
       }
+      setLoading("search", true);
+      renderApp();
+      navigate("home");
       try {
         const payload = await searchPlatform(query);
         setSearchResults(query, payload.data);
       } catch {
         setSearchResults(query, localSearch(query));
+      } finally {
+        setLoading("search", false);
       }
       renderApp();
       navigate("home");
@@ -664,6 +693,7 @@ export async function bootstrap() {
   } catch (error) {
     console.warn("Using fallback platform data", error);
   }
+  setBooting(false);
   renderApp();
 }
 
