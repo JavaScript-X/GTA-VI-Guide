@@ -146,7 +146,8 @@ function createProfileRepository(store) {
     async getMyProfile() {
       return {
         ...structuredClone(store.profileSnapshot),
-        garage: store.vehicleGarage.map((vehicle) => ({ ...vehicle }))
+        garage: store.vehicleGarage.map((vehicle) => ({ ...vehicle })),
+        mapPoints: store.savedMapPoints.map((point) => ({ ...point }))
       };
     },
     async updateCompletion(completion) {
@@ -187,6 +188,30 @@ function createProfileRepository(store) {
       store.vehicleGarage.unshift(vehicle);
       store.profileSnapshot.activeCharacter.vehicles = store.vehicleGarage.filter((item) => item.owned).length;
       return { ...vehicle };
+    },
+    async listMapPoints() {
+      return {
+        points: store.savedMapPoints.map((point) => ({ ...point })),
+        total: store.savedMapPoints.length
+      };
+    },
+    async upsertMapPoint(input) {
+      const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const existing = store.savedMapPoints.find((point) => point.id === id);
+      const point = {
+        id,
+        name: input.name,
+        type: input.type || "poi",
+        district: input.district || "Leonida",
+        status: input.status || "planned",
+        notes: input.notes || ""
+      };
+      if (existing) {
+        Object.assign(existing, point);
+        return { ...existing };
+      }
+      store.savedMapPoints.unshift(point);
+      return { ...point };
     }
   };
 }

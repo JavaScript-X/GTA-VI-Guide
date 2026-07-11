@@ -16,10 +16,10 @@ prepared integration boundaries.
   password still need production work.
 - PSN, Xbox, and Rockstar accounts are not truly connected. Only the safe OAuth
   boundary and consent model exist.
-- Player tracking, achievements, garage vehicles, crews, and events are visible
-  and partly writable in the frontend. Crews/events have create/update/delete
-  flows, garage vehicles have manual upsert, while map districts remain static
-  planning views.
+- Player tracking, achievements, garage vehicles, saved map points, crews, and
+  events are visible and partly writable in the frontend. Crews/events have
+  create/update/delete flows, garage vehicles and map points have manual upsert,
+  while full geospatial map layers remain a planning view.
 - The frontend has pages for the full platform and first write workflows for
   guides, community posts, reports, achievement progress, completion, and
   account deletion. Comments, reactions, crews and events now have write flows.
@@ -56,7 +56,7 @@ prepared integration boundaries.
 4. Add data export and configurable anonymization/deletion policy.
 5. Add advanced editorial workflows for guides.
 6. Add advanced moderation queues and role-gated community actions.
-7. Add editable player profile details and saved map points.
+7. Add editable player profile details and full geospatial map layers.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.
 9. Replace local guide/media upload storage with MinIO/S3/R2 signed uploads.
 10. Replace the lightweight frontend build with strict TypeScript tooling when

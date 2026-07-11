@@ -124,6 +124,23 @@ describe("repositories", () => {
     assert.ok(profile.garage.length >= vehicles.total);
   });
 
+  it("upserts saved map points", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const point = await repositories.profiles.upsertMapPoint({
+      name: "Vice Port Garage",
+      type: "garage",
+      district: "Port Gellhorn",
+      status: "priority",
+      notes: "Good route anchor"
+    });
+    const points = await repositories.profiles.listMapPoints();
+    const profile = await repositories.profiles.getMyProfile();
+
+    assert.equal(point.id, "vice-port-garage");
+    assert.ok(points.points.some((item) => item.id === point.id));
+    assert.ok(profile.mapPoints.some((item) => item.id === point.id));
+  });
+
   it("creates community posts and reports", async () => {
     const repositories = createRepositories(createMemoryStore());
     const post = await repositories.community.createPost({

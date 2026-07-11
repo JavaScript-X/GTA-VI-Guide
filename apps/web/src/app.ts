@@ -42,6 +42,7 @@ import {
   updateEvent,
   updateGuide,
   uploadMedia,
+  upsertMapPoint,
   upsertVehicle,
   updateAchievementProgress,
   updateProfileCompletion
@@ -724,6 +725,27 @@ function bindInteractions() {
         setFormStatus("vehicle", "Vehicule enregistre.");
       } catch (error) {
         setFormStatus("vehicle", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const mapPointForm = document.querySelector("#map-point-form");
+  if (mapPointForm) {
+    mapPointForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(mapPointForm);
+      try {
+        await upsertMapPoint({
+          name: formData.get("name"),
+          district: formData.get("district"),
+          type: formData.get("type"),
+          status: formData.get("status"),
+          notes: formData.get("notes")
+        });
+        await refreshDashboard("map");
+        setFormStatus("map-point", "Point sauvegarde.");
+      } catch (error) {
+        setFormStatus("map-point", `Erreur: ${error.message}`, true);
       }
     });
   }

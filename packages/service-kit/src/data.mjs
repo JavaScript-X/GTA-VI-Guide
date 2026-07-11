@@ -50,6 +50,11 @@ export const vehicleGarage = [
   { id: "neon-bike", name: "Neon Bike", className: "Motorcycle", source: "manual", owned: false, notes: "Track build" }
 ];
 
+export const savedMapPoints = [
+  { id: "ocean-beach-safehouse", name: "Ocean Beach Safehouse", type: "safehouse", district: "Ocean Beach", status: "planned", notes: "Launch base candidate" },
+  { id: "neon-strip-garage", name: "Neon Strip Garage", type: "garage", district: "Neon Strip", status: "priority", notes: "Vehicle route planning" }
+];
+
 export const achievements = [
   {
     id: "welcome-to-vice",

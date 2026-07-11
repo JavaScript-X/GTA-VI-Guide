@@ -137,6 +137,15 @@ Creates or updates a manual vehicle entry. Body fields: `id` optional, `name`,
 `className`, `owned`, `notes`. Official sync remains disabled until provider
 OAuth/API access is approved.
 
+`GET /api/profiles/me/map-points`
+
+Lists saved manual map points for the active player profile.
+
+`POST /api/profiles/me/map-points`
+
+Creates or updates a saved map point. Body fields: `id` optional, `name`,
+`district`, `type`, `status`, `notes`.
+
 `DELETE /api/me`
 
 Deletes the authenticated account boundary through the Identity Service. Current

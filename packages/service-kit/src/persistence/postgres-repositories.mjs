@@ -1,4 +1,4 @@
-import { achievements, communityFeed, contentSources, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser, vehicleGarage } from "../data.mjs";
+import { achievements, communityFeed, contentSources, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser, savedMapPoints, vehicleGarage } from "../data.mjs";
 import { hashPassword } from "../auth.mjs";
 import { getDatabaseUrl, isPostgresConfigured, loadPostgresDriver } from "./postgres-adapter.mjs";
 
@@ -57,6 +57,7 @@ async function seedDatabase() {
     seedLinkedAccounts(user.id),
     seedProfile(user.id),
     seedVehicleGarage(user.id),
+    seedMapPoints(user.id),
     seedAchievements(user.id),
     seedGuides(),
     seedContentSources(),
@@ -153,6 +154,21 @@ async function seedVehicleGarage(userId) {
         ON CONFLICT (user_id, id) DO NOTHING
       `,
       [userId, vehicle.id, vehicle.name, vehicle.className, vehicle.source, vehicle.owned, vehicle.notes]
+    );
+  }
+}
+
+async function seedMapPoints(userId) {
+  for (const point of savedMapPoints) {
+    await pool.query(
+      `
+        INSERT INTO game_profile_service.saved_map_points (
+          user_id, id, name, type, district, status, notes
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (user_id, id) DO NOTHING
+      `,
+      [userId, point.id, point.name, point.type, point.district, point.status, point.notes]
     );
   }
 }
@@ -334,6 +350,17 @@ function mapVehicle(row) {
     className: row.class_name,
     source: row.source,
     owned: Boolean(row.owned),
+    notes: row.notes || ""
+  };
+}
+
+function mapPoint(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    district: row.district,
+    status: row.status,
     notes: row.notes || ""
   };
 }
@@ -665,7 +692,7 @@ function createProfileRepository(db) {
   return {
     async getMyProfile() {
       const user = await defaultUser(db);
-      const [result, vehicles] = await Promise.all([
+      const [result, vehicles, mapPoints] = await Promise.all([
         db.query(
         `
           SELECT platform, character_name, level, crew_name, cash_balance, bank_balance, completion, source
@@ -682,6 +709,15 @@ function createProfileRepository(db) {
             FROM game_profile_service.player_vehicles
             WHERE user_id = $1
             ORDER BY owned DESC, name
+          `,
+          [user.id]
+        ),
+        db.query(
+          `
+            SELECT id, name, type, district, status, notes
+            FROM game_profile_service.saved_map_points
+            WHERE user_id = $1
+            ORDER BY created_at DESC, name
           `,
           [user.id]
         )
@@ -704,7 +740,8 @@ function createProfileRepository(db) {
           : profileSnapshot.activeCharacter,
         completion: row?.completion || profileSnapshot.completion,
         syncMode: row?.source || "manual",
-        garage
+        garage,
+        mapPoints: mapPoints.rows.map(mapPoint)
       };
     },
     async updateCompletion(completion) {
@@ -769,6 +806,52 @@ function createProfileRepository(db) {
         ]
       );
       return mapVehicle(result.rows[0]);
+    },
+    async listMapPoints() {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          SELECT id, name, type, district, status, notes
+          FROM game_profile_service.saved_map_points
+          WHERE user_id = $1
+          ORDER BY created_at DESC, name
+        `,
+        [user.id]
+      );
+      return {
+        points: result.rows.map(mapPoint),
+        total: result.rows.length
+      };
+    },
+    async upsertMapPoint(input) {
+      const user = await defaultUser(db);
+      const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const result = await db.query(
+        `
+          INSERT INTO game_profile_service.saved_map_points (
+            user_id, id, name, type, district, status, notes
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (user_id, id) DO UPDATE
+          SET name = EXCLUDED.name,
+              type = EXCLUDED.type,
+              district = EXCLUDED.district,
+              status = EXCLUDED.status,
+              notes = EXCLUDED.notes,
+              updated_at = now()
+          RETURNING id, name, type, district, status, notes
+        `,
+        [
+          user.id,
+          id,
+          input.name,
+          input.type || "poi",
+          input.district || "Leonida",
+          input.status || "planned",
+          input.notes || ""
+        ]
+      );
+      return mapPoint(result.rows[0]);
     }
   };
 }

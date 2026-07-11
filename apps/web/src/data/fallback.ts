@@ -33,6 +33,10 @@ export const fallbackDashboard = {
       { id: "sunset-cruiser", name: "Sunset Cruiser", className: "Classic", source: "manual", owned: false, notes: "Wishlist" },
       { id: "bayside-suv", name: "Bayside SUV", className: "Utility", source: "official-sync-pending", owned: true, notes: "Crew transport" },
       { id: "neon-bike", name: "Neon Bike", className: "Motorcycle", source: "manual", owned: false, notes: "Track build" }
+    ],
+    mapPoints: [
+      { id: "ocean-beach-safehouse", name: "Ocean Beach Safehouse", type: "safehouse", district: "Ocean Beach", status: "planned", notes: "Launch base candidate" },
+      { id: "neon-strip-garage", name: "Neon Strip Garage", type: "garage", district: "Neon Strip", status: "priority", notes: "Vehicle route planning" }
     ]
   },
   achievements: {

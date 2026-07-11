@@ -56,6 +56,26 @@ createJsonService({
         }
         return profileRepository.upsertVehicle(body);
       }
+    },
+    {
+      method: "GET",
+      path: "/profiles/me/map-points",
+      handler: () => profileRepository.listMapPoints()
+    },
+    {
+      method: "POST",
+      path: "/profiles/me/map-points",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.name) {
+          const error = new Error("Map point name is required");
+          error.statusCode = 400;
+          error.code = "invalid_map_point";
+          throw error;
+        }
+        return profileRepository.upsertMapPoint(body);
+      }
     }
   ]
 });

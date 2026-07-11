@@ -7,6 +7,7 @@ import {
   guides,
   linkedAccounts,
   profileSnapshot,
+  savedMapPoints,
   vehicleGarage,
   sampleUser
 } from "../data.mjs";
@@ -29,6 +30,7 @@ export function createMemoryStore() {
     consentEvents: [],
     profileSnapshot: structuredClone(profileSnapshot),
     vehicleGarage: vehicleGarage.map((vehicle) => ({ ...vehicle })),
+    savedMapPoints: savedMapPoints.map((point) => ({ ...point })),
     achievements: achievements.map((achievement) => ({ ...achievement })),
     guides: guides.map((guide) => ({ ...guide })),
     contentSources: contentSources.map((source) => structuredClone(source)),

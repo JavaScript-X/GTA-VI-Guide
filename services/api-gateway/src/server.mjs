@@ -411,6 +411,20 @@ createJsonService({
     },
     {
       method: "GET",
+      path: "/api/profiles/me/map-points",
+      handler: async () => getServiceData("profiles", "/profiles/me/map-points")
+    },
+    {
+      method: "POST",
+      path: "/api/profiles/me/map-points",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("profiles", "/profiles/me/map-points", body);
+      }
+    },
+    {
+      method: "GET",
       path: "/api/platform",
       handler: async () => {
         const checks = await Promise.all(
