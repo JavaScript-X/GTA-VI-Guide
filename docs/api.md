@@ -127,6 +127,16 @@ Updates manual achievement progress for the current player snapshot.
 
 Updates manual profile completion categories.
 
+`GET /api/profiles/me/vehicles`
+
+Lists the current manual garage and wishlist for the active player profile.
+
+`POST /api/profiles/me/vehicles`
+
+Creates or updates a manual vehicle entry. Body fields: `id` optional, `name`,
+`className`, `owned`, `notes`. Official sync remains disabled until provider
+OAuth/API access is approved.
+
 `DELETE /api/me`
 
 Deletes the authenticated account boundary through the Identity Service. Current

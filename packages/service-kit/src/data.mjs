@@ -43,6 +43,13 @@ export const profileSnapshot = {
   syncMode: "mock"
 };
 
+export const vehicleGarage = [
+  { id: "coastal-gt", name: "Coastal GT", className: "Sport", source: "manual", owned: true, notes: "Daily driver" },
+  { id: "sunset-cruiser", name: "Sunset Cruiser", className: "Classic", source: "manual", owned: false, notes: "Wishlist" },
+  { id: "bayside-suv", name: "Bayside SUV", className: "Utility", source: "official-sync-pending", owned: true, notes: "Crew transport" },
+  { id: "neon-bike", name: "Neon Bike", className: "Motorcycle", source: "manual", owned: false, notes: "Track build" }
+];
+
 export const achievements = [
   {
     id: "welcome-to-vice",

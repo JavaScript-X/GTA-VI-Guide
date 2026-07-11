@@ -144,14 +144,49 @@ function createIdentityRepository(store) {
 function createProfileRepository(store) {
   return {
     async getMyProfile() {
-      return structuredClone(store.profileSnapshot);
+      return {
+        ...structuredClone(store.profileSnapshot),
+        garage: store.vehicleGarage.map((vehicle) => ({ ...vehicle }))
+      };
     },
     async updateCompletion(completion) {
       store.profileSnapshot.completion = {
         ...store.profileSnapshot.completion,
         ...completion
       };
-      return structuredClone(store.profileSnapshot);
+      return this.getMyProfile();
+    },
+    async listVehicles() {
+      return {
+        vehicles: store.vehicleGarage.map((vehicle) => ({ ...vehicle })),
+        total: store.vehicleGarage.length
+      };
+    },
+    async upsertVehicle(input) {
+      const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const existing = store.vehicleGarage.find((vehicle) => vehicle.id === id);
+      const vehicle = {
+        id,
+        name: input.name,
+        className: input.className || "Custom",
+        source: input.source || "manual",
+        owned: Boolean(input.owned),
+        notes: input.notes || ""
+      };
+      if (existing) {
+        Object.assign(existing, {
+          name: vehicle.name || existing.name,
+          className: vehicle.className || existing.className,
+          source: vehicle.source || existing.source,
+          owned: vehicle.owned,
+          notes: vehicle.notes
+        });
+        store.profileSnapshot.activeCharacter.vehicles = store.vehicleGarage.filter((item) => item.owned).length;
+        return { ...existing };
+      }
+      store.vehicleGarage.unshift(vehicle);
+      store.profileSnapshot.activeCharacter.vehicles = store.vehicleGarage.filter((item) => item.owned).length;
+      return { ...vehicle };
     }
   };
 }

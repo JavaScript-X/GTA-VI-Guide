@@ -36,6 +36,26 @@ createJsonService({
         const body = await readJsonBody(request);
         return profileRepository.updateCompletion(body.completion || body);
       }
+    },
+    {
+      method: "GET",
+      path: "/profiles/me/vehicles",
+      handler: () => profileRepository.listVehicles()
+    },
+    {
+      method: "POST",
+      path: "/profiles/me/vehicles",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        if (!body.name) {
+          const error = new Error("Vehicle name is required");
+          error.statusCode = 400;
+          error.code = "invalid_vehicle";
+          throw error;
+        }
+        return profileRepository.upsertVehicle(body);
+      }
     }
   ]
 });

@@ -176,6 +176,10 @@ export async function updateProfileCompletion(completion) {
   });
 }
 
+export async function upsertVehicle(input) {
+  return postJsonWithFallback(["/api/profiles/me/vehicles", "http://localhost:8080/api/profiles/me/vehicles"], input);
+}
+
 export async function deleteAccount(accessToken) {
   return requestWithFallback(["/api/me", "http://localhost:8080/api/me", "http://localhost:8081/me"], {
     method: "DELETE",

@@ -100,6 +100,30 @@ describe("repositories", () => {
     );
   });
 
+  it("upserts player garage vehicles", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const created = await repositories.profiles.upsertVehicle({
+      name: "Oceanic Turbo",
+      className: "Sport",
+      owned: true,
+      notes: "Launch build"
+    });
+    const updated = await repositories.profiles.upsertVehicle({
+      id: created.id,
+      name: "Oceanic Turbo",
+      className: "Sport",
+      owned: false,
+      notes: "Moved to wishlist"
+    });
+    const vehicles = await repositories.profiles.listVehicles();
+    const profile = await repositories.profiles.getMyProfile();
+
+    assert.equal(created.id, "oceanic-turbo");
+    assert.equal(updated.owned, false);
+    assert.ok(vehicles.vehicles.some((vehicle) => vehicle.id === "oceanic-turbo"));
+    assert.ok(profile.garage.length >= vehicles.total);
+  });
+
   it("creates community posts and reports", async () => {
     const repositories = createRepositories(createMemoryStore());
     const post = await repositories.community.createPost({

@@ -7,6 +7,7 @@ import {
   guides,
   linkedAccounts,
   profileSnapshot,
+  vehicleGarage,
   sampleUser
 } from "../data.mjs";
 import { hashPassword } from "../auth.mjs";
@@ -27,6 +28,7 @@ export function createMemoryStore() {
     auditLog: [],
     consentEvents: [],
     profileSnapshot: structuredClone(profileSnapshot),
+    vehicleGarage: vehicleGarage.map((vehicle) => ({ ...vehicle })),
     achievements: achievements.map((achievement) => ({ ...achievement })),
     guides: guides.map((guide) => ({ ...guide })),
     contentSources: contentSources.map((source) => structuredClone(source)),

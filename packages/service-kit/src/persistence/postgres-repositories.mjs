@@ -1,4 +1,4 @@
-import { achievements, communityFeed, contentSources, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser } from "../data.mjs";
+import { achievements, communityFeed, contentSources, crews, events, guides, linkedAccounts, profileSnapshot, sampleUser, vehicleGarage } from "../data.mjs";
 import { hashPassword } from "../auth.mjs";
 import { getDatabaseUrl, isPostgresConfigured, loadPostgresDriver } from "./postgres-adapter.mjs";
 
@@ -56,6 +56,7 @@ async function seedDatabase() {
   await Promise.all([
     seedLinkedAccounts(user.id),
     seedProfile(user.id),
+    seedVehicleGarage(user.id),
     seedAchievements(user.id),
     seedGuides(),
     seedContentSources(),
@@ -139,6 +140,21 @@ async function seedProfile(userId) {
       JSON.stringify(profileSnapshot.completion)
     ]
   );
+}
+
+async function seedVehicleGarage(userId) {
+  for (const vehicle of vehicleGarage) {
+    await pool.query(
+      `
+        INSERT INTO game_profile_service.player_vehicles (
+          user_id, id, name, class_name, source, owned, notes
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (user_id, id) DO NOTHING
+      `,
+      [userId, vehicle.id, vehicle.name, vehicle.className, vehicle.source, vehicle.owned, vehicle.notes]
+    );
+  }
 }
 
 async function seedAchievements(userId) {
@@ -308,6 +324,17 @@ function mapAchievement(row) {
     rarity: row.rarity,
     points: row.points,
     progress: Number(row.progress || 0)
+  };
+}
+
+function mapVehicle(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    className: row.class_name,
+    source: row.source,
+    owned: Boolean(row.owned),
+    notes: row.notes || ""
   };
 }
 
@@ -638,7 +665,8 @@ function createProfileRepository(db) {
   return {
     async getMyProfile() {
       const user = await defaultUser(db);
-      const result = await db.query(
+      const [result, vehicles] = await Promise.all([
+        db.query(
         `
           SELECT platform, character_name, level, crew_name, cash_balance, bank_balance, completion, source
           FROM game_profile_service.player_snapshots
@@ -647,8 +675,19 @@ function createProfileRepository(db) {
           LIMIT 1
         `,
         [user.id]
-      );
+        ),
+        db.query(
+          `
+            SELECT id, name, class_name, source, owned, notes
+            FROM game_profile_service.player_vehicles
+            WHERE user_id = $1
+            ORDER BY owned DESC, name
+          `,
+          [user.id]
+        )
+      ]);
       const row = result.rows[0];
+      const garage = vehicles.rows.map(mapVehicle);
       return {
         playerId: user.id,
         platforms: row ? [row.platform, "rockstar"] : profileSnapshot.platforms,
@@ -660,11 +699,12 @@ function createProfileRepository(db) {
               cash: Number(row.cash_balance),
               bank: Number(row.bank_balance),
               properties: profileSnapshot.activeCharacter.properties,
-              vehicles: profileSnapshot.activeCharacter.vehicles
+              vehicles: garage.filter((vehicle) => vehicle.owned).length || profileSnapshot.activeCharacter.vehicles
             }
           : profileSnapshot.activeCharacter,
         completion: row?.completion || profileSnapshot.completion,
-        syncMode: row?.source || "manual"
+        syncMode: row?.source || "manual",
+        garage
       };
     },
     async updateCompletion(completion) {
@@ -683,6 +723,52 @@ function createProfileRepository(db) {
         [user.id, JSON.stringify(completion)]
       );
       return this.getMyProfile();
+    },
+    async listVehicles() {
+      const user = await defaultUser(db);
+      const result = await db.query(
+        `
+          SELECT id, name, class_name, source, owned, notes
+          FROM game_profile_service.player_vehicles
+          WHERE user_id = $1
+          ORDER BY owned DESC, name
+        `,
+        [user.id]
+      );
+      return {
+        vehicles: result.rows.map(mapVehicle),
+        total: result.rows.length
+      };
+    },
+    async upsertVehicle(input) {
+      const user = await defaultUser(db);
+      const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const result = await db.query(
+        `
+          INSERT INTO game_profile_service.player_vehicles (
+            user_id, id, name, class_name, source, owned, notes
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (user_id, id) DO UPDATE
+          SET name = EXCLUDED.name,
+              class_name = EXCLUDED.class_name,
+              source = EXCLUDED.source,
+              owned = EXCLUDED.owned,
+              notes = EXCLUDED.notes,
+              updated_at = now()
+          RETURNING id, name, class_name, source, owned, notes
+        `,
+        [
+          user.id,
+          id,
+          input.name,
+          input.className || "Custom",
+          input.source || "manual",
+          Boolean(input.owned),
+          input.notes || ""
+        ]
+      );
+      return mapVehicle(result.rows[0]);
     }
   };
 }

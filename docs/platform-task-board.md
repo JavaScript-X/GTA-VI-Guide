@@ -46,8 +46,9 @@ vraiment utilisables en production.
   edition/suppression, reactions, crews/events avec edition/suppression,
   recherche frontend/backend et moderation basique posts/reports existent. Les
   workflows avances restent incomplets.
-- Suivi joueur: profile, completion et achievements existent en lecture/ecriture
-  memoire, mais pas de vraie synchronisation provider.
+- Suivi joueur: profile, completion, achievements et garage manuel existent en
+  lecture/ecriture memoire/PostgreSQL, mais pas de vraie synchronisation
+  provider.
 - Migrations: le runner sait maintenant verifier `platform.schema_migrations`
   avant chaque execution, mais il depend encore du client local `psql`.
 - CI/CD: la fondation existe, mais scan, push registry et deploy production sont
@@ -71,9 +72,10 @@ vraiment utilisables en production.
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
-  complete, audit detaille et politiques media avancees.
+  complete, audit detaille, carte sauvegardee et politiques media avancees.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Workflow editorial avance des guides.
+- Points de carte sauvegardes/editables.
 - Moderation avancee restante: permissions fines, escalation, notes internes et
   workflows roles/audit plus complets.
 - Remplacer le stockage local upload par MinIO/S3/R2 avec URLs signees,
@@ -129,5 +131,7 @@ vraiment utilisables en production.
   boutons providers prepares pour OAuth officiel.
 - Fait: ajouter upload image pour guides avec validation, stockage local dev,
   metadata PostgreSQL et formulaire frontend.
+- Fait: ajouter garage joueur editable avec metadata memoire/PostgreSQL et
+  formulaire frontend.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
   en CI ou Docker Compose, puis ajouter moderation avancee.

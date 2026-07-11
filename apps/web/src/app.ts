@@ -42,6 +42,7 @@ import {
   updateEvent,
   updateGuide,
   uploadMedia,
+  upsertVehicle,
   updateAchievementProgress,
   updateProfileCompletion
 } from "./services/api.ts";
@@ -703,6 +704,26 @@ function bindInteractions() {
         setFormStatus("completion", "Completion joueur mise a jour.");
       } catch (error) {
         setFormStatus("completion", `Erreur: ${error.message}`, true);
+      }
+    });
+  }
+
+  const vehicleForm = document.querySelector("#vehicle-form");
+  if (vehicleForm) {
+    vehicleForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(vehicleForm);
+      try {
+        await upsertVehicle({
+          name: formData.get("name"),
+          className: formData.get("className"),
+          owned: formData.get("owned") === "true",
+          notes: formData.get("notes")
+        });
+        await refreshDashboard("vehicles");
+        setFormStatus("vehicle", "Vehicule enregistre.");
+      } catch (error) {
+        setFormStatus("vehicle", `Erreur: ${error.message}`, true);
       }
     });
   }
