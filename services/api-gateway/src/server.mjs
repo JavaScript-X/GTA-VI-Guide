@@ -230,6 +230,28 @@ createJsonService({
       }
     },
     {
+      method: "GET",
+      path: "/api/media",
+      handler: async ({ url }) => {
+        return getServiceData(
+          "knowledge",
+          encodePath("/media", {
+            relatedType: url.searchParams.get("relatedType"),
+            relatedId: url.searchParams.get("relatedId")
+          })
+        );
+      }
+    },
+    {
+      method: "POST",
+      path: "/api/media",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        return postServiceData("knowledge", "/media", body);
+      }
+    },
+    {
       method: "POST",
       path: "/api/posts",
       statusCode: 201,

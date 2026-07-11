@@ -26,6 +26,19 @@ export function guidesPage(state) {
             <button class="button primary" type="submit">Envoyer</button>
             <p class="form-status" data-form-status="guide"></p>
           </form>
+          <div class="media-uploader">
+            <h3>Ajouter une image</h3>
+            <form id="media-upload-form" class="stack-form">
+              <label>Image<input name="media" type="file" accept="image/png,image/jpeg,image/webp,image/gif" required></label>
+              <label>Associer au guide<select name="relatedId">
+                ${state.dashboard.knowledge.guides.map((guide) => `<option value="${guide.id}">${guide.title}</option>`).join("")}
+              </select></label>
+              <label>Texte alternatif<input name="altText" placeholder="Ex: capture de checklist lancement"></label>
+              <label>Attribution<input name="attribution" placeholder="Auteur ou source autorisee"></label>
+              <button class="button secondary" type="submit">Uploader</button>
+              <p class="form-status" data-form-status="media"></p>
+            </form>
+          </div>
           <h3>Workflow editorial</h3>
           <div class="timeline">
             <span>Brouillon</span><span>Relecture</span><span>Verifie</span><span>Publie</span>

@@ -23,12 +23,14 @@ prepared integration boundaries.
   guides, community posts, reports, achievement progress, completion, and
   account deletion. Comments, reactions, crews and events now have write flows.
   Backend search is connected to the frontend. A first moderator queue exists
-  for reports, post hiding, and audit log review. Uploads and deeper moderation
-  policy flows still need full UI flows.
+  for reports, post hiding, and audit log review. Guide image upload now has a
+  first UI flow; deeper moderation policy flows still need full UI flows.
 - The sync worker currently logs readiness only; it does not consume RabbitMQ
   messages yet.
-- RabbitMQ and MinIO are configured, but services do not publish/consume events
-  or store uploaded files yet.
+- RabbitMQ is configured, but services do not publish/consume events yet. Media
+  upload now stores files locally in development and persists metadata through
+  memory/PostgreSQL repositories; production still needs signed MinIO/S3/R2
+  uploads, malware scanning, CDN, and lifecycle policies.
 - A migration runner exists and checks `platform.schema_migrations` before each
   file, but it still requires `psql` locally and needs CI coverage with a real
   PostgreSQL target.
@@ -56,7 +58,7 @@ prepared integration boundaries.
 7. Add editable player profile, garage/vehicles, and map
    points.
 8. Publish domain events to RabbitMQ and make `sync-worker` consume jobs.
-9. Add MinIO-backed upload flow for guide/media assets.
+9. Replace local guide/media upload storage with MinIO/S3/R2 signed uploads.
 10. Replace the lightweight frontend build with strict TypeScript tooling when
     dependency installation is available.
 11. Add Playwright or equivalent browser end-to-end tests.

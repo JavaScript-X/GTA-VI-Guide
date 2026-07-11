@@ -59,6 +59,10 @@ export async function loadSources(filters = {}) {
   return fetchJsonWithFallback([`/api/sources${suffix}`, `http://localhost:8080/api/sources${suffix}`]);
 }
 
+export async function uploadMedia(input) {
+  return postJsonWithFallback(["/api/media", "http://localhost:8080/api/media"], input);
+}
+
 export async function login(email, password) {
   return postJsonWithFallback(
     ["/api/auth/login", "http://localhost:8080/api/auth/login", "http://localhost:8081/auth/login"],

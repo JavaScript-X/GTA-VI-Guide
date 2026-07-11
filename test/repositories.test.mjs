@@ -41,6 +41,23 @@ describe("repositories", () => {
     assert.ok(guides.guides.some((item) => item.id === "test-guide"));
   });
 
+  it("stores media upload metadata through the knowledge repository", async () => {
+    const repositories = createRepositories(createMemoryStore());
+    const upload = await repositories.knowledge.createMediaUpload({
+      id: "media_test",
+      fileName: "shot.png",
+      mimeType: "image/png",
+      size: 1200,
+      relatedType: "guide",
+      relatedId: "test-guide"
+    });
+    const uploads = await repositories.knowledge.listMediaUploads({ relatedType: "guide", relatedId: "test-guide" });
+
+    assert.equal(upload.id, "media_test");
+    assert.equal(uploads.total, 1);
+    assert.equal(uploads.uploads[0].fileName, "shot.png");
+  });
+
   it("updates and deletes guides through the knowledge repository", async () => {
     const repositories = createRepositories(createMemoryStore());
     await repositories.knowledge.createGuide({

@@ -342,6 +342,25 @@ function mapContentSource(row) {
   };
 }
 
+function mapMediaUpload(row) {
+  return {
+    id: row.id,
+    fileName: row.file_name,
+    storedFileName: row.stored_file_name,
+    mimeType: row.mime_type,
+    size: Number(row.size_bytes || 0),
+    checksum: row.checksum,
+    storage: row.storage,
+    url: row.url,
+    relatedType: row.related_type,
+    relatedId: row.related_id,
+    altText: row.alt_text || "",
+    attribution: row.attribution || "",
+    policy: row.policy || "",
+    createdAt: row.created_at ? row.created_at.toISOString() : null
+  };
+}
+
 function mapPost(row) {
   return {
     id: row.id,
@@ -871,6 +890,67 @@ function createKnowledgeRepository(db) {
         [id]
       );
       return result.rows[0] ? { ...mapGuide(result.rows[0]), deleted: true } : null;
+    },
+    async createMediaUpload(input) {
+      const result = await db.query(
+        `
+          INSERT INTO knowledge_service.media_uploads (
+            id, file_name, stored_file_name, mime_type, size_bytes, checksum,
+            storage, url, related_type, related_id, alt_text, attribution, policy
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          RETURNING id, file_name, stored_file_name, mime_type, size_bytes, checksum,
+                    storage, url, related_type, related_id, alt_text, attribution, policy, created_at
+        `,
+        [
+          input.id,
+          input.fileName,
+          input.storedFileName,
+          input.mimeType,
+          input.size,
+          input.checksum,
+          input.storage,
+          input.url,
+          input.relatedType || "guide",
+          input.relatedId || null,
+          input.altText || "",
+          input.attribution || "",
+          input.policy || ""
+        ]
+      );
+      return mapMediaUpload(result.rows[0]);
+    },
+    async listMediaUploads({ relatedType, relatedId } = {}) {
+      const clauses = [];
+      const params = [];
+      if (relatedType) {
+        params.push(relatedType);
+        clauses.push(`related_type = $${params.length}`);
+      }
+      if (relatedId) {
+        params.push(relatedId);
+        clauses.push(`related_id = $${params.length}`);
+      }
+      const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+      const result = await db.query(
+        `
+          SELECT id, file_name, stored_file_name, mime_type, size_bytes, checksum,
+                 storage, url, related_type, related_id, alt_text, attribution, policy, created_at
+          FROM knowledge_service.media_uploads
+          ${where}
+          ORDER BY created_at DESC
+          LIMIT 100
+        `,
+        params
+      );
+      return {
+        uploads: result.rows.map(mapMediaUpload),
+        total: result.rows.length,
+        policy: {
+          mode: "user-uploaded-media",
+          note: "Uploads are user-provided assets. Official or wiki media should be linked unless rights are explicitly approved."
+        }
+      };
     }
   };
 }

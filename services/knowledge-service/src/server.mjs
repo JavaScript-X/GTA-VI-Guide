@@ -1,6 +1,7 @@
 import { createJsonService, readJsonBody } from "../../../packages/service-kit/src/http.mjs";
 import { createRepositories } from "../../../packages/service-kit/src/persistence/repositories.mjs";
 import { createPostgresReadiness } from "../../../packages/service-kit/src/persistence/postgres-adapter.mjs";
+import { storeMediaUpload } from "../../../packages/service-kit/src/media-storage.mjs";
 
 const port = Number(process.env.KNOWLEDGE_SERVICE_PORT || 8084);
 const knowledgeRepository = createRepositories().knowledge;
@@ -46,6 +47,39 @@ createJsonService({
           trustLevel: url.searchParams.get("trustLevel"),
           query: url.searchParams.get("q")
         });
+      }
+    },
+    {
+      method: "GET",
+      path: "/media",
+      handler: async ({ url }) => {
+        if (!knowledgeRepository.listMediaUploads) {
+          return {
+            uploads: [],
+            total: 0,
+            policy: {
+              mode: "metadata-unavailable",
+              note: "Media storage is available, but this repository adapter does not persist upload metadata yet."
+            }
+          };
+        }
+        return knowledgeRepository.listMediaUploads({
+          relatedType: url.searchParams.get("relatedType"),
+          relatedId: url.searchParams.get("relatedId")
+        });
+      }
+    },
+    {
+      method: "POST",
+      path: "/media",
+      statusCode: 201,
+      handler: async ({ request }) => {
+        const body = await readJsonBody(request);
+        const stored = await storeMediaUpload(body);
+        if (!knowledgeRepository.createMediaUpload) {
+          return stored;
+        }
+        return knowledgeRepository.createMediaUpload(stored);
       }
     },
     {

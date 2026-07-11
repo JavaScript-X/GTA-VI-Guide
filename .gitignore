@@ -4,5 +4,6 @@ node_modules/
 *.log
 coverage/
 dist/
+storage/
 .DS_Store
 Thumbs.db

@@ -30,6 +30,7 @@ export function createMemoryStore() {
     achievements: achievements.map((achievement) => ({ ...achievement })),
     guides: guides.map((guide) => ({ ...guide })),
     contentSources: contentSources.map((source) => structuredClone(source)),
+    mediaUploads: [],
     communityFeed: communityFeed.map((item) => ({ ...item })),
     crews: crews.map((crew) => ({ ...crew })),
     events: events.map((event) => ({ ...event })),

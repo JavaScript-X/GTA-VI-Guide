@@ -263,6 +263,30 @@ function createKnowledgeRepository(store) {
       }
       const [deleted] = store.guides.splice(index, 1);
       return { ...deleted, deleted: true };
+    },
+    async createMediaUpload(input) {
+      const upload = {
+        ...input,
+        id: input.id || `media_${String(store.mediaUploads.length + 1).padStart(3, "0")}`,
+        createdAt: input.createdAt || new Date().toISOString()
+      };
+      store.mediaUploads.unshift(upload);
+      return structuredClone(upload);
+    },
+    async listMediaUploads({ relatedType, relatedId } = {}) {
+      const uploads = store.mediaUploads.filter((item) => {
+        const matchesType = !relatedType || item.relatedType === relatedType;
+        const matchesId = !relatedId || item.relatedId === relatedId;
+        return matchesType && matchesId;
+      });
+      return {
+        uploads: uploads.map((item) => structuredClone(item)),
+        total: uploads.length,
+        policy: {
+          mode: "user-uploaded-media",
+          note: "Uploads are user-provided assets. Official or wiki media should be linked unless rights are explicitly approved."
+        }
+      };
     }
   };
 }

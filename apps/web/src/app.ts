@@ -41,6 +41,7 @@ import {
   updateCrew,
   updateEvent,
   updateGuide,
+  uploadMedia,
   updateAchievementProgress,
   updateProfileCompletion
 } from "./services/api.ts";
@@ -396,6 +397,36 @@ function bindInteractions() {
     });
   }
 
+  const mediaUploadForm = document.querySelector("#media-upload-form");
+  if (mediaUploadForm) {
+    mediaUploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(mediaUploadForm);
+      const file = formData.get("media");
+      if (!(file instanceof File)) {
+        setFormStatus("media", "Selectionne une image a uploader.", true);
+        return;
+      }
+      try {
+        setFormStatus("media", "Upload en cours...");
+        const dataUrl = await readFileAsDataUrl(file);
+        const payload = await uploadMedia({
+          fileName: file.name,
+          dataUrl,
+          relatedType: "guide",
+          relatedId: formData.get("relatedId"),
+          altText: formData.get("altText"),
+          attribution: formData.get("attribution")
+        });
+        const upload = payload.data;
+        setFormStatus("media", `Upload pret: ${upload.fileName} (${Math.round(upload.size / 1024)} KB).`);
+        mediaUploadForm.reset();
+      } catch (error) {
+        setFormStatus("media", `Upload impossible: ${error.message}`, true);
+      }
+    });
+  }
+
   document.querySelectorAll("[data-guide-edit]").forEach((button) => {
     button.addEventListener("click", async () => {
       try {
@@ -722,4 +753,13 @@ function saveLaunchChecklist() {
   } catch {
     // Ignore storage errors in private browsing or restricted environments.
   }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(reader.result));
+    reader.addEventListener("error", () => reject(reader.error || new Error("File read failed")));
+    reader.readAsDataURL(file);
+  });
 }

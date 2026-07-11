@@ -58,8 +58,10 @@ vraiment utilisables en production.
   ne sont pas branches dans le code applicatif.
 - RabbitMQ: l'infrastructure est la, le worker demarre, mais aucun vrai flux
   evenementiel n'est consomme.
-- MinIO/S3: l'infrastructure et les variables sont pretes, mais aucun upload
-  media n'utilise encore le stockage objet.
+- Uploads media: endpoint JSON, validation image, stockage local dev, metadata
+  memoire/PostgreSQL et formulaire frontend existent. Il reste a remplacer le
+  backend local par MinIO/S3/R2 avec URLs signees, CDN et politiques de cycle de
+  vie.
 - Tests: unitaires et smoke tests existent, mais pas encore de tests navigateur
   end-to-end.
 - TypeScript frontend: sources `.ts` modulaires presentes, mais build encore
@@ -69,12 +71,13 @@ vraiment utilisables en production.
 
 - Validation CI de l'adapter PostgreSQL contre une vraie base.
 - Persistance PostgreSQL avancee pour les workflows restants: moderation
-  complete et uploads.
+  complete, audit detaille et politiques media avancees.
 - Tests plus avances du runner de migrations avec une vraie base PostgreSQL CI.
 - Workflow editorial avance des guides.
 - Moderation avancee restante: permissions fines, escalation, notes internes et
   workflows roles/audit plus complets.
-- Upload images/fichiers via MinIO/S3/R2.
+- Remplacer le stockage local upload par MinIO/S3/R2 avec URLs signees,
+  antivirus/validation avancee et CDN.
 - Publication d'evenements de domaine vers RabbitMQ et workers consommateurs.
 - Synchronisation officielle PSN, Xbox et Rockstar via OAuth officiel uniquement.
 - Chiffrement/rotation des tokens provider et integration secret manager reelle.
@@ -100,7 +103,7 @@ vraiment utilisables en production.
 7. Completer Knowledge, Community, Achievements et Profile.
 8. Ajouter recherche, commentaires, reactions, crews et events.
 9. Brancher RabbitMQ pour les evenements et le sync-worker.
-10. Ajouter upload objet MinIO/S3.
+10. Remplacer l'upload local par stockage objet MinIO/S3.
 11. Remplacer le build frontend leger par TypeScript strict.
 12. Ajouter tests E2E navigateur.
 13. Brancher OpenTelemetry et Sentry.
@@ -124,5 +127,7 @@ vraiment utilisables en production.
   et lecture audit log moderateur.
 - Fait: ajouter page login/sign-up style Vice City avec inscription reelle et
   boutons providers prepares pour OAuth officiel.
+- Fait: ajouter upload image pour guides avec validation, stockage local dev,
+  metadata PostgreSQL et formulaire frontend.
 - Prochaine etape: tester l'adapter PostgreSQL contre une vraie base PostgreSQL
   en CI ou Docker Compose, puis ajouter moderation avancee.

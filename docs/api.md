@@ -29,6 +29,19 @@ Lists attributed official, platform and community content sources.
 
 Filters source registry entries by trust level and search query.
 
+`GET /api/media`
+
+Lists uploaded media metadata. Optional query params: `relatedType`,
+`relatedId`.
+
+`POST /api/media`
+
+Uploads a user-provided guide/media image as a base64 data URL. Body fields:
+`fileName`, `dataUrl`, `relatedType`, `relatedId`, `altText`, `attribution`.
+The current implementation validates allowed image MIME types, stores files in
+the local dev upload directory, and persists metadata through the Knowledge
+repository. Production should replace this with signed object-storage uploads.
+
 `POST /api/guides`
 
 Creates a draft community guide through the Knowledge Service.
