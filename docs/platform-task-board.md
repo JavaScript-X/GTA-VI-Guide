@@ -26,6 +26,8 @@ vraiment utilisables en production.
   deploiement, securite, backlog et travaux restants.
 - Frontend modulaire en sources TypeScript: pages principales, composants
   reutilisables, store, service API et theme neon Vice City.
+- Support multilingue frontend avec selecteur persistant et dictionnaire pour
+  francais, anglais, espagnol, portugais, allemand, arabe et chinois.
 - Donnees de fallback pour permettre l'utilisation locale sans backend.
 - Tests unitaires de base et smoke test des services locaux.
 - Modele de roles et limites legales documentees pour PSN, Xbox et Rockstar.

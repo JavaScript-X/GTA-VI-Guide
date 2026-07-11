@@ -13,12 +13,14 @@ export function skeletonGrid(count = 4, lines = 3) {
   return `<div class="skeleton-grid">${Array.from({ length: count }, () => skeletonCard(lines)).join("")}</div>`;
 }
 
-export function loadingOverlay(isVisible) {
+import { t } from "../i18n.ts";
+
+export function loadingOverlay(isVisible, locale = "fr") {
   return `
     <div class="boot-loader ${isVisible ? "is-visible" : ""}" aria-live="polite" aria-busy="${isVisible}">
       <div class="loader-mark"><span>VI</span></div>
       <strong>Leonida Hub</strong>
-      <small>Chargement de la plateforme</small>
+      <small>${t(locale, "loader.copy")}</small>
     </div>
   `;
 }

@@ -3,7 +3,8 @@ import { fallbackDashboard, fallbackPlatform } from "../data/fallback.ts";
 export const store = {
   ui: {
     isBooting: true,
-    loading: {}
+    loading: {},
+    locale: "fr"
   },
   dashboard: fallbackDashboard,
   platform: fallbackPlatform,
@@ -47,6 +48,13 @@ export function setLoading(key, value) {
       ...store.ui.loading,
       [key]: value
     }
+  };
+}
+
+export function setLocale(locale) {
+  store.ui = {
+    ...store.ui,
+    locale
   };
 }
 

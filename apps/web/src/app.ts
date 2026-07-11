@@ -9,10 +9,12 @@ import {
   setSources,
   setLaunchChecklist,
   setBooting,
+  setLocale,
   setLoading,
   toggleLaunchChecklistItem,
   store
 } from "./state/store.ts";
+import { normalizeLocale } from "./i18n.ts";
 import { bootSkeletonPage } from "./components/skeletons.ts";
 import {
   createCommunityPost,
@@ -84,7 +86,8 @@ export function renderApp() {
       ].join("");
   app.innerHTML = shell(
     content,
-    store.ui.isBooting
+    store.ui.isBooting,
+    store.ui.locale
   );
   bindInteractions();
   navigate(store.ui.isBooting ? "home" : currentRoute());
@@ -102,6 +105,15 @@ function navigate(route) {
   });
   document.querySelectorAll("[data-route]").forEach((link) => {
     link.classList.toggle("is-current", link.dataset.route === page);
+  });
+
+  document.querySelectorAll("[data-locale-select]").forEach((select) => {
+    select.addEventListener("change", () => {
+      setLocale(normalizeLocale(select.value));
+      saveLocale();
+      renderApp();
+      navigate(currentRoute());
+    });
   });
   if (window.location.hash !== `#${page}`) {
     window.history.replaceState(null, "", `#${page}`);
@@ -753,6 +765,7 @@ function bindInteractions() {
 
 export async function bootstrap() {
   window.addEventListener("hashchange", () => navigate(currentRoute()));
+  loadLocale();
   loadLaunchChecklist();
   renderApp();
   try {
@@ -769,6 +782,24 @@ export async function bootstrap() {
   }
   setBooting(false);
   renderApp();
+}
+
+function loadLocale() {
+  try {
+    const saved = window.localStorage.getItem("gta-vi-guide.locale");
+    const browserLocale = navigator.language || "fr";
+    setLocale(normalizeLocale(saved || browserLocale));
+  } catch {
+    setLocale("fr");
+  }
+}
+
+function saveLocale() {
+  try {
+    window.localStorage.setItem("gta-vi-guide.locale", store.ui.locale);
+  } catch {
+    // Locale selection still works for the current session.
+  }
 }
 
 function loadLaunchChecklist() {

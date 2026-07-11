@@ -1,8 +1,10 @@
 import { appSection, quickLink, statCard } from "../components/cards.ts";
 import { actionBar } from "../components/layout.ts";
 import { skeletonGrid } from "../components/skeletons.ts";
+import { t } from "../i18n.ts";
 
 export function homePage(state) {
+  const locale = state.ui.locale;
   const dashboard = state.dashboard;
   const guides = dashboard.knowledge.guides || [];
   const sources = dashboard.knowledge.sources || [];
@@ -16,11 +18,11 @@ export function homePage(state) {
     : results
     ? `
       <div class="search-results">
-        <div class="item-title"><span>Resultats pour "${state.globalSearch}"</span><span class="badge">${results.total || 0}</span></div>
+        <div class="item-title"><span>${t(locale, "home.resultsFor")} "${state.globalSearch}"</span><span class="badge">${results.total || 0}</span></div>
         <div class="result-grid">
-          ${resultColumn("Guides", results.guides, (item) => item.summary)}
-          ${resultColumn("Sources", results.sources, (item) => `${item.provider} - ${item.trustLevel}`)}
-          ${resultColumn("Posts", results.posts, (item) => item.channel)}
+          ${resultColumn(t(locale, "common.guides"), results.guides, (item) => item.summary, locale)}
+          ${resultColumn(t(locale, "common.sources"), results.sources, (item) => `${item.provider} - ${item.trustLevel}`, locale)}
+          ${resultColumn(t(locale, "common.posts"), results.posts, (item) => item.channel, locale)}
           ${resultColumn("Crews", results.crews, (item) => `${item.members} membres - ${item.focus}`)}
           ${resultColumn("Events", results.events, (item) => `${item.date} - ${item.seats} places`)}
         </div>
@@ -35,23 +37,23 @@ export function homePage(state) {
             <div class="capsule-art">
               <span>VI</span>
               <strong>Leonida Hub</strong>
-              <small>Community guide platform</small>
+              <small>${t(locale, "home.eyebrow")}</small>
             </div>
           </div>
           <div class="hero-copy">
-            <p class="eyebrow">GTA VI community hub</p>
-            <h1>Ton espace simple pour suivre GTA VI.</h1>
-            <p>Guides, sources, progression et communaute au meme endroit, sans bruit.</p>
+            <p class="eyebrow">${t(locale, "home.eyebrow")}</p>
+            <h1>${t(locale, "home.title")}</h1>
+            <p>${t(locale, "home.copy")}</p>
             <form class="hero-search" id="global-search-form">
-              <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher un guide, une source, un crew" />
-              <button class="button primary" type="submit">Rechercher</button>
+              <input name="query" value="${state.globalSearch || ""}" placeholder="${t(locale, "home.searchPlaceholder")}" />
+              <button class="button primary" type="submit">${t(locale, "common.search")}</button>
             </form>
             ${actionBar(`
-              <a class="button primary" href="#guides" data-route="guides">Guides</a>
-              <a class="button secondary" href="#tracking" data-route="tracking">Mon suivi</a>
+              <a class="button primary" href="#guides" data-route="guides">${t(locale, "common.guides")}</a>
+              <a class="button secondary" href="#tracking" data-route="tracking">${t(locale, "home.tracking")}</a>
             `)}
             <div class="hero-tags">
-              <span>${guides.length} guides</span><span>${sources.length} sources</span><span>${posts.length} posts</span>
+              <span>${guides.length} ${t(locale, "common.guides").toLowerCase()}</span><span>${sources.length} ${t(locale, "common.sources").toLowerCase()}</span><span>${posts.length} ${t(locale, "common.posts").toLowerCase()}</span>
             </div>
           </div>
         </section>
@@ -59,39 +61,39 @@ export function homePage(state) {
         ${state.ui.loading.dashboard ? skeletonGrid(4, 2) : ""}
         <section class="discovery-row">
           <div class="shelf-head">
-            <p class="eyebrow">Aujourd'hui</p>
-            <h2>Resume rapide</h2>
+            <p class="eyebrow">${t(locale, "home.today")}</p>
+            <h2>${t(locale, "home.summary")}</h2>
           </div>
           <div class="hub-dashboard">
-            ${statCard(sources.length, "Sources")}
-            ${statCard(guides.length, "Guides")}
-            ${statCard(checklistProgress + "%", "Pret")}
-            ${statCard(profile.level, "Niveau")}
+            ${statCard(sources.length, t(locale, "common.sources"))}
+            ${statCard(guides.length, t(locale, "common.guides"))}
+            ${statCard(checklistProgress + "%", t(locale, "common.ready"))}
+            ${statCard(profile.level, t(locale, "common.level"))}
           </div>
         </section>
         <section class="wiki-front">
           <div class="wiki-main">
             ${appSection(
-              "Acces rapide",
+              t(locale, "home.quick"),
               "",
               `<div class="quick-grid wiki-grid">
-                ${quickLink("guides", "Guides", "Tout ce qu'il faut lire avant de jouer.")}
-                ${quickLink("tracking", "Suivi", "Profil, objectifs et progression.")}
-                ${quickLink("sources", "Sources", "Officiel, plateformes et wiki.")}
-                ${quickLink("community", "Communaute", "Posts, crews et events.")}
+                ${quickLink("guides", t(locale, "common.guides"), t(locale, "home.quickGuides"))}
+                ${quickLink("tracking", t(locale, "nav.tracking"), t(locale, "home.quickTracking"))}
+                ${quickLink("sources", t(locale, "common.sources"), t(locale, "home.quickSources"))}
+                ${quickLink("community", t(locale, "nav.community"), t(locale, "home.quickCommunity"))}
               </div>`
             )}
             ${appSection(
-              "Dernieres discussions",
+              t(locale, "home.discussions"),
               "",
               `<div class="activity-feed">
-                ${state.ui.loading.dashboard ? skeletonGrid(2, 2) : posts.slice(0, 2).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses</small></article>`).join("")}
+                ${state.ui.loading.dashboard ? skeletonGrid(2, 2) : posts.slice(0, 2).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} ${t(locale, "home.responses")}</small></article>`).join("")}
               </div>`
             )}
           </div>
           <aside class="wiki-sidebar">
             <div class="sidebar-card">
-              <p class="eyebrow">Checklist lancement</p>
+              <p class="eyebrow">${t(locale, "home.launchChecklist")}</p>
               <div class="checklist-progress">
                 <strong>${checklistDone}/${state.launchChecklist.length}</strong>
                 <span>${checklistProgress}% pret</span>
@@ -101,10 +103,10 @@ export function homePage(state) {
               </div>
             </div>
             <div class="sidebar-card">
-              <p class="eyebrow">Player snapshot</p>
+              <p class="eyebrow">${t(locale, "home.playerSnapshot")}</p>
               <strong>${profile.name}</strong>
-              <span>Level ${profile.level} - ${profile.crew}</span>
-              <small>${profile.vehicles} vehicules - ${dashboard.profile.syncMode}</small>
+              <span>${t(locale, "common.level")} ${profile.level} - ${profile.crew}</span>
+              <small>${profile.vehicles} ${t(locale, "home.vehicles")} - ${dashboard.profile.syncMode}</small>
             </div>
           </aside>
         </section>
@@ -122,7 +124,7 @@ function checklistItem(item) {
   `;
 }
 
-function resultColumn(title, items = [], subtitle) {
+function resultColumn(title, items = [], subtitle, locale = "fr") {
   const content = items.length
     ? items
         .slice(0, 4)
@@ -131,6 +133,6 @@ function resultColumn(title, items = [], subtitle) {
             `<article class="result-item"><strong>${item.title || item.name}</strong><span>${subtitle(item) || "Resultat"}</span></article>`
         )
         .join("")
-    : `<article class="result-item muted">Aucun resultat</article>`;
+    : `<article class="result-item muted">${t(locale, "common.noResults")}</article>`;
   return `<section class="result-column"><h3>${title}</h3>${content}</section>`;
 }

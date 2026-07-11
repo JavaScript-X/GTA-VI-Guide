@@ -2278,6 +2278,62 @@ body::before {
   min-height: 58px;
 }
 
+.language-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 8px 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.language-select select {
+  min-height: 28px;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.language-select option {
+  color: #111;
+}
+
+.drawer-nav .language-select {
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.locale-root[dir="rtl"] {
+  direction: rtl;
+}
+
+.locale-root[dir="rtl"] .hero-copy,
+.locale-root[dir="rtl"] .page-heading,
+.locale-root[dir="rtl"] .auth-card,
+.locale-root[dir="rtl"] .panel,
+.locale-root[dir="rtl"] .app-section,
+.locale-root[dir="rtl"] .source-card,
+.locale-root[dir="rtl"] .guide-card,
+.locale-root[dir="rtl"] .list-item {
+  text-align: right;
+}
+
+.locale-root[dir="rtl"] .action-bar,
+.locale-root[dir="rtl"] .form-actions,
+.locale-root[dir="rtl"] .source-actions,
+.locale-root[dir="rtl"] .source-card-head,
+.locale-root[dir="rtl"] .item-title {
+  flex-direction: row-reverse;
+}
+
 .brand span {
   color: #140913;
   background: linear-gradient(135deg, var(--sun), var(--pink));
