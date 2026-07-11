@@ -15,13 +15,14 @@ export function accountPage(state) {
     "account",
     `
       <div class="auth-minimal-shell">
-        <section class="auth-visual">
-          <p class="eyebrow">Vice access</p>
-          <h1>${state.authMode === "signup" ? "Creer ton profil." : "Connexion au hub."}</h1>
-          <p>Un acces simple pour suivre ton profil, tes guides, tes sources et tes futures synchronisations officielles.</p>
-          <a class="asset-credit" href="https://www.rockstargames.com/VI" target="_blank" rel="noreferrer">Assets officiels via Rockstar</a>
-        </section>
         <section class="auth-card minimal ${state.authMode === "signup" ? "is-signup" : ""}">
+          <div class="auth-brand">
+            <span>VI</span>
+            <div>
+              <p class="eyebrow">Leonida Hub</p>
+              <h1>${state.authMode === "signup" ? "Creer un compte" : "Connexion"}</h1>
+            </div>
+          </div>
           <div class="auth-topline">
             ${session}
             <div class="auth-tabs" role="tablist">

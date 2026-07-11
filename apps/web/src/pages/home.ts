@@ -3,11 +3,9 @@ import { actionBar } from "../components/layout.ts";
 
 export function homePage(state) {
   const dashboard = state.dashboard;
-  const ready = state.platform.services.filter((service) => service.status === "ready").length;
   const guides = dashboard.knowledge.guides || [];
   const sources = dashboard.knowledge.sources || [];
   const posts = dashboard.community.feed || [];
-  const achievements = dashboard.achievements.achievements || [];
   const profile = dashboard.profile.activeCharacter;
   const checklistDone = state.launchChecklist.filter((item) => item.done).length;
   const checklistProgress = Math.round((checklistDone / Math.max(state.launchChecklist.length, 1)) * 100);
@@ -38,17 +36,16 @@ export function homePage(state) {
             </div>
           </div>
           <div class="hero-copy">
-            <p class="eyebrow">GTA VI community wiki</p>
-            <h1>Le hub GTA VI qui melange wiki, progression et activite communaute.</h1>
-            <p>Explore les sources officielles, prepare ton compte Online, suis les achievements et organise les crews comme une bibliotheque Steam faite pour Vice City.</p>
+            <p class="eyebrow">GTA VI community hub</p>
+            <h1>Ton espace simple pour suivre GTA VI.</h1>
+            <p>Guides, sources, progression et communaute au meme endroit, sans bruit.</p>
             <form class="hero-search" id="global-search-form">
-              <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher guides, sources, posts, crews" />
+              <input name="query" value="${state.globalSearch || ""}" placeholder="Rechercher un guide, une source, un crew" />
               <button class="button primary" type="submit">Rechercher</button>
             </form>
             ${actionBar(`
-              <a class="button primary" href="#sources" data-route="sources">Explorer l'intel</a>
-              <a class="button secondary" href="#tracking" data-route="tracking">Ouvrir mon suivi</a>
-              <a class="button ghost official" href="https://www.rockstargames.com/VI" target="_blank" rel="noreferrer">Site officiel</a>
+              <a class="button primary" href="#guides" data-route="guides">Guides</a>
+              <a class="button secondary" href="#tracking" data-route="tracking">Mon suivi</a>
             `)}
             <div class="hero-tags">
               <span>${guides.length} guides</span><span>${sources.length} sources</span><span>${posts.length} posts</span>
@@ -56,24 +53,16 @@ export function homePage(state) {
           </div>
         </section>
         ${searchResults}
-        <section class="official-strip">
-          <div>
-            <p class="eyebrow">Rockstar source</p>
-            <h2>Infos officielles, medias et artwork.</h2>
-          </div>
-          <p>Le hub utilise les visuels officiels distants de Rockstar pour l'ambiance et garde une distinction claire entre donnees officielles, sources plateformes et contenu communautaire.</p>
-          <a class="button secondary compact" href="#sources" data-route="sources">Voir les sources</a>
-        </section>
         <section class="discovery-row">
           <div class="shelf-head">
-            <p class="eyebrow">Dashboard</p>
-            <h2>Essentiel</h2>
+            <p class="eyebrow">Aujourd'hui</p>
+            <h2>Resume rapide</h2>
           </div>
           <div class="hub-dashboard">
             ${statCard(sources.length, "Sources")}
             ${statCard(guides.length, "Guides")}
-            ${statCard(achievements.length, "Objectifs")}
-            ${statCard(`${ready}/${state.platform.services.length}`, "Services")}
+            ${statCard(checklistProgress + "%", "Pret")}
+            ${statCard(profile.level, "Niveau")}
           </div>
         </section>
         <section class="wiki-front">
@@ -82,17 +71,17 @@ export function homePage(state) {
               "Acces rapide",
               "",
               `<div class="quick-grid wiki-grid">
-                ${quickLink("sources", "Sources GTA VI", "Pages officielles, stores, wiki et politiques media.")}
-                ${quickLink("guides", "Guides de lancement", "Progression, argent, securite compte et Online.")}
-                ${quickLink("tracking", "Suivi joueur", "Profil, achievements et progression personnelle.")}
-                ${quickLink("community", "Communaute", "Posts, crews et evenements actifs.")}
+                ${quickLink("guides", "Guides", "Tout ce qu'il faut lire avant de jouer.")}
+                ${quickLink("tracking", "Suivi", "Profil, objectifs et progression.")}
+                ${quickLink("sources", "Sources", "Officiel, plateformes et wiki.")}
+                ${quickLink("community", "Communaute", "Posts, crews et events.")}
               </div>`
             )}
             ${appSection(
-              "Activite recente",
+              "Dernieres discussions",
               "",
               `<div class="activity-feed">
-                ${posts.slice(0, 3).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses - score ${post.score}</small></article>`).join("")}
+                ${posts.slice(0, 2).map((post) => `<article><span>${post.channel}</span><strong>${post.title}</strong><small>${post.replies || post.comments || 0} reponses</small></article>`).join("")}
               </div>`
             )}
           </div>

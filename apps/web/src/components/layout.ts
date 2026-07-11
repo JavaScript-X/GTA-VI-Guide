@@ -17,7 +17,7 @@ export const routes = [
 
 export function shell(content) {
   const primaryRoutes = routes.filter((route) => route.group === "main");
-  const secondaryRoutes = routes.filter((route) => ["achievements", "map", "vehicles", "moderation", "platform"].includes(route.id));
+  const secondaryRoutes = routes.filter((route) => ["achievements", "map", "vehicles", "crews", "events", "moderation", "platform"].includes(route.id));
   const allRoutes = [...primaryRoutes, ...secondaryRoutes];
   return `
     <header class="topbar">
