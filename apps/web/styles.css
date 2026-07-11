@@ -2027,14 +2027,17 @@ body::before {
   --gtavi-coral: #ff725c;
   --gtavi-yellow: #ffd84d;
   --gtavi-aqua: #43d9ce;
+  --official-cover-art: url("https://www.rockstargames.com/VI/_next/static/media/Official_Cover_Art_landscape.12.uu2irr.2_a.jpg?akim=1&imdensity=1&imwidth=3840");
+  --official-jason-lucia: url("https://www.rockstargames.com/VI/_next/static/media/Jason_and_Lucia_03_landscape.0419q._86ukpt.jpg?akim=1&imdensity=1&imwidth=3840");
+  --official-vice-postcard: url("https://www.rockstargames.com/VI/_next/static/media/Vice_City_Postcard_landscape.0v2njmlk2n-qm.jpg?akim=1&imdensity=1&imwidth=3840");
 }
 
 body {
   background:
-    linear-gradient(180deg, rgba(9, 8, 11, 0.2), rgba(9, 8, 11, 0.94) 42%, #09080b 100%),
+    linear-gradient(180deg, rgba(9, 8, 11, 0.08), rgba(9, 8, 11, 0.9) 36%, #09080b 100%),
     radial-gradient(circle at 72% 8%, rgba(255, 216, 77, 0.28), transparent 24rem),
     radial-gradient(circle at 18% 18%, rgba(240, 68, 152, 0.32), transparent 28rem),
-    url("/assets/vice-city-community-hero.png") center top / min(1640px, 155vw) auto no-repeat,
+    var(--official-cover-art) center top / min(1640px, 155vw) auto no-repeat,
     #09080b;
 }
 
@@ -2082,13 +2085,14 @@ h2,
   background:
     linear-gradient(180deg, rgba(9, 8, 11, 0.02), rgba(9, 8, 11, 0.78)),
     linear-gradient(135deg, rgba(255, 216, 77, 0.14), rgba(240, 68, 152, 0.16)),
-    url("/assets/vice-city-community-hero.png") center / cover no-repeat;
+    var(--official-jason-lucia) center / cover no-repeat;
 }
 
 .capsule-art {
   border-color: rgba(255, 216, 77, 0.24);
   background:
-    linear-gradient(145deg, rgba(255, 216, 77, 0.35), rgba(240, 68, 152, 0.34) 42%, rgba(67, 217, 206, 0.12)),
+    linear-gradient(145deg, rgba(255, 216, 77, 0.28), rgba(240, 68, 152, 0.22) 42%, rgba(9, 8, 11, 0.36)),
+    var(--official-cover-art) center / cover no-repeat,
     rgba(9, 8, 11, 0.72);
 }
 
@@ -2150,8 +2154,9 @@ h2,
   border: 1px solid rgba(255, 216, 77, 0.14);
   border-radius: var(--radius);
   background:
-    linear-gradient(110deg, rgba(255, 216, 77, 0.11), transparent 38%),
-    linear-gradient(290deg, rgba(67, 217, 206, 0.09), transparent 34%),
+    linear-gradient(110deg, rgba(9, 8, 11, 0.9), rgba(9, 8, 11, 0.68)),
+    linear-gradient(290deg, rgba(67, 217, 206, 0.12), transparent 34%),
+    var(--official-vice-postcard) center / cover no-repeat,
     rgba(18, 12, 24, 0.88);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
 }
@@ -2191,6 +2196,44 @@ h2,
 
 .checklist-item.is-done span {
   background: var(--gtavi-yellow);
+}
+
+.page-heading {
+  background:
+    linear-gradient(135deg, rgba(9, 8, 11, 0.92), rgba(9, 8, 11, 0.72)),
+    var(--official-cover-art) center / cover no-repeat,
+    rgba(21, 27, 36, 0.9);
+}
+
+.intel-hero {
+  background:
+    linear-gradient(135deg, rgba(9, 8, 11, 0.9), rgba(9, 8, 11, 0.7)),
+    var(--official-vice-postcard) center / cover no-repeat,
+    rgba(17, 19, 32, 0.86);
+}
+
+.map-panel {
+  background:
+    linear-gradient(180deg, rgba(9, 8, 11, 0.32), rgba(9, 8, 11, 0.86)),
+    var(--official-vice-postcard) center / cover no-repeat;
+}
+
+.auth-visual {
+  background:
+    linear-gradient(180deg, rgba(9, 8, 11, 0.08), rgba(9, 8, 11, 0.86)),
+    var(--official-jason-lucia) center / cover no-repeat;
+}
+
+.source-card.trust-official {
+  background:
+    linear-gradient(180deg, rgba(9, 8, 11, 0.88), rgba(9, 8, 11, 0.78)),
+    var(--official-cover-art) center / cover no-repeat;
+}
+
+.source-card.trust-platform {
+  background:
+    linear-gradient(180deg, rgba(9, 8, 11, 0.9), rgba(9, 8, 11, 0.76)),
+    var(--official-vice-postcard) center / cover no-repeat;
 }
 
 @media (min-width: 860px) {

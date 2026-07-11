@@ -61,7 +61,7 @@ export function homePage(state) {
             <p class="eyebrow">Rockstar source</p>
             <h2>Infos officielles, medias et artwork.</h2>
           </div>
-          <p>Le hub garde une distinction claire entre donnees officielles, sources plateformes et contenu communautaire. Les medias officiels restent lies a Rockstar tant que les droits d'usage ne sont pas valides.</p>
+          <p>Le hub utilise les visuels officiels distants de Rockstar pour l'ambiance et garde une distinction claire entre donnees officielles, sources plateformes et contenu communautaire.</p>
           <a class="button secondary compact" href="#sources" data-route="sources">Voir les sources</a>
         </section>
         <section class="discovery-row">
